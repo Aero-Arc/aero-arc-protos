@@ -1,0 +1,14 @@
+version: v1
+name: buf.build/aeroarc/proto
+
+deps: []
+
+lint:
+  use:
+    - DEFAULT
+  except:
+    - PACKAGE_VERSION_SUFFIX # we version via directory structure
+
+breaking:
+  use:
+    - FILE

@@ -1,0 +1,77 @@
+syntax = "proto3";
+
+package aeroarc.agent.v1;
+
+option go_package = "github.com/aero-arc/aero-arc-proto/gen/go/aeroarc/agent/v1;agentv1";
+
+// Agent → Relay RPC API
+service AgentService {
+  // Initial connection handshake.
+  rpc Register(RegisterRequest) returns (RegisterResponse);
+
+  // Bidirectional telemetry streaming.
+  rpc TelemetryStream(stream TelemetryFrame)
+      returns (stream TelemetryAck);
+}
+
+// ----- Registration -----
+
+message RegisterRequest {
+  string agent_id      = 1;
+  string drone_id      = 2;
+
+  string hardware_uid  = 3;
+  string serial_number = 4;
+  string model         = 5;
+  string firmware      = 6;
+
+  string agent_version = 10;
+  string platform      = 11; // e.g. "linux/arm64"
+}
+
+message RegisterResponse {
+  string agent_id    = 1;
+  string drone_id    = 2;
+  string session_id  = 3;
+
+  int64  max_inflight = 4; // recommended unacked frames in flight
+}
+
+// ----- Telemetry -----
+
+message TelemetryFrame {
+  string session_id = 1; // server-issued session ID from RegisterResponse
+  string drone_id   = 2;
+
+  string frame_id   = 3; // unique per-frame UUID
+  uint64 seq        = 4; // monotonically increasing sequence number
+
+  int64  sent_at_unix_ns   = 5;
+  double device_timestamp_sec = 6;
+
+  bytes  raw_mavlink       = 10;
+  string dialect           = 11;
+  uint32 msg_id            = 12;
+  string msg_name          = 13;
+
+  // Parsed MAVLink fields as stringified key/value pairs.
+  // Not guaranteed to preserve original types.
+  map<string, string> fields = 14;
+
+  // Optional: client-defined flight grouping
+  string flight_id = 15;
+}
+
+message TelemetryAck {
+  string frame_id = 1;
+
+  enum Status {
+    STATUS_OK              = 0;
+    STATUS_TEMPORARY_ERROR = 1;
+    STATUS_PERMANENT_ERROR = 2;
+    STATUS_RETRY_WITH_BACKOFF = 3;
+  }
+
+  Status status = 2;
+  string error  = 3;
+}
