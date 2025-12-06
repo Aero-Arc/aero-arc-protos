@@ -1,5 +1,6 @@
-version: v1
-name: buf.build/aeroarc/proto
+version: v2
+modules:
+  - path: proto
 
 deps: []
 
