@@ -1,4 +1,4 @@
-module github.com/aero-arc/aero-arc-proto
+module github.com/aero-arc/aero-arc-protos
 
 go 1.24.0
 
