@@ -485,9 +485,9 @@ const file_aeroarc_agent_v1_agent_proto_rawDesc = "" +
 	"\x16STATUS_TEMPORARY_ERROR\x10\x01\x12\x1a\n" +
 	"\x16STATUS_PERMANENT_ERROR\x10\x02\x12\x1d\n" +
 	"\x19STATUS_RETRY_WITH_BACKOFF\x10\x032\xba\x01\n" +
-	"\fAgentService\x12Q\n" +
+	"\fAgentGateway\x12Q\n" +
 	"\bRegister\x12!.aeroarc.agent.v1.RegisterRequest\x1a\".aeroarc.agent.v1.RegisterResponse\x12W\n" +
-	"\x0fTelemetryStream\x12 .aeroarc.agent.v1.TelemetryFrame\x1a\x1e.aeroarc.agent.v1.TelemetryAck(\x010\x01BDZBgithub.com/aero-arc/aero-arc-proto/gen/go/aeroarc/agent/v1;agentv1b\x06proto3"
+	"\x0fTelemetryStream\x12 .aeroarc.agent.v1.TelemetryFrame\x1a\x1e.aeroarc.agent.v1.TelemetryAck(\x010\x01BEZCgithub.com/aero-arc/aero-arc-protos/gen/go/aeroarc/agent/v1;agentv1b\x06proto3"
 
 var (
 	file_aeroarc_agent_v1_agent_proto_rawDescOnce sync.Once
@@ -514,10 +514,10 @@ var file_aeroarc_agent_v1_agent_proto_goTypes = []any{
 var file_aeroarc_agent_v1_agent_proto_depIdxs = []int32{
 	5, // 0: aeroarc.agent.v1.TelemetryFrame.fields:type_name -> aeroarc.agent.v1.TelemetryFrame.FieldsEntry
 	0, // 1: aeroarc.agent.v1.TelemetryAck.status:type_name -> aeroarc.agent.v1.TelemetryAck.Status
-	1, // 2: aeroarc.agent.v1.AgentService.Register:input_type -> aeroarc.agent.v1.RegisterRequest
-	3, // 3: aeroarc.agent.v1.AgentService.TelemetryStream:input_type -> aeroarc.agent.v1.TelemetryFrame
-	2, // 4: aeroarc.agent.v1.AgentService.Register:output_type -> aeroarc.agent.v1.RegisterResponse
-	4, // 5: aeroarc.agent.v1.AgentService.TelemetryStream:output_type -> aeroarc.agent.v1.TelemetryAck
+	1, // 2: aeroarc.agent.v1.AgentGateway.Register:input_type -> aeroarc.agent.v1.RegisterRequest
+	3, // 3: aeroarc.agent.v1.AgentGateway.TelemetryStream:input_type -> aeroarc.agent.v1.TelemetryFrame
+	2, // 4: aeroarc.agent.v1.AgentGateway.Register:output_type -> aeroarc.agent.v1.RegisterResponse
+	4, // 5: aeroarc.agent.v1.AgentGateway.TelemetryStream:output_type -> aeroarc.agent.v1.TelemetryAck
 	4, // [4:6] is the sub-list for method output_type
 	2, // [2:4] is the sub-list for method input_type
 	2, // [2:2] is the sub-list for extension type_name

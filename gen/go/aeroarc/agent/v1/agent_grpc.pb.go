@@ -19,43 +19,43 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AgentService_Register_FullMethodName        = "/aeroarc.agent.v1.AgentService/Register"
-	AgentService_TelemetryStream_FullMethodName = "/aeroarc.agent.v1.AgentService/TelemetryStream"
+	AgentGateway_Register_FullMethodName        = "/aeroarc.agent.v1.AgentGateway/Register"
+	AgentGateway_TelemetryStream_FullMethodName = "/aeroarc.agent.v1.AgentGateway/TelemetryStream"
 )
 
-// AgentServiceClient is the client API for AgentService service.
+// AgentGatewayClient is the client API for AgentGateway service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 //
 // Agent → Relay RPC API
-type AgentServiceClient interface {
+type AgentGatewayClient interface {
 	// Initial connection handshake.
 	Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error)
 	// Bidirectional telemetry streaming.
 	TelemetryStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[TelemetryFrame, TelemetryAck], error)
 }
 
-type agentServiceClient struct {
+type agentGatewayClient struct {
 	cc grpc.ClientConnInterface
 }
 
-func NewAgentServiceClient(cc grpc.ClientConnInterface) AgentServiceClient {
-	return &agentServiceClient{cc}
+func NewAgentGatewayClient(cc grpc.ClientConnInterface) AgentGatewayClient {
+	return &agentGatewayClient{cc}
 }
 
-func (c *agentServiceClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
+func (c *agentGatewayClient) Register(ctx context.Context, in *RegisterRequest, opts ...grpc.CallOption) (*RegisterResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(RegisterResponse)
-	err := c.cc.Invoke(ctx, AgentService_Register_FullMethodName, in, out, cOpts...)
+	err := c.cc.Invoke(ctx, AgentGateway_Register_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
 	return out, nil
 }
 
-func (c *agentServiceClient) TelemetryStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[TelemetryFrame, TelemetryAck], error) {
+func (c *agentGatewayClient) TelemetryStream(ctx context.Context, opts ...grpc.CallOption) (grpc.BidiStreamingClient[TelemetryFrame, TelemetryAck], error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	stream, err := c.cc.NewStream(ctx, &AgentService_ServiceDesc.Streams[0], AgentService_TelemetryStream_FullMethodName, cOpts...)
+	stream, err := c.cc.NewStream(ctx, &AgentGateway_ServiceDesc.Streams[0], AgentGateway_TelemetryStream_FullMethodName, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -64,96 +64,96 @@ func (c *agentServiceClient) TelemetryStream(ctx context.Context, opts ...grpc.C
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type AgentService_TelemetryStreamClient = grpc.BidiStreamingClient[TelemetryFrame, TelemetryAck]
+type AgentGateway_TelemetryStreamClient = grpc.BidiStreamingClient[TelemetryFrame, TelemetryAck]
 
-// AgentServiceServer is the server API for AgentService service.
-// All implementations must embed UnimplementedAgentServiceServer
+// AgentGatewayServer is the server API for AgentGateway service.
+// All implementations must embed UnimplementedAgentGatewayServer
 // for forward compatibility.
 //
 // Agent → Relay RPC API
-type AgentServiceServer interface {
+type AgentGatewayServer interface {
 	// Initial connection handshake.
 	Register(context.Context, *RegisterRequest) (*RegisterResponse, error)
 	// Bidirectional telemetry streaming.
 	TelemetryStream(grpc.BidiStreamingServer[TelemetryFrame, TelemetryAck]) error
-	mustEmbedUnimplementedAgentServiceServer()
+	mustEmbedUnimplementedAgentGatewayServer()
 }
 
-// UnimplementedAgentServiceServer must be embedded to have
+// UnimplementedAgentGatewayServer must be embedded to have
 // forward compatible implementations.
 //
 // NOTE: this should be embedded by value instead of pointer to avoid a nil
 // pointer dereference when methods are called.
-type UnimplementedAgentServiceServer struct{}
+type UnimplementedAgentGatewayServer struct{}
 
-func (UnimplementedAgentServiceServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
+func (UnimplementedAgentGatewayServer) Register(context.Context, *RegisterRequest) (*RegisterResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Register not implemented")
 }
-func (UnimplementedAgentServiceServer) TelemetryStream(grpc.BidiStreamingServer[TelemetryFrame, TelemetryAck]) error {
+func (UnimplementedAgentGatewayServer) TelemetryStream(grpc.BidiStreamingServer[TelemetryFrame, TelemetryAck]) error {
 	return status.Error(codes.Unimplemented, "method TelemetryStream not implemented")
 }
-func (UnimplementedAgentServiceServer) mustEmbedUnimplementedAgentServiceServer() {}
-func (UnimplementedAgentServiceServer) testEmbeddedByValue()                      {}
+func (UnimplementedAgentGatewayServer) mustEmbedUnimplementedAgentGatewayServer() {}
+func (UnimplementedAgentGatewayServer) testEmbeddedByValue()                      {}
 
-// UnsafeAgentServiceServer may be embedded to opt out of forward compatibility for this service.
-// Use of this interface is not recommended, as added methods to AgentServiceServer will
+// UnsafeAgentGatewayServer may be embedded to opt out of forward compatibility for this service.
+// Use of this interface is not recommended, as added methods to AgentGatewayServer will
 // result in compilation errors.
-type UnsafeAgentServiceServer interface {
-	mustEmbedUnimplementedAgentServiceServer()
+type UnsafeAgentGatewayServer interface {
+	mustEmbedUnimplementedAgentGatewayServer()
 }
 
-func RegisterAgentServiceServer(s grpc.ServiceRegistrar, srv AgentServiceServer) {
-	// If the following call panics, it indicates UnimplementedAgentServiceServer was
+func RegisterAgentGatewayServer(s grpc.ServiceRegistrar, srv AgentGatewayServer) {
+	// If the following call panics, it indicates UnimplementedAgentGatewayServer was
 	// embedded by pointer and is nil.  This will cause panics if an
 	// unimplemented method is ever invoked, so we test this at initialization
 	// time to prevent it from happening at runtime later due to I/O.
 	if t, ok := srv.(interface{ testEmbeddedByValue() }); ok {
 		t.testEmbeddedByValue()
 	}
-	s.RegisterService(&AgentService_ServiceDesc, srv)
+	s.RegisterService(&AgentGateway_ServiceDesc, srv)
 }
 
-func _AgentService_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+func _AgentGateway_Register_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(RegisterRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(AgentServiceServer).Register(ctx, in)
+		return srv.(AgentGatewayServer).Register(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: AgentService_Register_FullMethodName,
+		FullMethod: AgentGateway_Register_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(AgentServiceServer).Register(ctx, req.(*RegisterRequest))
+		return srv.(AgentGatewayServer).Register(ctx, req.(*RegisterRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
 
-func _AgentService_TelemetryStream_Handler(srv interface{}, stream grpc.ServerStream) error {
-	return srv.(AgentServiceServer).TelemetryStream(&grpc.GenericServerStream[TelemetryFrame, TelemetryAck]{ServerStream: stream})
+func _AgentGateway_TelemetryStream_Handler(srv interface{}, stream grpc.ServerStream) error {
+	return srv.(AgentGatewayServer).TelemetryStream(&grpc.GenericServerStream[TelemetryFrame, TelemetryAck]{ServerStream: stream})
 }
 
 // This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
-type AgentService_TelemetryStreamServer = grpc.BidiStreamingServer[TelemetryFrame, TelemetryAck]
+type AgentGateway_TelemetryStreamServer = grpc.BidiStreamingServer[TelemetryFrame, TelemetryAck]
 
-// AgentService_ServiceDesc is the grpc.ServiceDesc for AgentService service.
+// AgentGateway_ServiceDesc is the grpc.ServiceDesc for AgentGateway service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
-var AgentService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "aeroarc.agent.v1.AgentService",
-	HandlerType: (*AgentServiceServer)(nil),
+var AgentGateway_ServiceDesc = grpc.ServiceDesc{
+	ServiceName: "aeroarc.agent.v1.AgentGateway",
+	HandlerType: (*AgentGatewayServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
 			MethodName: "Register",
-			Handler:    _AgentService_Register_Handler,
+			Handler:    _AgentGateway_Register_Handler,
 		},
 	},
 	Streams: []grpc.StreamDesc{
 		{
 			StreamName:    "TelemetryStream",
-			Handler:       _AgentService_TelemetryStream_Handler,
+			Handler:       _AgentGateway_TelemetryStream_Handler,
 			ServerStreams: true,
 			ClientStreams: true,
 		},

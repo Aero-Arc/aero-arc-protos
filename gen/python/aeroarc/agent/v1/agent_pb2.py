@@ -14,7 +14,7 @@ _sym_db = _symbol_database.Default()
 
 
 
-DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1c\x61\x65roarc/agent/v1/agent.proto\x12\x10\x61\x65roarc.agent.v1\"\x82\x02\n\x0fRegisterRequest\x12\x19\n\x08\x61gent_id\x18\x01 \x01(\tR\x07\x61gentId\x12\x19\n\x08\x64rone_id\x18\x02 \x01(\tR\x07\x64roneId\x12!\n\x0chardware_uid\x18\x03 \x01(\tR\x0bhardwareUid\x12#\n\rserial_number\x18\x04 \x01(\tR\x0cserialNumber\x12\x14\n\x05model\x18\x05 \x01(\tR\x05model\x12\x1a\n\x08\x66irmware\x18\x06 \x01(\tR\x08\x66irmware\x12#\n\ragent_version\x18\n \x01(\tR\x0c\x61gentVersion\x12\x1a\n\x08platform\x18\x0b \x01(\tR\x08platform\"\x8a\x01\n\x10RegisterResponse\x12\x19\n\x08\x61gent_id\x18\x01 \x01(\tR\x07\x61gentId\x12\x19\n\x08\x64rone_id\x18\x02 \x01(\tR\x07\x64roneId\x12\x1d\n\nsession_id\x18\x03 \x01(\tR\tsessionId\x12!\n\x0cmax_inflight\x18\x04 \x01(\x03R\x0bmaxInflight\"\xdb\x03\n\x0eTelemetryFrame\x12\x1d\n\nsession_id\x18\x01 \x01(\tR\tsessionId\x12\x19\n\x08\x64rone_id\x18\x02 \x01(\tR\x07\x64roneId\x12\x19\n\x08\x66rame_id\x18\x03 \x01(\tR\x07\x66rameId\x12\x10\n\x03seq\x18\x04 \x01(\x04R\x03seq\x12%\n\x0fsent_at_unix_ns\x18\x05 \x01(\x03R\x0csentAtUnixNs\x12\x30\n\x14\x64\x65vice_timestamp_sec\x18\x06 \x01(\x01R\x12\x64\x65viceTimestampSec\x12\x1f\n\x0braw_mavlink\x18\n \x01(\x0cR\nrawMavlink\x12\x18\n\x07\x64ialect\x18\x0b \x01(\tR\x07\x64ialect\x12\x15\n\x06msg_id\x18\x0c \x01(\rR\x05msgId\x12\x19\n\x08msg_name\x18\r \x01(\tR\x07msgName\x12\x44\n\x06\x66ields\x18\x0e \x03(\x0b\x32,.aeroarc.agent.v1.TelemetryFrame.FieldsEntryR\x06\x66ields\x12\x1b\n\tflight_id\x18\x0f \x01(\tR\x08\x66lightId\x1a\x39\n\x0b\x46ieldsEntry\x12\x10\n\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n\x05value\x18\x02 \x01(\tR\x05value:\x02\x38\x01\"\xee\x01\n\x0cTelemetryAck\x12\x19\n\x08\x66rame_id\x18\x01 \x01(\tR\x07\x66rameId\x12=\n\x06status\x18\x02 \x01(\x0e\x32%.aeroarc.agent.v1.TelemetryAck.StatusR\x06status\x12\x14\n\x05\x65rror\x18\x03 \x01(\tR\x05\x65rror\"n\n\x06Status\x12\r\n\tSTATUS_OK\x10\x00\x12\x1a\n\x16STATUS_TEMPORARY_ERROR\x10\x01\x12\x1a\n\x16STATUS_PERMANENT_ERROR\x10\x02\x12\x1d\n\x19STATUS_RETRY_WITH_BACKOFF\x10\x03\x32\xba\x01\n\x0c\x41gentService\x12Q\n\x08Register\x12!.aeroarc.agent.v1.RegisterRequest\x1a\".aeroarc.agent.v1.RegisterResponse\x12W\n\x0fTelemetryStream\x12 .aeroarc.agent.v1.TelemetryFrame\x1a\x1e.aeroarc.agent.v1.TelemetryAck(\x01\x30\x01\x42\x44ZBgithub.com/aero-arc/aero-arc-proto/gen/go/aeroarc/agent/v1;agentv1b\x06proto3')
+DESCRIPTOR = _descriptor_pool.Default().AddSerializedFile(b'\n\x1c\x61\x65roarc/agent/v1/agent.proto\x12\x10\x61\x65roarc.agent.v1\"\x82\x02\n\x0fRegisterRequest\x12\x19\n\x08\x61gent_id\x18\x01 \x01(\tR\x07\x61gentId\x12\x19\n\x08\x64rone_id\x18\x02 \x01(\tR\x07\x64roneId\x12!\n\x0chardware_uid\x18\x03 \x01(\tR\x0bhardwareUid\x12#\n\rserial_number\x18\x04 \x01(\tR\x0cserialNumber\x12\x14\n\x05model\x18\x05 \x01(\tR\x05model\x12\x1a\n\x08\x66irmware\x18\x06 \x01(\tR\x08\x66irmware\x12#\n\ragent_version\x18\n \x01(\tR\x0c\x61gentVersion\x12\x1a\n\x08platform\x18\x0b \x01(\tR\x08platform\"\x8a\x01\n\x10RegisterResponse\x12\x19\n\x08\x61gent_id\x18\x01 \x01(\tR\x07\x61gentId\x12\x19\n\x08\x64rone_id\x18\x02 \x01(\tR\x07\x64roneId\x12\x1d\n\nsession_id\x18\x03 \x01(\tR\tsessionId\x12!\n\x0cmax_inflight\x18\x04 \x01(\x03R\x0bmaxInflight\"\xdb\x03\n\x0eTelemetryFrame\x12\x1d\n\nsession_id\x18\x01 \x01(\tR\tsessionId\x12\x19\n\x08\x64rone_id\x18\x02 \x01(\tR\x07\x64roneId\x12\x19\n\x08\x66rame_id\x18\x03 \x01(\tR\x07\x66rameId\x12\x10\n\x03seq\x18\x04 \x01(\x04R\x03seq\x12%\n\x0fsent_at_unix_ns\x18\x05 \x01(\x03R\x0csentAtUnixNs\x12\x30\n\x14\x64\x65vice_timestamp_sec\x18\x06 \x01(\x01R\x12\x64\x65viceTimestampSec\x12\x1f\n\x0braw_mavlink\x18\n \x01(\x0cR\nrawMavlink\x12\x18\n\x07\x64ialect\x18\x0b \x01(\tR\x07\x64ialect\x12\x15\n\x06msg_id\x18\x0c \x01(\rR\x05msgId\x12\x19\n\x08msg_name\x18\r \x01(\tR\x07msgName\x12\x44\n\x06\x66ields\x18\x0e \x03(\x0b\x32,.aeroarc.agent.v1.TelemetryFrame.FieldsEntryR\x06\x66ields\x12\x1b\n\tflight_id\x18\x0f \x01(\tR\x08\x66lightId\x1a\x39\n\x0b\x46ieldsEntry\x12\x10\n\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n\x05value\x18\x02 \x01(\tR\x05value:\x02\x38\x01\"\xee\x01\n\x0cTelemetryAck\x12\x19\n\x08\x66rame_id\x18\x01 \x01(\tR\x07\x66rameId\x12=\n\x06status\x18\x02 \x01(\x0e\x32%.aeroarc.agent.v1.TelemetryAck.StatusR\x06status\x12\x14\n\x05\x65rror\x18\x03 \x01(\tR\x05\x65rror\"n\n\x06Status\x12\r\n\tSTATUS_OK\x10\x00\x12\x1a\n\x16STATUS_TEMPORARY_ERROR\x10\x01\x12\x1a\n\x16STATUS_PERMANENT_ERROR\x10\x02\x12\x1d\n\x19STATUS_RETRY_WITH_BACKOFF\x10\x03\x32\xba\x01\n\x0c\x41gentGateway\x12Q\n\x08Register\x12!.aeroarc.agent.v1.RegisterRequest\x1a\".aeroarc.agent.v1.RegisterResponse\x12W\n\x0fTelemetryStream\x12 .aeroarc.agent.v1.TelemetryFrame\x1a\x1e.aeroarc.agent.v1.TelemetryAck(\x01\x30\x01\x42\x45ZCgithub.com/aero-arc/aero-arc-protos/gen/go/aeroarc/agent/v1;agentv1b\x06proto3')
 
 
 
@@ -60,11 +60,11 @@ TelemetryAck = _reflection.GeneratedProtocolMessageType('TelemetryAck', (_messag
   })
 _sym_db.RegisterMessage(TelemetryAck)
 
-_AGENTSERVICE = DESCRIPTOR.services_by_name['AgentService']
+_AGENTGATEWAY = DESCRIPTOR.services_by_name['AgentGateway']
 if _descriptor._USE_C_DESCRIPTORS == False:
 
   DESCRIPTOR._options = None
-  DESCRIPTOR._serialized_options = b'ZBgithub.com/aero-arc/aero-arc-proto/gen/go/aeroarc/agent/v1;agentv1'
+  DESCRIPTOR._serialized_options = b'ZCgithub.com/aero-arc/aero-arc-protos/gen/go/aeroarc/agent/v1;agentv1'
   _TELEMETRYFRAME_FIELDSENTRY._options = None
   _TELEMETRYFRAME_FIELDSENTRY._serialized_options = b'8\001'
   _REGISTERREQUEST._serialized_start=51
@@ -79,6 +79,6 @@ if _descriptor._USE_C_DESCRIPTORS == False:
   _TELEMETRYACK._serialized_end=1169
   _TELEMETRYACK_STATUS._serialized_start=1059
   _TELEMETRYACK_STATUS._serialized_end=1169
-  _AGENTSERVICE._serialized_start=1172
-  _AGENTSERVICE._serialized_end=1358
+  _AGENTGATEWAY._serialized_start=1172
+  _AGENTGATEWAY._serialized_end=1358
 # @@protoc_insertion_point(module_scope)

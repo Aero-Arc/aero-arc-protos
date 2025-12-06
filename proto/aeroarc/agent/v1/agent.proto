@@ -2,10 +2,10 @@ syntax = "proto3";
 
 package aeroarc.agent.v1;
 
-option go_package = "github.com/aero-arc/aero-arc-proto/gen/go/aeroarc/agent/v1;agentv1";
+option go_package = "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/agent/v1;agentv1";
 
 // Agent → Relay RPC API
-service AgentService {
+service AgentGateway {
   // Initial connection handshake.
   rpc Register(RegisterRequest) returns (RegisterResponse);
 
