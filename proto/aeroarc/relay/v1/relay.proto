@@ -1,0 +1,68 @@
+syntax = "proto3";
+
+package aeroarc.relay.v1;
+
+option go_package = "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/relay/v1;relayv1";
+
+// RelayControl exposes read-only control-plane APIs for observing
+// live drone session state managed by a relay.
+//
+// This service is consumed by the AeroArc control plane (aeroarc-api)
+// and MUST NOT expose any mutating operations in v0.1.
+service RelayControl {
+
+  // List all drones currently connected to this relay.
+  rpc ListActiveDrones(ListActiveDronesRequest)
+      returns (ListActiveDronesResponse);
+
+  // Get the current status of a single drone by drone_id.
+  rpc GetDroneStatus(GetDroneStatusRequest)
+      returns (GetDroneStatusResponse);
+}
+
+// ----- Requests -----
+
+message ListActiveDronesRequest {
+  // Reserved for future filters (region, flight_id, etc.)
+}
+
+message GetDroneStatusRequest {
+  string drone_id = 1;
+}
+
+// ----- Responses -----
+
+message ListActiveDronesResponse {
+  repeated DroneStatus drones = 1;
+}
+
+message GetDroneStatusResponse {
+  DroneStatus drone = 1;
+}
+
+// ----- Core Types -----
+
+// DroneStatus represents the relay's authoritative view
+// of a live drone session.
+message DroneStatus {
+  // Stable drone identifier
+  string drone_id = 1;
+
+  // Server-issued session identifier
+  string session_id = 2;
+
+  // Agent identifier that registered this session
+  string agent_id = 3;
+
+  // Relay identifier (useful when aggregated by the API)
+  string relay_id = 4;
+
+  // Unix timestamp (nanoseconds) when the session was created
+  int64 connected_at_unix_ns = 5;
+
+  // Unix timestamp (nanoseconds) of last observed heartbeat/telemetry
+  int64 last_heartbeat_unix_ns = 6;
+
+  // Optional flight grouping (client-defined)
+  string flight_id = 7;
+}
