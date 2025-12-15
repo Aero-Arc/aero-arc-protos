@@ -1,0 +1,29 @@
+### Node / npm
+node_modules/
+npm-debug.log*
+yarn-error.log*
+
+### Go
+bin/
+dist/
+coverage.*
+*.test
+
+### Python
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+### TypeScript / JS build artifacts
+*.log
+*.tsbuildinfo
+
+### IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+.DS_Store
+
+
