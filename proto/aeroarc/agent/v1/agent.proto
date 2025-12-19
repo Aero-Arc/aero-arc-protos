@@ -18,20 +18,13 @@ service AgentGateway {
 
 message RegisterRequest {
   string agent_id      = 1;
-  string drone_id      = 2;
 
-  string hardware_uid  = 3;
-  string serial_number = 4;
-  string model         = 5;
-  string firmware      = 6;
-
-  string agent_version = 10;
-  string platform      = 11; // e.g. "linux/arm64"
+  string agent_version = 2;
+  string platform      = 3; // e.g. "linux/arm64"
 }
 
 message RegisterResponse {
   string agent_id    = 1;
-  string drone_id    = 2;
   string session_id  = 3;
 
   int64  max_inflight = 4; // recommended unacked frames in flight
@@ -41,29 +34,28 @@ message RegisterResponse {
 
 message TelemetryFrame {
   string session_id = 1; // server-issued session ID from RegisterResponse
-  string drone_id   = 2;
+  string agent_id   = 2;
 
-  string frame_id   = 3; // unique per-frame UUID
-  uint64 seq        = 4; // monotonically increasing sequence number
+  uint64 seq        = 3; // monotonically increasing sequence number
 
-  int64  sent_at_unix_ns   = 5;
-  double device_timestamp_sec = 6;
+  int64  sent_at_unix_ns   = 4;
+  double device_timestamp_sec = 5;
 
-  bytes  raw_mavlink       = 10;
-  string dialect           = 11;
-  uint32 msg_id            = 12;
-  string msg_name          = 13;
+  bytes  raw_mavlink       = 6;
+  string dialect           = 7;
+  uint32 msg_id            = 8;
+  string msg_name          = 9;
 
   // Parsed MAVLink fields as stringified key/value pairs.
   // Not guaranteed to preserve original types.
-  map<string, string> fields = 14;
+  map<string, string> fields = 10;
 
   // Optional: client-defined flight grouping
-  string flight_id = 15;
+  string flight_id = 11;
 }
 
 message TelemetryAck {
-  string frame_id = 1;
+  uint64 seq = 1;
 
   enum Status {
     STATUS_OK              = 0;
