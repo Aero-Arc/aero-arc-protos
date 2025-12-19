@@ -76,13 +76,8 @@ func (TelemetryAck_Status) EnumDescriptor() ([]byte, []int) {
 type RegisterRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AgentId       string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
-	DroneId       string                 `protobuf:"bytes,2,opt,name=drone_id,json=droneId,proto3" json:"drone_id,omitempty"`
-	HardwareUid   string                 `protobuf:"bytes,3,opt,name=hardware_uid,json=hardwareUid,proto3" json:"hardware_uid,omitempty"`
-	SerialNumber  string                 `protobuf:"bytes,4,opt,name=serial_number,json=serialNumber,proto3" json:"serial_number,omitempty"`
-	Model         string                 `protobuf:"bytes,5,opt,name=model,proto3" json:"model,omitempty"`
-	Firmware      string                 `protobuf:"bytes,6,opt,name=firmware,proto3" json:"firmware,omitempty"`
-	AgentVersion  string                 `protobuf:"bytes,10,opt,name=agent_version,json=agentVersion,proto3" json:"agent_version,omitempty"`
-	Platform      string                 `protobuf:"bytes,11,opt,name=platform,proto3" json:"platform,omitempty"` // e.g. "linux/arm64"
+	AgentVersion  string                 `protobuf:"bytes,2,opt,name=agent_version,json=agentVersion,proto3" json:"agent_version,omitempty"`
+	Platform      string                 `protobuf:"bytes,3,opt,name=platform,proto3" json:"platform,omitempty"` // e.g. "linux/arm64"
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -124,41 +119,6 @@ func (x *RegisterRequest) GetAgentId() string {
 	return ""
 }
 
-func (x *RegisterRequest) GetDroneId() string {
-	if x != nil {
-		return x.DroneId
-	}
-	return ""
-}
-
-func (x *RegisterRequest) GetHardwareUid() string {
-	if x != nil {
-		return x.HardwareUid
-	}
-	return ""
-}
-
-func (x *RegisterRequest) GetSerialNumber() string {
-	if x != nil {
-		return x.SerialNumber
-	}
-	return ""
-}
-
-func (x *RegisterRequest) GetModel() string {
-	if x != nil {
-		return x.Model
-	}
-	return ""
-}
-
-func (x *RegisterRequest) GetFirmware() string {
-	if x != nil {
-		return x.Firmware
-	}
-	return ""
-}
-
 func (x *RegisterRequest) GetAgentVersion() string {
 	if x != nil {
 		return x.AgentVersion
@@ -176,7 +136,6 @@ func (x *RegisterRequest) GetPlatform() string {
 type RegisterResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	AgentId       string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
-	DroneId       string                 `protobuf:"bytes,2,opt,name=drone_id,json=droneId,proto3" json:"drone_id,omitempty"`
 	SessionId     string                 `protobuf:"bytes,3,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 	MaxInflight   int64                  `protobuf:"varint,4,opt,name=max_inflight,json=maxInflight,proto3" json:"max_inflight,omitempty"` // recommended unacked frames in flight
 	unknownFields protoimpl.UnknownFields
@@ -220,13 +179,6 @@ func (x *RegisterResponse) GetAgentId() string {
 	return ""
 }
 
-func (x *RegisterResponse) GetDroneId() string {
-	if x != nil {
-		return x.DroneId
-	}
-	return ""
-}
-
 func (x *RegisterResponse) GetSessionId() string {
 	if x != nil {
 		return x.SessionId
@@ -244,20 +196,19 @@ func (x *RegisterResponse) GetMaxInflight() int64 {
 type TelemetryFrame struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	SessionId          string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"` // server-issued session ID from RegisterResponse
-	DroneId            string                 `protobuf:"bytes,2,opt,name=drone_id,json=droneId,proto3" json:"drone_id,omitempty"`
-	FrameId            string                 `protobuf:"bytes,3,opt,name=frame_id,json=frameId,proto3" json:"frame_id,omitempty"` // unique per-frame UUID
-	Seq                uint64                 `protobuf:"varint,4,opt,name=seq,proto3" json:"seq,omitempty"`                       // monotonically increasing sequence number
-	SentAtUnixNs       int64                  `protobuf:"varint,5,opt,name=sent_at_unix_ns,json=sentAtUnixNs,proto3" json:"sent_at_unix_ns,omitempty"`
-	DeviceTimestampSec float64                `protobuf:"fixed64,6,opt,name=device_timestamp_sec,json=deviceTimestampSec,proto3" json:"device_timestamp_sec,omitempty"`
-	RawMavlink         []byte                 `protobuf:"bytes,10,opt,name=raw_mavlink,json=rawMavlink,proto3" json:"raw_mavlink,omitempty"`
-	Dialect            string                 `protobuf:"bytes,11,opt,name=dialect,proto3" json:"dialect,omitempty"`
-	MsgId              uint32                 `protobuf:"varint,12,opt,name=msg_id,json=msgId,proto3" json:"msg_id,omitempty"`
-	MsgName            string                 `protobuf:"bytes,13,opt,name=msg_name,json=msgName,proto3" json:"msg_name,omitempty"`
+	AgentId            string                 `protobuf:"bytes,2,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	Seq                uint64                 `protobuf:"varint,3,opt,name=seq,proto3" json:"seq,omitempty"` // monotonically increasing sequence number
+	SentAtUnixNs       int64                  `protobuf:"varint,4,opt,name=sent_at_unix_ns,json=sentAtUnixNs,proto3" json:"sent_at_unix_ns,omitempty"`
+	DeviceTimestampSec float64                `protobuf:"fixed64,5,opt,name=device_timestamp_sec,json=deviceTimestampSec,proto3" json:"device_timestamp_sec,omitempty"`
+	RawMavlink         []byte                 `protobuf:"bytes,6,opt,name=raw_mavlink,json=rawMavlink,proto3" json:"raw_mavlink,omitempty"`
+	Dialect            string                 `protobuf:"bytes,7,opt,name=dialect,proto3" json:"dialect,omitempty"`
+	MsgId              uint32                 `protobuf:"varint,8,opt,name=msg_id,json=msgId,proto3" json:"msg_id,omitempty"`
+	MsgName            string                 `protobuf:"bytes,9,opt,name=msg_name,json=msgName,proto3" json:"msg_name,omitempty"`
 	// Parsed MAVLink fields as stringified key/value pairs.
 	// Not guaranteed to preserve original types.
-	Fields map[string]string `protobuf:"bytes,14,rep,name=fields,proto3" json:"fields,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
+	Fields map[string]string `protobuf:"bytes,10,rep,name=fields,proto3" json:"fields,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
 	// Optional: client-defined flight grouping
-	FlightId      string `protobuf:"bytes,15,opt,name=flight_id,json=flightId,proto3" json:"flight_id,omitempty"`
+	FlightId      string `protobuf:"bytes,11,opt,name=flight_id,json=flightId,proto3" json:"flight_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -299,16 +250,9 @@ func (x *TelemetryFrame) GetSessionId() string {
 	return ""
 }
 
-func (x *TelemetryFrame) GetDroneId() string {
+func (x *TelemetryFrame) GetAgentId() string {
 	if x != nil {
-		return x.DroneId
-	}
-	return ""
-}
-
-func (x *TelemetryFrame) GetFrameId() string {
-	if x != nil {
-		return x.FrameId
+		return x.AgentId
 	}
 	return ""
 }
@@ -378,7 +322,7 @@ func (x *TelemetryFrame) GetFlightId() string {
 
 type TelemetryAck struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	FrameId       string                 `protobuf:"bytes,1,opt,name=frame_id,json=frameId,proto3" json:"frame_id,omitempty"`
+	Seq           uint64                 `protobuf:"varint,1,opt,name=seq,proto3" json:"seq,omitempty"`
 	Status        TelemetryAck_Status    `protobuf:"varint,2,opt,name=status,proto3,enum=aeroarc.agent.v1.TelemetryAck_Status" json:"status,omitempty"`
 	Error         string                 `protobuf:"bytes,3,opt,name=error,proto3" json:"error,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -415,11 +359,11 @@ func (*TelemetryAck) Descriptor() ([]byte, []int) {
 	return file_aeroarc_agent_v1_agent_proto_rawDescGZIP(), []int{3}
 }
 
-func (x *TelemetryAck) GetFrameId() string {
+func (x *TelemetryAck) GetSeq() uint64 {
 	if x != nil {
-		return x.FrameId
+		return x.Seq
 	}
-	return ""
+	return 0
 }
 
 func (x *TelemetryAck) GetStatus() TelemetryAck_Status {
@@ -440,44 +384,36 @@ var File_aeroarc_agent_v1_agent_proto protoreflect.FileDescriptor
 
 const file_aeroarc_agent_v1_agent_proto_rawDesc = "" +
 	"\n" +
-	"\x1caeroarc/agent/v1/agent.proto\x12\x10aeroarc.agent.v1\"\x82\x02\n" +
+	"\x1caeroarc/agent/v1/agent.proto\x12\x10aeroarc.agent.v1\"m\n" +
 	"\x0fRegisterRequest\x12\x19\n" +
-	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x19\n" +
-	"\bdrone_id\x18\x02 \x01(\tR\adroneId\x12!\n" +
-	"\fhardware_uid\x18\x03 \x01(\tR\vhardwareUid\x12#\n" +
-	"\rserial_number\x18\x04 \x01(\tR\fserialNumber\x12\x14\n" +
-	"\x05model\x18\x05 \x01(\tR\x05model\x12\x1a\n" +
-	"\bfirmware\x18\x06 \x01(\tR\bfirmware\x12#\n" +
-	"\ragent_version\x18\n" +
-	" \x01(\tR\fagentVersion\x12\x1a\n" +
-	"\bplatform\x18\v \x01(\tR\bplatform\"\x8a\x01\n" +
+	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12#\n" +
+	"\ragent_version\x18\x02 \x01(\tR\fagentVersion\x12\x1a\n" +
+	"\bplatform\x18\x03 \x01(\tR\bplatform\"o\n" +
 	"\x10RegisterResponse\x12\x19\n" +
-	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x19\n" +
-	"\bdrone_id\x18\x02 \x01(\tR\adroneId\x12\x1d\n" +
+	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x03 \x01(\tR\tsessionId\x12!\n" +
-	"\fmax_inflight\x18\x04 \x01(\x03R\vmaxInflight\"\xdb\x03\n" +
+	"\fmax_inflight\x18\x04 \x01(\x03R\vmaxInflight\"\xc0\x03\n" +
 	"\x0eTelemetryFrame\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x19\n" +
-	"\bdrone_id\x18\x02 \x01(\tR\adroneId\x12\x19\n" +
-	"\bframe_id\x18\x03 \x01(\tR\aframeId\x12\x10\n" +
-	"\x03seq\x18\x04 \x01(\x04R\x03seq\x12%\n" +
-	"\x0fsent_at_unix_ns\x18\x05 \x01(\x03R\fsentAtUnixNs\x120\n" +
-	"\x14device_timestamp_sec\x18\x06 \x01(\x01R\x12deviceTimestampSec\x12\x1f\n" +
-	"\vraw_mavlink\x18\n" +
-	" \x01(\fR\n" +
+	"\bagent_id\x18\x02 \x01(\tR\aagentId\x12\x10\n" +
+	"\x03seq\x18\x03 \x01(\x04R\x03seq\x12%\n" +
+	"\x0fsent_at_unix_ns\x18\x04 \x01(\x03R\fsentAtUnixNs\x120\n" +
+	"\x14device_timestamp_sec\x18\x05 \x01(\x01R\x12deviceTimestampSec\x12\x1f\n" +
+	"\vraw_mavlink\x18\x06 \x01(\fR\n" +
 	"rawMavlink\x12\x18\n" +
-	"\adialect\x18\v \x01(\tR\adialect\x12\x15\n" +
-	"\x06msg_id\x18\f \x01(\rR\x05msgId\x12\x19\n" +
-	"\bmsg_name\x18\r \x01(\tR\amsgName\x12D\n" +
-	"\x06fields\x18\x0e \x03(\v2,.aeroarc.agent.v1.TelemetryFrame.FieldsEntryR\x06fields\x12\x1b\n" +
-	"\tflight_id\x18\x0f \x01(\tR\bflightId\x1a9\n" +
+	"\adialect\x18\a \x01(\tR\adialect\x12\x15\n" +
+	"\x06msg_id\x18\b \x01(\rR\x05msgId\x12\x19\n" +
+	"\bmsg_name\x18\t \x01(\tR\amsgName\x12D\n" +
+	"\x06fields\x18\n" +
+	" \x03(\v2,.aeroarc.agent.v1.TelemetryFrame.FieldsEntryR\x06fields\x12\x1b\n" +
+	"\tflight_id\x18\v \x01(\tR\bflightId\x1a9\n" +
 	"\vFieldsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
-	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xee\x01\n" +
-	"\fTelemetryAck\x12\x19\n" +
-	"\bframe_id\x18\x01 \x01(\tR\aframeId\x12=\n" +
+	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\xe5\x01\n" +
+	"\fTelemetryAck\x12\x10\n" +
+	"\x03seq\x18\x01 \x01(\x04R\x03seq\x12=\n" +
 	"\x06status\x18\x02 \x01(\x0e2%.aeroarc.agent.v1.TelemetryAck.StatusR\x06status\x12\x14\n" +
 	"\x05error\x18\x03 \x01(\tR\x05error\"n\n" +
 	"\x06Status\x12\r\n" +

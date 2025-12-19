@@ -143,13 +143,8 @@ proto.aeroarc.agent.v1.RegisterRequest.prototype.toObject = function(opt_include
 proto.aeroarc.agent.v1.RegisterRequest.toObject = function(includeInstance, msg) {
   var f, obj = {
     agentId: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    droneId: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    hardwareUid: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    serialNumber: jspb.Message.getFieldWithDefault(msg, 4, ""),
-    model: jspb.Message.getFieldWithDefault(msg, 5, ""),
-    firmware: jspb.Message.getFieldWithDefault(msg, 6, ""),
-    agentVersion: jspb.Message.getFieldWithDefault(msg, 10, ""),
-    platform: jspb.Message.getFieldWithDefault(msg, 11, "")
+    agentVersion: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    platform: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
 
   if (includeInstance) {
@@ -192,29 +187,9 @@ proto.aeroarc.agent.v1.RegisterRequest.deserializeBinaryFromReader = function(ms
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setDroneId(value);
-      break;
-    case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setHardwareUid(value);
-      break;
-    case 4:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setSerialNumber(value);
-      break;
-    case 5:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setModel(value);
-      break;
-    case 6:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setFirmware(value);
-      break;
-    case 10:
-      var value = /** @type {string} */ (reader.readString());
       msg.setAgentVersion(value);
       break;
-    case 11:
+    case 3:
       var value = /** @type {string} */ (reader.readString());
       msg.setPlatform(value);
       break;
@@ -254,52 +229,17 @@ proto.aeroarc.agent.v1.RegisterRequest.serializeBinaryToWriter = function(messag
       f
     );
   }
-  f = message.getDroneId();
+  f = message.getAgentVersion();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = message.getHardwareUid();
-  if (f.length > 0) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
-  f = message.getSerialNumber();
-  if (f.length > 0) {
-    writer.writeString(
-      4,
-      f
-    );
-  }
-  f = message.getModel();
-  if (f.length > 0) {
-    writer.writeString(
-      5,
-      f
-    );
-  }
-  f = message.getFirmware();
-  if (f.length > 0) {
-    writer.writeString(
-      6,
-      f
-    );
-  }
-  f = message.getAgentVersion();
-  if (f.length > 0) {
-    writer.writeString(
-      10,
-      f
-    );
-  }
   f = message.getPlatform();
   if (f.length > 0) {
     writer.writeString(
-      11,
+      3,
       f
     );
   }
@@ -325,10 +265,10 @@ proto.aeroarc.agent.v1.RegisterRequest.prototype.setAgentId = function(value) {
 
 
 /**
- * optional string drone_id = 2;
+ * optional string agent_version = 2;
  * @return {string}
  */
-proto.aeroarc.agent.v1.RegisterRequest.prototype.getDroneId = function() {
+proto.aeroarc.agent.v1.RegisterRequest.prototype.getAgentVersion = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
@@ -337,16 +277,16 @@ proto.aeroarc.agent.v1.RegisterRequest.prototype.getDroneId = function() {
  * @param {string} value
  * @return {!proto.aeroarc.agent.v1.RegisterRequest} returns this
  */
-proto.aeroarc.agent.v1.RegisterRequest.prototype.setDroneId = function(value) {
+proto.aeroarc.agent.v1.RegisterRequest.prototype.setAgentVersion = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
- * optional string hardware_uid = 3;
+ * optional string platform = 3;
  * @return {string}
  */
-proto.aeroarc.agent.v1.RegisterRequest.prototype.getHardwareUid = function() {
+proto.aeroarc.agent.v1.RegisterRequest.prototype.getPlatform = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
 };
 
@@ -355,98 +295,8 @@ proto.aeroarc.agent.v1.RegisterRequest.prototype.getHardwareUid = function() {
  * @param {string} value
  * @return {!proto.aeroarc.agent.v1.RegisterRequest} returns this
  */
-proto.aeroarc.agent.v1.RegisterRequest.prototype.setHardwareUid = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
-};
-
-
-/**
- * optional string serial_number = 4;
- * @return {string}
- */
-proto.aeroarc.agent.v1.RegisterRequest.prototype.getSerialNumber = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 4, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.aeroarc.agent.v1.RegisterRequest} returns this
- */
-proto.aeroarc.agent.v1.RegisterRequest.prototype.setSerialNumber = function(value) {
-  return jspb.Message.setProto3StringField(this, 4, value);
-};
-
-
-/**
- * optional string model = 5;
- * @return {string}
- */
-proto.aeroarc.agent.v1.RegisterRequest.prototype.getModel = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 5, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.aeroarc.agent.v1.RegisterRequest} returns this
- */
-proto.aeroarc.agent.v1.RegisterRequest.prototype.setModel = function(value) {
-  return jspb.Message.setProto3StringField(this, 5, value);
-};
-
-
-/**
- * optional string firmware = 6;
- * @return {string}
- */
-proto.aeroarc.agent.v1.RegisterRequest.prototype.getFirmware = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.aeroarc.agent.v1.RegisterRequest} returns this
- */
-proto.aeroarc.agent.v1.RegisterRequest.prototype.setFirmware = function(value) {
-  return jspb.Message.setProto3StringField(this, 6, value);
-};
-
-
-/**
- * optional string agent_version = 10;
- * @return {string}
- */
-proto.aeroarc.agent.v1.RegisterRequest.prototype.getAgentVersion = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 10, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.aeroarc.agent.v1.RegisterRequest} returns this
- */
-proto.aeroarc.agent.v1.RegisterRequest.prototype.setAgentVersion = function(value) {
-  return jspb.Message.setProto3StringField(this, 10, value);
-};
-
-
-/**
- * optional string platform = 11;
- * @return {string}
- */
-proto.aeroarc.agent.v1.RegisterRequest.prototype.getPlatform = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.aeroarc.agent.v1.RegisterRequest} returns this
- */
 proto.aeroarc.agent.v1.RegisterRequest.prototype.setPlatform = function(value) {
-  return jspb.Message.setProto3StringField(this, 11, value);
+  return jspb.Message.setProto3StringField(this, 3, value);
 };
 
 
@@ -483,7 +333,6 @@ proto.aeroarc.agent.v1.RegisterResponse.prototype.toObject = function(opt_includ
 proto.aeroarc.agent.v1.RegisterResponse.toObject = function(includeInstance, msg) {
   var f, obj = {
     agentId: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    droneId: jspb.Message.getFieldWithDefault(msg, 2, ""),
     sessionId: jspb.Message.getFieldWithDefault(msg, 3, ""),
     maxInflight: jspb.Message.getFieldWithDefault(msg, 4, 0)
   };
@@ -525,10 +374,6 @@ proto.aeroarc.agent.v1.RegisterResponse.deserializeBinaryFromReader = function(m
     case 1:
       var value = /** @type {string} */ (reader.readString());
       msg.setAgentId(value);
-      break;
-    case 2:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setDroneId(value);
       break;
     case 3:
       var value = /** @type {string} */ (reader.readString());
@@ -574,13 +419,6 @@ proto.aeroarc.agent.v1.RegisterResponse.serializeBinaryToWriter = function(messa
       f
     );
   }
-  f = message.getDroneId();
-  if (f.length > 0) {
-    writer.writeString(
-      2,
-      f
-    );
-  }
   f = message.getSessionId();
   if (f.length > 0) {
     writer.writeString(
@@ -613,24 +451,6 @@ proto.aeroarc.agent.v1.RegisterResponse.prototype.getAgentId = function() {
  */
 proto.aeroarc.agent.v1.RegisterResponse.prototype.setAgentId = function(value) {
   return jspb.Message.setProto3StringField(this, 1, value);
-};
-
-
-/**
- * optional string drone_id = 2;
- * @return {string}
- */
-proto.aeroarc.agent.v1.RegisterResponse.prototype.getDroneId = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.aeroarc.agent.v1.RegisterResponse} returns this
- */
-proto.aeroarc.agent.v1.RegisterResponse.prototype.setDroneId = function(value) {
-  return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
@@ -703,17 +523,16 @@ proto.aeroarc.agent.v1.TelemetryFrame.prototype.toObject = function(opt_includeI
 proto.aeroarc.agent.v1.TelemetryFrame.toObject = function(includeInstance, msg) {
   var f, obj = {
     sessionId: jspb.Message.getFieldWithDefault(msg, 1, ""),
-    droneId: jspb.Message.getFieldWithDefault(msg, 2, ""),
-    frameId: jspb.Message.getFieldWithDefault(msg, 3, ""),
-    seq: jspb.Message.getFieldWithDefault(msg, 4, 0),
-    sentAtUnixNs: jspb.Message.getFieldWithDefault(msg, 5, 0),
-    deviceTimestampSec: jspb.Message.getFloatingPointFieldWithDefault(msg, 6, 0.0),
+    agentId: jspb.Message.getFieldWithDefault(msg, 2, ""),
+    seq: jspb.Message.getFieldWithDefault(msg, 3, 0),
+    sentAtUnixNs: jspb.Message.getFieldWithDefault(msg, 4, 0),
+    deviceTimestampSec: jspb.Message.getFloatingPointFieldWithDefault(msg, 5, 0.0),
     rawMavlink: msg.getRawMavlink_asB64(),
-    dialect: jspb.Message.getFieldWithDefault(msg, 11, ""),
-    msgId: jspb.Message.getFieldWithDefault(msg, 12, 0),
-    msgName: jspb.Message.getFieldWithDefault(msg, 13, ""),
+    dialect: jspb.Message.getFieldWithDefault(msg, 7, ""),
+    msgId: jspb.Message.getFieldWithDefault(msg, 8, 0),
+    msgName: jspb.Message.getFieldWithDefault(msg, 9, ""),
     fieldsMap: (f = msg.getFieldsMap()) ? f.toObject(includeInstance, undefined) : [],
-    flightId: jspb.Message.getFieldWithDefault(msg, 15, "")
+    flightId: jspb.Message.getFieldWithDefault(msg, 11, "")
   };
 
   if (includeInstance) {
@@ -756,47 +575,43 @@ proto.aeroarc.agent.v1.TelemetryFrame.deserializeBinaryFromReader = function(msg
       break;
     case 2:
       var value = /** @type {string} */ (reader.readString());
-      msg.setDroneId(value);
+      msg.setAgentId(value);
       break;
     case 3:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setFrameId(value);
-      break;
-    case 4:
       var value = /** @type {number} */ (reader.readUint64());
       msg.setSeq(value);
       break;
-    case 5:
+    case 4:
       var value = /** @type {number} */ (reader.readInt64());
       msg.setSentAtUnixNs(value);
       break;
-    case 6:
+    case 5:
       var value = /** @type {number} */ (reader.readDouble());
       msg.setDeviceTimestampSec(value);
       break;
-    case 10:
+    case 6:
       var value = /** @type {!Uint8Array} */ (reader.readBytes());
       msg.setRawMavlink(value);
       break;
-    case 11:
+    case 7:
       var value = /** @type {string} */ (reader.readString());
       msg.setDialect(value);
       break;
-    case 12:
+    case 8:
       var value = /** @type {number} */ (reader.readUint32());
       msg.setMsgId(value);
       break;
-    case 13:
+    case 9:
       var value = /** @type {string} */ (reader.readString());
       msg.setMsgName(value);
       break;
-    case 14:
+    case 10:
       var value = msg.getFieldsMap();
       reader.readMessage(value, function(message, reader) {
         jspb.Map.deserializeBinary(message, reader, jspb.BinaryReader.prototype.readString, jspb.BinaryReader.prototype.readString, null, "", "");
          });
       break;
-    case 15:
+    case 11:
       var value = /** @type {string} */ (reader.readString());
       msg.setFlightId(value);
       break;
@@ -836,77 +651,70 @@ proto.aeroarc.agent.v1.TelemetryFrame.serializeBinaryToWriter = function(message
       f
     );
   }
-  f = message.getDroneId();
+  f = message.getAgentId();
   if (f.length > 0) {
     writer.writeString(
       2,
       f
     );
   }
-  f = message.getFrameId();
-  if (f.length > 0) {
-    writer.writeString(
-      3,
-      f
-    );
-  }
   f = message.getSeq();
   if (f !== 0) {
     writer.writeUint64(
-      4,
+      3,
       f
     );
   }
   f = message.getSentAtUnixNs();
   if (f !== 0) {
     writer.writeInt64(
-      5,
+      4,
       f
     );
   }
   f = message.getDeviceTimestampSec();
   if (f !== 0.0) {
     writer.writeDouble(
-      6,
+      5,
       f
     );
   }
   f = message.getRawMavlink_asU8();
   if (f.length > 0) {
     writer.writeBytes(
-      10,
+      6,
       f
     );
   }
   f = message.getDialect();
   if (f.length > 0) {
     writer.writeString(
-      11,
+      7,
       f
     );
   }
   f = message.getMsgId();
   if (f !== 0) {
     writer.writeUint32(
-      12,
+      8,
       f
     );
   }
   f = message.getMsgName();
   if (f.length > 0) {
     writer.writeString(
-      13,
+      9,
       f
     );
   }
   f = message.getFieldsMap(true);
   if (f && f.getLength() > 0) {
-    f.serializeBinary(14, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
+    f.serializeBinary(10, writer, jspb.BinaryWriter.prototype.writeString, jspb.BinaryWriter.prototype.writeString);
   }
   f = message.getFlightId();
   if (f.length > 0) {
     writer.writeString(
-      15,
+      11,
       f
     );
   }
@@ -932,10 +740,10 @@ proto.aeroarc.agent.v1.TelemetryFrame.prototype.setSessionId = function(value) {
 
 
 /**
- * optional string drone_id = 2;
+ * optional string agent_id = 2;
  * @return {string}
  */
-proto.aeroarc.agent.v1.TelemetryFrame.prototype.getDroneId = function() {
+proto.aeroarc.agent.v1.TelemetryFrame.prototype.getAgentId = function() {
   return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 2, ""));
 };
 
@@ -944,35 +752,17 @@ proto.aeroarc.agent.v1.TelemetryFrame.prototype.getDroneId = function() {
  * @param {string} value
  * @return {!proto.aeroarc.agent.v1.TelemetryFrame} returns this
  */
-proto.aeroarc.agent.v1.TelemetryFrame.prototype.setDroneId = function(value) {
+proto.aeroarc.agent.v1.TelemetryFrame.prototype.setAgentId = function(value) {
   return jspb.Message.setProto3StringField(this, 2, value);
 };
 
 
 /**
- * optional string frame_id = 3;
- * @return {string}
- */
-proto.aeroarc.agent.v1.TelemetryFrame.prototype.getFrameId = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 3, ""));
-};
-
-
-/**
- * @param {string} value
- * @return {!proto.aeroarc.agent.v1.TelemetryFrame} returns this
- */
-proto.aeroarc.agent.v1.TelemetryFrame.prototype.setFrameId = function(value) {
-  return jspb.Message.setProto3StringField(this, 3, value);
-};
-
-
-/**
- * optional uint64 seq = 4;
+ * optional uint64 seq = 3;
  * @return {number}
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.getSeq = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 3, 0));
 };
 
 
@@ -981,16 +771,16 @@ proto.aeroarc.agent.v1.TelemetryFrame.prototype.getSeq = function() {
  * @return {!proto.aeroarc.agent.v1.TelemetryFrame} returns this
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.setSeq = function(value) {
-  return jspb.Message.setProto3IntField(this, 4, value);
+  return jspb.Message.setProto3IntField(this, 3, value);
 };
 
 
 /**
- * optional int64 sent_at_unix_ns = 5;
+ * optional int64 sent_at_unix_ns = 4;
  * @return {number}
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.getSentAtUnixNs = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 5, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 4, 0));
 };
 
 
@@ -999,16 +789,16 @@ proto.aeroarc.agent.v1.TelemetryFrame.prototype.getSentAtUnixNs = function() {
  * @return {!proto.aeroarc.agent.v1.TelemetryFrame} returns this
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.setSentAtUnixNs = function(value) {
-  return jspb.Message.setProto3IntField(this, 5, value);
+  return jspb.Message.setProto3IntField(this, 4, value);
 };
 
 
 /**
- * optional double device_timestamp_sec = 6;
+ * optional double device_timestamp_sec = 5;
  * @return {number}
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.getDeviceTimestampSec = function() {
-  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 6, 0.0));
+  return /** @type {number} */ (jspb.Message.getFloatingPointFieldWithDefault(this, 5, 0.0));
 };
 
 
@@ -1017,21 +807,21 @@ proto.aeroarc.agent.v1.TelemetryFrame.prototype.getDeviceTimestampSec = function
  * @return {!proto.aeroarc.agent.v1.TelemetryFrame} returns this
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.setDeviceTimestampSec = function(value) {
-  return jspb.Message.setProto3FloatField(this, 6, value);
+  return jspb.Message.setProto3FloatField(this, 5, value);
 };
 
 
 /**
- * optional bytes raw_mavlink = 10;
+ * optional bytes raw_mavlink = 6;
  * @return {string}
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.getRawMavlink = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 10, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 6, ""));
 };
 
 
 /**
- * optional bytes raw_mavlink = 10;
+ * optional bytes raw_mavlink = 6;
  * This is a type-conversion wrapper around `getRawMavlink()`
  * @return {string}
  */
@@ -1042,7 +832,7 @@ proto.aeroarc.agent.v1.TelemetryFrame.prototype.getRawMavlink_asB64 = function()
 
 
 /**
- * optional bytes raw_mavlink = 10;
+ * optional bytes raw_mavlink = 6;
  * Note that Uint8Array is not supported on all browsers.
  * @see http://caniuse.com/Uint8Array
  * This is a type-conversion wrapper around `getRawMavlink()`
@@ -1059,16 +849,16 @@ proto.aeroarc.agent.v1.TelemetryFrame.prototype.getRawMavlink_asU8 = function() 
  * @return {!proto.aeroarc.agent.v1.TelemetryFrame} returns this
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.setRawMavlink = function(value) {
-  return jspb.Message.setProto3BytesField(this, 10, value);
+  return jspb.Message.setProto3BytesField(this, 6, value);
 };
 
 
 /**
- * optional string dialect = 11;
+ * optional string dialect = 7;
  * @return {string}
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.getDialect = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 7, ""));
 };
 
 
@@ -1077,16 +867,16 @@ proto.aeroarc.agent.v1.TelemetryFrame.prototype.getDialect = function() {
  * @return {!proto.aeroarc.agent.v1.TelemetryFrame} returns this
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.setDialect = function(value) {
-  return jspb.Message.setProto3StringField(this, 11, value);
+  return jspb.Message.setProto3StringField(this, 7, value);
 };
 
 
 /**
- * optional uint32 msg_id = 12;
+ * optional uint32 msg_id = 8;
  * @return {number}
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.getMsgId = function() {
-  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 12, 0));
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 8, 0));
 };
 
 
@@ -1095,16 +885,16 @@ proto.aeroarc.agent.v1.TelemetryFrame.prototype.getMsgId = function() {
  * @return {!proto.aeroarc.agent.v1.TelemetryFrame} returns this
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.setMsgId = function(value) {
-  return jspb.Message.setProto3IntField(this, 12, value);
+  return jspb.Message.setProto3IntField(this, 8, value);
 };
 
 
 /**
- * optional string msg_name = 13;
+ * optional string msg_name = 9;
  * @return {string}
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.getMsgName = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 13, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 9, ""));
 };
 
 
@@ -1113,19 +903,19 @@ proto.aeroarc.agent.v1.TelemetryFrame.prototype.getMsgName = function() {
  * @return {!proto.aeroarc.agent.v1.TelemetryFrame} returns this
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.setMsgName = function(value) {
-  return jspb.Message.setProto3StringField(this, 13, value);
+  return jspb.Message.setProto3StringField(this, 9, value);
 };
 
 
 /**
- * map<string, string> fields = 14;
+ * map<string, string> fields = 10;
  * @param {boolean=} opt_noLazyCreate Do not create the map if
  * empty, instead returning `undefined`
  * @return {!jspb.Map<string,string>}
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.getFieldsMap = function(opt_noLazyCreate) {
   return /** @type {!jspb.Map<string,string>} */ (
-      jspb.Message.getMapField(this, 14, opt_noLazyCreate,
+      jspb.Message.getMapField(this, 10, opt_noLazyCreate,
       null));
 };
 
@@ -1140,11 +930,11 @@ proto.aeroarc.agent.v1.TelemetryFrame.prototype.clearFieldsMap = function() {
 
 
 /**
- * optional string flight_id = 15;
+ * optional string flight_id = 11;
  * @return {string}
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.getFlightId = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 15, ""));
+  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 11, ""));
 };
 
 
@@ -1153,7 +943,7 @@ proto.aeroarc.agent.v1.TelemetryFrame.prototype.getFlightId = function() {
  * @return {!proto.aeroarc.agent.v1.TelemetryFrame} returns this
  */
 proto.aeroarc.agent.v1.TelemetryFrame.prototype.setFlightId = function(value) {
-  return jspb.Message.setProto3StringField(this, 15, value);
+  return jspb.Message.setProto3StringField(this, 11, value);
 };
 
 
@@ -1189,7 +979,7 @@ proto.aeroarc.agent.v1.TelemetryAck.prototype.toObject = function(opt_includeIns
  */
 proto.aeroarc.agent.v1.TelemetryAck.toObject = function(includeInstance, msg) {
   var f, obj = {
-    frameId: jspb.Message.getFieldWithDefault(msg, 1, ""),
+    seq: jspb.Message.getFieldWithDefault(msg, 1, 0),
     status: jspb.Message.getFieldWithDefault(msg, 2, 0),
     error: jspb.Message.getFieldWithDefault(msg, 3, "")
   };
@@ -1229,8 +1019,8 @@ proto.aeroarc.agent.v1.TelemetryAck.deserializeBinaryFromReader = function(msg, 
     var field = reader.getFieldNumber();
     switch (field) {
     case 1:
-      var value = /** @type {string} */ (reader.readString());
-      msg.setFrameId(value);
+      var value = /** @type {number} */ (reader.readUint64());
+      msg.setSeq(value);
       break;
     case 2:
       var value = /** @type {!proto.aeroarc.agent.v1.TelemetryAck.Status} */ (reader.readEnum());
@@ -1269,9 +1059,9 @@ proto.aeroarc.agent.v1.TelemetryAck.prototype.serializeBinary = function() {
  */
 proto.aeroarc.agent.v1.TelemetryAck.serializeBinaryToWriter = function(message, writer) {
   var f = undefined;
-  f = message.getFrameId();
-  if (f.length > 0) {
-    writer.writeString(
+  f = message.getSeq();
+  if (f !== 0) {
+    writer.writeUint64(
       1,
       f
     );
@@ -1304,20 +1094,20 @@ proto.aeroarc.agent.v1.TelemetryAck.Status = {
 };
 
 /**
- * optional string frame_id = 1;
- * @return {string}
+ * optional uint64 seq = 1;
+ * @return {number}
  */
-proto.aeroarc.agent.v1.TelemetryAck.prototype.getFrameId = function() {
-  return /** @type {string} */ (jspb.Message.getFieldWithDefault(this, 1, ""));
+proto.aeroarc.agent.v1.TelemetryAck.prototype.getSeq = function() {
+  return /** @type {number} */ (jspb.Message.getFieldWithDefault(this, 1, 0));
 };
 
 
 /**
- * @param {string} value
+ * @param {number} value
  * @return {!proto.aeroarc.agent.v1.TelemetryAck} returns this
  */
-proto.aeroarc.agent.v1.TelemetryAck.prototype.setFrameId = function(value) {
-  return jspb.Message.setProto3StringField(this, 1, value);
+proto.aeroarc.agent.v1.TelemetryAck.prototype.setSeq = function(value) {
+  return jspb.Message.setProto3IntField(this, 1, value);
 };
 
 
