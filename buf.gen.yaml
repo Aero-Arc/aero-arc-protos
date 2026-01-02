@@ -9,11 +9,3 @@ plugins:
     out: gen/go
     opt:
       - paths=source_relative
-
-  - name: python
-    out: gen/python
-
-  - name: js
-    out: gen/ts
-    opt:
-      - import_style=commonjs
