@@ -1,0 +1,98 @@
+
+syntax = "proto3";
+
+package aeroarc.registry.v1;
+
+option go_package = "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/registry/v1;registryv1";
+
+// Aero Arc Registry RPC API.
+//
+// The registry acts as a backend-agnostic control plane for discovering
+// relays and agents, tracking liveness, and resolving agent-to-relay placement.
+service AeroRegistry {
+  // ---- Relay lifecycle ----
+  rpc RegisterRelay(RegisterRelayRequest) returns (RegisterRelayResponse);
+  rpc HeartbeatRelay(HeartbeatRelayRequest) returns (HeartbeatRelayResponse);
+  rpc ListRelays(ListRelaysRequest) returns (ListRelaysResponse);
+
+  // ---- Agent lifecycle ----
+  rpc RegisterAgent(RegisterAgentRequest) returns (RegisterAgentResponse);
+  rpc HeartbeatAgent(HeartbeatAgentRequest) returns (HeartbeatAgentResponse);
+  rpc GetAgentPlacement(GetAgentPlacementRequest) returns (GetAgentPlacementResponse);
+}
+
+// ----- Relay messages -----
+
+message Relay {
+  string relay_id = 1;
+
+  string address = 2;
+  int32 grpc_port = 3;
+
+  // Unix timestamp (milliseconds) of last heartbeat.
+  int64 last_heartbeat_unix_ms = 4;
+}
+
+message RegisterRelayRequest {
+  Relay relay = 1;
+}
+
+message RegisterRelayResponse {}
+
+message HeartbeatRelayRequest {
+  string relay_id = 1;
+
+  // Unix timestamp (milliseconds) when heartbeat was sent.
+  int64 timestamp_unix_ms = 2;
+}
+
+message HeartbeatRelayResponse {}
+
+message ListRelaysRequest {}
+
+message ListRelaysResponse {
+  repeated Relay relays = 1;
+}
+
+// ----- Agent messages -----
+
+message Agent {
+  string agent_id = 1;
+
+  // Unix timestamp (milliseconds) of last heartbeat.
+  int64 last_heartbeat_unix_ms = 2;
+}
+
+message RegisterAgentRequest {
+  Agent agent = 1;
+
+  // Relay the agent is registering through.
+  string relay_id = 2;
+}
+
+message RegisterAgentResponse {}
+
+message HeartbeatAgentRequest {
+  string agent_id = 1;
+
+  // Unix timestamp (milliseconds) when heartbeat was sent.
+  int64 timestamp_unix_ms = 2;
+}
+
+message HeartbeatAgentResponse {}
+
+message AgentPlacement {
+  string agent_id = 1;
+  string relay_id = 2;
+
+  // Unix timestamp (milliseconds) of last placement update.
+  int64 last_updated_unix_ms = 3;
+}
+
+message GetAgentPlacementRequest {
+  string agent_id = 1;
+}
+
+message GetAgentPlacementResponse {
+  AgentPlacement placement = 1;
+}
