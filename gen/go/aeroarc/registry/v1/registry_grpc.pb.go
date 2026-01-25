@@ -24,6 +24,7 @@ const (
 	AeroRegistry_ListRelays_FullMethodName        = "/aeroarc.registry.v1.AeroRegistry/ListRelays"
 	AeroRegistry_RegisterAgent_FullMethodName     = "/aeroarc.registry.v1.AeroRegistry/RegisterAgent"
 	AeroRegistry_HeartbeatAgent_FullMethodName    = "/aeroarc.registry.v1.AeroRegistry/HeartbeatAgent"
+	AeroRegistry_ListAgents_FullMethodName        = "/aeroarc.registry.v1.AeroRegistry/ListAgents"
 	AeroRegistry_GetAgentPlacement_FullMethodName = "/aeroarc.registry.v1.AeroRegistry/GetAgentPlacement"
 )
 
@@ -43,6 +44,7 @@ type AeroRegistryClient interface {
 	// ---- Agent lifecycle ----
 	RegisterAgent(ctx context.Context, in *RegisterAgentRequest, opts ...grpc.CallOption) (*RegisterAgentResponse, error)
 	HeartbeatAgent(ctx context.Context, in *HeartbeatAgentRequest, opts ...grpc.CallOption) (*HeartbeatAgentResponse, error)
+	ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error)
 	GetAgentPlacement(ctx context.Context, in *GetAgentPlacementRequest, opts ...grpc.CallOption) (*GetAgentPlacementResponse, error)
 }
 
@@ -104,6 +106,16 @@ func (c *aeroRegistryClient) HeartbeatAgent(ctx context.Context, in *HeartbeatAg
 	return out, nil
 }
 
+func (c *aeroRegistryClient) ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListAgentsResponse)
+	err := c.cc.Invoke(ctx, AeroRegistry_ListAgents_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 func (c *aeroRegistryClient) GetAgentPlacement(ctx context.Context, in *GetAgentPlacementRequest, opts ...grpc.CallOption) (*GetAgentPlacementResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(GetAgentPlacementResponse)
@@ -130,6 +142,7 @@ type AeroRegistryServer interface {
 	// ---- Agent lifecycle ----
 	RegisterAgent(context.Context, *RegisterAgentRequest) (*RegisterAgentResponse, error)
 	HeartbeatAgent(context.Context, *HeartbeatAgentRequest) (*HeartbeatAgentResponse, error)
+	ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error)
 	GetAgentPlacement(context.Context, *GetAgentPlacementRequest) (*GetAgentPlacementResponse, error)
 	mustEmbedUnimplementedAeroRegistryServer()
 }
@@ -155,6 +168,9 @@ func (UnimplementedAeroRegistryServer) RegisterAgent(context.Context, *RegisterA
 }
 func (UnimplementedAeroRegistryServer) HeartbeatAgent(context.Context, *HeartbeatAgentRequest) (*HeartbeatAgentResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method HeartbeatAgent not implemented")
+}
+func (UnimplementedAeroRegistryServer) ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListAgents not implemented")
 }
 func (UnimplementedAeroRegistryServer) GetAgentPlacement(context.Context, *GetAgentPlacementRequest) (*GetAgentPlacementResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAgentPlacement not implemented")
@@ -270,6 +286,24 @@ func _AeroRegistry_HeartbeatAgent_Handler(srv interface{}, ctx context.Context, 
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AeroRegistry_ListAgents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListAgentsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AeroRegistryServer).ListAgents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AeroRegistry_ListAgents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AeroRegistryServer).ListAgents(ctx, req.(*ListAgentsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 func _AeroRegistry_GetAgentPlacement_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(GetAgentPlacementRequest)
 	if err := dec(in); err != nil {
@@ -314,6 +348,10 @@ var AeroRegistry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "HeartbeatAgent",
 			Handler:    _AeroRegistry_HeartbeatAgent_Handler,
+		},
+		{
+			MethodName: "ListAgents",
+			Handler:    _AeroRegistry_ListAgents_Handler,
 		},
 		{
 			MethodName: "GetAgentPlacement",

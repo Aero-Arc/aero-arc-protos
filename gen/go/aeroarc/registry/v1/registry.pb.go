@@ -719,6 +719,86 @@ func (x *GetAgentPlacementResponse) GetPlacement() *AgentPlacement {
 	return nil
 }
 
+type ListAgentsRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAgentsRequest) Reset() {
+	*x = ListAgentsRequest{}
+	mi := &file_aeroarc_registry_v1_registry_proto_msgTypes[15]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAgentsRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAgentsRequest) ProtoMessage() {}
+
+func (x *ListAgentsRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_aeroarc_registry_v1_registry_proto_msgTypes[15]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAgentsRequest.ProtoReflect.Descriptor instead.
+func (*ListAgentsRequest) Descriptor() ([]byte, []int) {
+	return file_aeroarc_registry_v1_registry_proto_rawDescGZIP(), []int{15}
+}
+
+type ListAgentsResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Agents        []*Agent               `protobuf:"bytes,1,rep,name=agents,proto3" json:"agents,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ListAgentsResponse) Reset() {
+	*x = ListAgentsResponse{}
+	mi := &file_aeroarc_registry_v1_registry_proto_msgTypes[16]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ListAgentsResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ListAgentsResponse) ProtoMessage() {}
+
+func (x *ListAgentsResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_aeroarc_registry_v1_registry_proto_msgTypes[16]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ListAgentsResponse.ProtoReflect.Descriptor instead.
+func (*ListAgentsResponse) Descriptor() ([]byte, []int) {
+	return file_aeroarc_registry_v1_registry_proto_rawDescGZIP(), []int{16}
+}
+
+func (x *ListAgentsResponse) GetAgents() []*Agent {
+	if x != nil {
+		return x.Agents
+	}
+	return nil
+}
+
 var File_aeroarc_registry_v1_registry_proto protoreflect.FileDescriptor
 
 const file_aeroarc_registry_v1_registry_proto_rawDesc = "" +
@@ -757,14 +837,19 @@ const file_aeroarc_registry_v1_registry_proto_rawDesc = "" +
 	"\x18GetAgentPlacementRequest\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\"^\n" +
 	"\x19GetAgentPlacementResponse\x12A\n" +
-	"\tplacement\x18\x01 \x01(\v2#.aeroarc.registry.v1.AgentPlacementR\tplacement2\x87\x05\n" +
+	"\tplacement\x18\x01 \x01(\v2#.aeroarc.registry.v1.AgentPlacementR\tplacement\"\x13\n" +
+	"\x11ListAgentsRequest\"H\n" +
+	"\x12ListAgentsResponse\x122\n" +
+	"\x06agents\x18\x01 \x03(\v2\x1a.aeroarc.registry.v1.AgentR\x06agents2\xe6\x05\n" +
 	"\fAeroRegistry\x12f\n" +
 	"\rRegisterRelay\x12).aeroarc.registry.v1.RegisterRelayRequest\x1a*.aeroarc.registry.v1.RegisterRelayResponse\x12i\n" +
 	"\x0eHeartbeatRelay\x12*.aeroarc.registry.v1.HeartbeatRelayRequest\x1a+.aeroarc.registry.v1.HeartbeatRelayResponse\x12]\n" +
 	"\n" +
 	"ListRelays\x12&.aeroarc.registry.v1.ListRelaysRequest\x1a'.aeroarc.registry.v1.ListRelaysResponse\x12f\n" +
 	"\rRegisterAgent\x12).aeroarc.registry.v1.RegisterAgentRequest\x1a*.aeroarc.registry.v1.RegisterAgentResponse\x12i\n" +
-	"\x0eHeartbeatAgent\x12*.aeroarc.registry.v1.HeartbeatAgentRequest\x1a+.aeroarc.registry.v1.HeartbeatAgentResponse\x12r\n" +
+	"\x0eHeartbeatAgent\x12*.aeroarc.registry.v1.HeartbeatAgentRequest\x1a+.aeroarc.registry.v1.HeartbeatAgentResponse\x12]\n" +
+	"\n" +
+	"ListAgents\x12&.aeroarc.registry.v1.ListAgentsRequest\x1a'.aeroarc.registry.v1.ListAgentsResponse\x12r\n" +
 	"\x11GetAgentPlacement\x12-.aeroarc.registry.v1.GetAgentPlacementRequest\x1a..aeroarc.registry.v1.GetAgentPlacementResponseBKZIgithub.com/aero-arc/aero-arc-protos/gen/go/aeroarc/registry/v1;registryv1b\x06proto3"
 
 var (
@@ -779,7 +864,7 @@ func file_aeroarc_registry_v1_registry_proto_rawDescGZIP() []byte {
 	return file_aeroarc_registry_v1_registry_proto_rawDescData
 }
 
-var file_aeroarc_registry_v1_registry_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
+var file_aeroarc_registry_v1_registry_proto_msgTypes = make([]protoimpl.MessageInfo, 17)
 var file_aeroarc_registry_v1_registry_proto_goTypes = []any{
 	(*Relay)(nil),                     // 0: aeroarc.registry.v1.Relay
 	(*RegisterRelayRequest)(nil),      // 1: aeroarc.registry.v1.RegisterRelayRequest
@@ -796,29 +881,34 @@ var file_aeroarc_registry_v1_registry_proto_goTypes = []any{
 	(*AgentPlacement)(nil),            // 12: aeroarc.registry.v1.AgentPlacement
 	(*GetAgentPlacementRequest)(nil),  // 13: aeroarc.registry.v1.GetAgentPlacementRequest
 	(*GetAgentPlacementResponse)(nil), // 14: aeroarc.registry.v1.GetAgentPlacementResponse
+	(*ListAgentsRequest)(nil),         // 15: aeroarc.registry.v1.ListAgentsRequest
+	(*ListAgentsResponse)(nil),        // 16: aeroarc.registry.v1.ListAgentsResponse
 }
 var file_aeroarc_registry_v1_registry_proto_depIdxs = []int32{
 	0,  // 0: aeroarc.registry.v1.RegisterRelayRequest.relay:type_name -> aeroarc.registry.v1.Relay
 	0,  // 1: aeroarc.registry.v1.ListRelaysResponse.relays:type_name -> aeroarc.registry.v1.Relay
 	7,  // 2: aeroarc.registry.v1.RegisterAgentRequest.agent:type_name -> aeroarc.registry.v1.Agent
 	12, // 3: aeroarc.registry.v1.GetAgentPlacementResponse.placement:type_name -> aeroarc.registry.v1.AgentPlacement
-	1,  // 4: aeroarc.registry.v1.AeroRegistry.RegisterRelay:input_type -> aeroarc.registry.v1.RegisterRelayRequest
-	3,  // 5: aeroarc.registry.v1.AeroRegistry.HeartbeatRelay:input_type -> aeroarc.registry.v1.HeartbeatRelayRequest
-	5,  // 6: aeroarc.registry.v1.AeroRegistry.ListRelays:input_type -> aeroarc.registry.v1.ListRelaysRequest
-	8,  // 7: aeroarc.registry.v1.AeroRegistry.RegisterAgent:input_type -> aeroarc.registry.v1.RegisterAgentRequest
-	10, // 8: aeroarc.registry.v1.AeroRegistry.HeartbeatAgent:input_type -> aeroarc.registry.v1.HeartbeatAgentRequest
-	13, // 9: aeroarc.registry.v1.AeroRegistry.GetAgentPlacement:input_type -> aeroarc.registry.v1.GetAgentPlacementRequest
-	2,  // 10: aeroarc.registry.v1.AeroRegistry.RegisterRelay:output_type -> aeroarc.registry.v1.RegisterRelayResponse
-	4,  // 11: aeroarc.registry.v1.AeroRegistry.HeartbeatRelay:output_type -> aeroarc.registry.v1.HeartbeatRelayResponse
-	6,  // 12: aeroarc.registry.v1.AeroRegistry.ListRelays:output_type -> aeroarc.registry.v1.ListRelaysResponse
-	9,  // 13: aeroarc.registry.v1.AeroRegistry.RegisterAgent:output_type -> aeroarc.registry.v1.RegisterAgentResponse
-	11, // 14: aeroarc.registry.v1.AeroRegistry.HeartbeatAgent:output_type -> aeroarc.registry.v1.HeartbeatAgentResponse
-	14, // 15: aeroarc.registry.v1.AeroRegistry.GetAgentPlacement:output_type -> aeroarc.registry.v1.GetAgentPlacementResponse
-	10, // [10:16] is the sub-list for method output_type
-	4,  // [4:10] is the sub-list for method input_type
-	4,  // [4:4] is the sub-list for extension type_name
-	4,  // [4:4] is the sub-list for extension extendee
-	0,  // [0:4] is the sub-list for field type_name
+	7,  // 4: aeroarc.registry.v1.ListAgentsResponse.agents:type_name -> aeroarc.registry.v1.Agent
+	1,  // 5: aeroarc.registry.v1.AeroRegistry.RegisterRelay:input_type -> aeroarc.registry.v1.RegisterRelayRequest
+	3,  // 6: aeroarc.registry.v1.AeroRegistry.HeartbeatRelay:input_type -> aeroarc.registry.v1.HeartbeatRelayRequest
+	5,  // 7: aeroarc.registry.v1.AeroRegistry.ListRelays:input_type -> aeroarc.registry.v1.ListRelaysRequest
+	8,  // 8: aeroarc.registry.v1.AeroRegistry.RegisterAgent:input_type -> aeroarc.registry.v1.RegisterAgentRequest
+	10, // 9: aeroarc.registry.v1.AeroRegistry.HeartbeatAgent:input_type -> aeroarc.registry.v1.HeartbeatAgentRequest
+	15, // 10: aeroarc.registry.v1.AeroRegistry.ListAgents:input_type -> aeroarc.registry.v1.ListAgentsRequest
+	13, // 11: aeroarc.registry.v1.AeroRegistry.GetAgentPlacement:input_type -> aeroarc.registry.v1.GetAgentPlacementRequest
+	2,  // 12: aeroarc.registry.v1.AeroRegistry.RegisterRelay:output_type -> aeroarc.registry.v1.RegisterRelayResponse
+	4,  // 13: aeroarc.registry.v1.AeroRegistry.HeartbeatRelay:output_type -> aeroarc.registry.v1.HeartbeatRelayResponse
+	6,  // 14: aeroarc.registry.v1.AeroRegistry.ListRelays:output_type -> aeroarc.registry.v1.ListRelaysResponse
+	9,  // 15: aeroarc.registry.v1.AeroRegistry.RegisterAgent:output_type -> aeroarc.registry.v1.RegisterAgentResponse
+	11, // 16: aeroarc.registry.v1.AeroRegistry.HeartbeatAgent:output_type -> aeroarc.registry.v1.HeartbeatAgentResponse
+	16, // 17: aeroarc.registry.v1.AeroRegistry.ListAgents:output_type -> aeroarc.registry.v1.ListAgentsResponse
+	14, // 18: aeroarc.registry.v1.AeroRegistry.GetAgentPlacement:output_type -> aeroarc.registry.v1.GetAgentPlacementResponse
+	12, // [12:19] is the sub-list for method output_type
+	5,  // [5:12] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_aeroarc_registry_v1_registry_proto_init() }
@@ -832,7 +922,7 @@ func file_aeroarc_registry_v1_registry_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_aeroarc_registry_v1_registry_proto_rawDesc), len(file_aeroarc_registry_v1_registry_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   15,
+			NumMessages:   17,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

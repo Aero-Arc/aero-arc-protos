@@ -18,6 +18,7 @@ service AeroRegistry {
   // ---- Agent lifecycle ----
   rpc RegisterAgent(RegisterAgentRequest) returns (RegisterAgentResponse);
   rpc HeartbeatAgent(HeartbeatAgentRequest) returns (HeartbeatAgentResponse);
+  rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse);
   rpc GetAgentPlacement(GetAgentPlacementRequest) returns (GetAgentPlacementResponse);
 }
 
@@ -95,4 +96,10 @@ message GetAgentPlacementRequest {
 
 message GetAgentPlacementResponse {
   AgentPlacement placement = 1;
+}
+
+message ListAgentsRequest {};
+
+message ListAgentsResponse {
+  repeated Agent agents = 1;
 }
