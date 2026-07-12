@@ -2,13 +2,12 @@ syntax = "proto3";
 
 package aeroarc.relay.v1;
 
+import "aeroarc/agent/v1/agent.proto";
+
 option go_package = "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/relay/v1;relayv1";
 
-// RelayControl exposes read-only control-plane APIs for observing
-// live drone session state managed by a relay.
-//
-// This service is consumed by the AeroArc control plane (aeroarc-api)
-// and MUST NOT expose any mutating operations in v0.1.
+// RelayControl exposes control-plane APIs for observing and updating live
+// agent sessions managed by a relay. It is consumed by aero-arc-api.
 service RelayControl {
 
   // List all drones currently connected to this relay.
@@ -18,6 +17,14 @@ service RelayControl {
   // Get the current status of a single drone by drone_id.
   rpc GetDroneStatus(GetDroneStatusRequest)
       returns (GetDroneStatusResponse);
+
+  // Set and durably confirm the active operation context on an agent.
+  rpc SetOperationContext(SetOperationContextRequest)
+      returns (SetOperationContextResponse);
+
+  // Clear and durably confirm the active operation context on an agent.
+  rpc ClearOperationContext(ClearOperationContextRequest)
+      returns (ClearOperationContextResponse);
 }
 
 // ----- Requests -----
@@ -30,6 +37,16 @@ message GetDroneStatusRequest {
   string drone_id = 1;
 }
 
+message SetOperationContextRequest {
+  string agent_id = 1;
+  aeroarc.agent.v1.SetOperationContextCommand command = 2;
+}
+
+message ClearOperationContextRequest {
+  string agent_id = 1;
+  aeroarc.agent.v1.ClearOperationContextCommand command = 2;
+}
+
 // ----- Responses -----
 
 message ListActiveDronesResponse {
@@ -38,6 +55,19 @@ message ListActiveDronesResponse {
 
 message GetDroneStatusResponse {
   DroneStatus drone = 1;
+}
+
+// A successful RPC response means the relay received an acknowledgement from
+// the target agent. Transport, offline-agent, and deadline failures are
+// returned as gRPC errors instead.
+message SetOperationContextResponse {
+  aeroarc.agent.v1.OperationContextCommandAck result = 1;
+}
+
+// A successful RPC response means the relay received an acknowledgement from
+// the target agent. Inspect result.status for the application outcome.
+message ClearOperationContextResponse {
+  aeroarc.agent.v1.OperationContextCommandAck result = 1;
 }
 
 // ----- Core Types -----
@@ -65,4 +95,8 @@ message DroneStatus {
 
   // Optional flight grouping (client-defined)
   string flight_id = 7;
+
+  // Active intent context reported by the connected agent.
+  string intent_id = 8;
+  uint32 intent_version = 9;
 }
