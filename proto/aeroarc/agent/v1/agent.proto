@@ -10,8 +10,8 @@ service AgentGateway {
   rpc Register(RegisterRequest) returns (RegisterResponse);
 
   // Bidirectional telemetry streaming.
-  rpc TelemetryStream(stream TelemetryFrame)
-      returns (stream TelemetryAck);
+  rpc TelemetryStream(stream AgentStreamMessage)
+      returns (stream RelayStreamMessage);
 }
 
 // ----- Registration -----
@@ -50,8 +50,11 @@ message TelemetryFrame {
   // Not guaranteed to preserve original types.
   map<string, string> fields = 10;
 
-  // Optional: client-defined flight grouping
+  // Capture-time operation context. The agent persists these values with the
+  // frame before WAL insertion so replay retains the original attribution.
   string flight_id = 11;
+  string intent_id = 12;
+  uint32 intent_version = 13;
 }
 
 message TelemetryAck {
@@ -67,4 +70,63 @@ message TelemetryAck {
 
   Status status = 3;
   string error  = 4;
+}
+
+// AgentStreamMessage multiplexes telemetry and acknowledgements for commands
+// received from the relay on the same bidirectional stream.
+message AgentStreamMessage {
+  oneof payload {
+    TelemetryFrame telemetry_frame = 1;
+    OperationContextCommandAck operation_context_command_ack = 2;
+  }
+}
+
+// RelayStreamMessage multiplexes telemetry delivery acknowledgements and
+// operation-context commands sent to the agent.
+message RelayStreamMessage {
+  oneof payload {
+    TelemetryAck telemetry_ack = 1;
+    SetOperationContextCommand set_operation_context = 2;
+    ClearOperationContextCommand clear_operation_context = 3;
+  }
+}
+
+// OperationContext identifies the API-authoritative flight and intent that the
+// agent stamps onto newly captured telemetry frames.
+message OperationContext {
+  string flight_id = 1;
+  string intent_id = 2;
+  uint32 intent_version = 3;
+}
+
+// SetOperationContextCommand replaces the agent's active operation context.
+// command_id is an idempotency key and must be stable across relay retries.
+message SetOperationContextCommand {
+  string command_id = 1;
+  OperationContext context = 2;
+}
+
+// ClearOperationContextCommand clears the active context only when flight_id
+// matches it. This prevents a delayed command from clearing a newer flight.
+message ClearOperationContextCommand {
+  string command_id = 1;
+  string flight_id = 2;
+}
+
+// OperationContextCommandAck reports the durable result of applying a set or
+// clear command. Repeated command IDs return the previously recorded result.
+message OperationContextCommandAck {
+  string command_id = 1;
+
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_APPLIED = 1;
+    STATUS_ALREADY_APPLIED = 2;
+    STATUS_REJECTED = 3;
+    STATUS_TEMPORARY_ERROR = 4;
+  }
+
+  Status status = 2;
+  string error = 3;
+  OperationContext active_context = 4;
 }
