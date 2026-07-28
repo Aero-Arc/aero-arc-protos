@@ -9,6 +9,9 @@ option go_package = "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/registry
 //
 // The registry acts as a backend-agnostic control plane for discovering
 // relays and agents, tracking liveness, and resolving agent-to-relay placement.
+// This public service name predates lint enforcement and cannot be changed
+// without breaking generated clients.
+// buf:lint:ignore SERVICE_SUFFIX
 service AeroRegistry {
   // ---- Relay lifecycle ----
   rpc RegisterRelay(RegisterRelayRequest) returns (RegisterRelayResponse);

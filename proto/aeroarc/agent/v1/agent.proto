@@ -5,11 +5,17 @@ package aeroarc.agent.v1;
 option go_package = "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/agent/v1;agentv1";
 
 // Agent → Relay RPC API
+// This public service name predates lint enforcement and cannot be changed
+// without breaking generated clients.
+// buf:lint:ignore SERVICE_SUFFIX
 service AgentGateway {
   // Initial connection handshake.
   rpc Register(RegisterRequest) returns (RegisterResponse);
 
   // Bidirectional telemetry streaming.
+  // These established stream envelope names intentionally describe direction.
+  // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
+  // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
   rpc TelemetryStream(stream AgentStreamMessage)
       returns (stream RelayStreamMessage);
 }
@@ -62,6 +68,9 @@ message TelemetryAck {
   uint64 seq = 2;
 
   enum Status {
+    // This public enum value predates lint enforcement and cannot be renamed
+    // without changing its JSON representation.
+    // buf:lint:ignore ENUM_ZERO_VALUE_SUFFIX
     STATUS_OK              = 0;
     STATUS_TEMPORARY_ERROR = 1;
     STATUS_PERMANENT_ERROR = 2;
