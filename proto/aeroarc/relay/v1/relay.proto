@@ -8,6 +8,9 @@ option go_package = "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/relay/v1
 
 // RelayControl exposes control-plane APIs for observing and updating live
 // agent sessions managed by a relay. It is consumed by aero-arc-api.
+// This public service name predates lint enforcement and cannot be changed
+// without breaking generated clients.
+// buf:lint:ignore SERVICE_SUFFIX
 service RelayControl {
 
   // List all drones currently connected to this relay.
