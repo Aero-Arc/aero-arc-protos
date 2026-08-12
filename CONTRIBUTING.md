@@ -10,10 +10,15 @@ Create a branch from `master`, then run the project checks before opening a
 pull request:
 
 ```sh
+buf generate
 buf lint
 go test ./...
 go vet ./...
 ```
+
+When changing one schema, `buf generate --path proto/<path>/<file>.proto`
+regenerates only its checked-in Go artifacts and avoids unrelated generator
+churn. Never edit files under `gen/` by hand.
 
 External pull request workflows require maintainer approval before they run.
 Do not include secrets or credentials in code, tests, logs, or workflow files.
