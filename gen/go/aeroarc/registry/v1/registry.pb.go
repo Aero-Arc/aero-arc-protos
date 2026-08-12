@@ -486,8 +486,12 @@ type HeartbeatAgentRequest struct {
 	AgentId string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
 	// Unix timestamp (milliseconds) when heartbeat was sent.
 	TimestampUnixMs int64 `protobuf:"varint,2,opt,name=timestamp_unix_ms,json=timestampUnixMs,proto3" json:"timestamp_unix_ms,omitempty"`
-	unknownFields   protoimpl.UnknownFields
-	sizeCache       protoimpl.SizeCache
+	// Relay currently carrying this agent's telemetry stream. The registry uses
+	// this identity to reject heartbeats from a relay that no longer owns the
+	// agent placement.
+	RelayId       string `protobuf:"bytes,3,opt,name=relay_id,json=relayId,proto3" json:"relay_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *HeartbeatAgentRequest) Reset() {
@@ -532,6 +536,13 @@ func (x *HeartbeatAgentRequest) GetTimestampUnixMs() int64 {
 		return x.TimestampUnixMs
 	}
 	return 0
+}
+
+func (x *HeartbeatAgentRequest) GetRelayId() string {
+	if x != nil {
+		return x.RelayId
+	}
+	return ""
 }
 
 type HeartbeatAgentResponse struct {
@@ -825,10 +836,11 @@ const file_aeroarc_registry_v1_registry_proto_rawDesc = "" +
 	"\x14RegisterAgentRequest\x120\n" +
 	"\x05agent\x18\x01 \x01(\v2\x1a.aeroarc.registry.v1.AgentR\x05agent\x12\x19\n" +
 	"\brelay_id\x18\x02 \x01(\tR\arelayId\"\x17\n" +
-	"\x15RegisterAgentResponse\"^\n" +
+	"\x15RegisterAgentResponse\"y\n" +
 	"\x15HeartbeatAgentRequest\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12*\n" +
-	"\x11timestamp_unix_ms\x18\x02 \x01(\x03R\x0ftimestampUnixMs\"\x18\n" +
+	"\x11timestamp_unix_ms\x18\x02 \x01(\x03R\x0ftimestampUnixMs\x12\x19\n" +
+	"\brelay_id\x18\x03 \x01(\tR\arelayId\"\x18\n" +
 	"\x16HeartbeatAgentResponse\"w\n" +
 	"\x0eAgentPlacement\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x19\n" +

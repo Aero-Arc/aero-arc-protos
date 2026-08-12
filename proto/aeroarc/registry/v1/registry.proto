@@ -81,6 +81,11 @@ message HeartbeatAgentRequest {
 
   // Unix timestamp (milliseconds) when heartbeat was sent.
   int64 timestamp_unix_ms = 2;
+
+  // Relay currently carrying this agent's telemetry stream. The registry uses
+  // this identity to reject heartbeats from a relay that no longer owns the
+  // agent placement.
+  string relay_id = 3;
 }
 
 message HeartbeatAgentResponse {}
