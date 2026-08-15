@@ -1,0 +1,196 @@
+syntax = "proto3";
+
+package aeroarc.conformance.v1;
+
+import "google/protobuf/timestamp.proto";
+
+option go_package = "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/conformance/v1;conformancev1";
+
+// ConformanceService accepts idempotent assignment lifecycle commands from the
+// API. Preparing a candidate never authorizes telemetry; only CutoverAssignment
+// establishes the candidate's half-open authority interval.
+service ConformanceService {
+  rpc PrepareAssignment(PrepareAssignmentRequest) returns (PrepareAssignmentResponse);
+  rpc CancelAssignmentCandidate(CancelAssignmentCandidateRequest) returns (CancelAssignmentCandidateResponse);
+  rpc CutoverAssignment(CutoverAssignmentRequest) returns (CutoverAssignmentResponse);
+  rpc GetAssignment(GetAssignmentRequest) returns (GetAssignmentResponse);
+}
+
+enum AssignmentCommandDisposition {
+  ASSIGNMENT_COMMAND_DISPOSITION_UNSPECIFIED = 0;
+  ASSIGNMENT_COMMAND_DISPOSITION_APPLIED = 1;
+  ASSIGNMENT_COMMAND_DISPOSITION_IDEMPOTENT = 2;
+  ASSIGNMENT_COMMAND_DISPOSITION_STALE = 3;
+}
+
+enum AssignmentLifecycle {
+  ASSIGNMENT_LIFECYCLE_UNSPECIFIED = 0;
+  ASSIGNMENT_LIFECYCLE_CANDIDATE_RECEIVED = 1;
+  ASSIGNMENT_LIFECYCLE_CANDIDATE_ARMED = 2;
+  ASSIGNMENT_LIFECYCLE_ACTIVE = 3;
+  ASSIGNMENT_LIFECYCLE_ENDING = 4;
+  ASSIGNMENT_LIFECYCLE_COMPLETED = 5;
+  ASSIGNMENT_LIFECYCLE_CANCELLED = 6;
+  ASSIGNMENT_LIFECYCLE_SUPERSEDED = 7;
+}
+
+enum AltitudeReference {
+  ALTITUDE_REFERENCE_UNSPECIFIED = 0;
+  ALTITUDE_REFERENCE_MSL = 1;
+  ALTITUDE_REFERENCE_AGL = 2;
+}
+
+message GeographicPoint {
+  double latitude = 1;
+  double longitude = 2;
+}
+
+message ConformanceVolume {
+  string volume_id = 1;
+  repeated GeographicPoint polygon = 2;
+  double altitude_lower_m = 3;
+  double altitude_upper_m = 4;
+  AltitudeReference altitude_reference = 5;
+  google.protobuf.Timestamp starts_at = 6;
+  google.protobuf.Timestamp ends_at = 7;
+}
+
+message Assignment {
+  string assignment_id = 1;
+  uint64 assignment_generation = 2;
+  string operator_id = 3;
+  string aircraft_id = 4;
+  string agent_id = 5;
+  string flight_id = 6;
+  string intent_id = 7;
+  uint32 intent_version = 8;
+  string policy_version = 9;
+  google.protobuf.Timestamp effective_from = 10;
+  google.protobuf.Timestamp effective_until = 11;
+  repeated ConformanceVolume volumes = 12;
+}
+
+message AssignmentRecord {
+  Assignment assignment = 1;
+  AssignmentLifecycle lifecycle = 2;
+  google.protobuf.Timestamp authority_from = 3;
+  google.protobuf.Timestamp authority_until = 4;
+  google.protobuf.Timestamp prepared_at = 5;
+  google.protobuf.Timestamp armed_at = 6;
+  google.protobuf.Timestamp cutover_at = 7;
+}
+
+message PrepareAssignmentRequest {
+  string source = 1;
+  string message_id = 2;
+  Assignment assignment = 3;
+}
+
+message CancelAssignmentCandidateRequest {
+  string source = 1;
+  string message_id = 2;
+  string assignment_id = 3;
+  uint64 assignment_generation = 4;
+}
+
+message CutoverAssignmentRequest {
+  string source = 1;
+  string message_id = 2;
+  string assignment_id = 3;
+  uint64 assignment_generation = 4;
+  google.protobuf.Timestamp effective_at = 5;
+}
+
+message PrepareAssignmentResponse {
+  AssignmentCommandDisposition disposition = 1;
+  AssignmentRecord assignment = 2;
+}
+
+message CancelAssignmentCandidateResponse {
+  AssignmentCommandDisposition disposition = 1;
+  AssignmentRecord assignment = 2;
+}
+
+message CutoverAssignmentResponse {
+  AssignmentCommandDisposition disposition = 1;
+  AssignmentRecord assignment = 2;
+}
+
+message GetAssignmentRequest {
+  string assignment_id = 1;
+  uint64 assignment_generation = 2;
+}
+
+message GetAssignmentResponse {
+  AssignmentRecord assignment = 1;
+}
+
+enum ConformanceCondition {
+  CONFORMANCE_CONDITION_UNSPECIFIED = 0;
+  CONFORMANCE_CONDITION_UNKNOWN = 1;
+  CONFORMANCE_CONDITION_CONFORMING = 2;
+  CONFORMANCE_CONDITION_SUSPECTED = 3;
+  CONFORMANCE_CONDITION_NON_CONFORMING = 4;
+  CONFORMANCE_CONDITION_RECOVERING = 5;
+}
+
+enum MonitoringStatus {
+  MONITORING_STATUS_UNSPECIFIED = 0;
+  MONITORING_STATUS_RECEIVED = 1;
+  MONITORING_STATUS_ARMED = 2;
+  MONITORING_STATUS_CURRENT = 3;
+  MONITORING_STATUS_STALE = 4;
+  MONITORING_STATUS_UNAVAILABLE = 5;
+}
+
+enum RecordingStatus {
+  RECORDING_STATUS_UNSPECIFIED = 0;
+  RECORDING_STATUS_PENDING = 1;
+  RECORDING_STATUS_CONFIRMED = 2;
+  RECORDING_STATUS_DEGRADED = 3;
+}
+
+enum ViolationType {
+  VIOLATION_TYPE_UNSPECIFIED = 0;
+  VIOLATION_TYPE_LATERAL_DEVIATION = 1;
+  VIOLATION_TYPE_ALTITUDE_DEVIATION = 2;
+  VIOLATION_TYPE_TEMPORAL_DEVIATION = 3;
+  VIOLATION_TYPE_TELEMETRY_LOSS = 4;
+}
+
+enum IncidentPhase {
+  INCIDENT_PHASE_UNSPECIFIED = 0;
+  INCIDENT_PHASE_CLEAR = 1;
+  INCIDENT_PHASE_SUSPECTED = 2;
+  INCIDENT_PHASE_OPEN = 3;
+  INCIDENT_PHASE_RECOVERING = 4;
+}
+
+message ViolationSummary {
+  ViolationType violation_type = 1;
+  IncidentPhase phase = 2;
+  string opening_frame_id = 3;
+  google.protobuf.Timestamp opened_at = 4;
+  google.protobuf.Timestamp last_observed_at = 5;
+  double worst_deviation_m = 6;
+}
+
+// ConformanceSummary is the current, replaceable live projection for one
+// authoritative assignment generation. It is not incident history.
+message ConformanceSummary {
+  string assignment_id = 1;
+  uint64 assignment_generation = 2;
+  uint64 evaluation_revision = 3;
+  string evaluation_id = 4;
+  string operator_id = 5;
+  string aircraft_id = 6;
+  string flight_id = 7;
+  string intent_id = 8;
+  uint32 intent_version = 9;
+  ConformanceCondition condition = 10;
+  MonitoringStatus monitoring_status = 11;
+  RecordingStatus recording_status = 12;
+  google.protobuf.Timestamp observed_at = 13;
+  string frame_id = 14;
+  repeated ViolationSummary violations = 15;
+}

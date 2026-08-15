@@ -19,13 +19,16 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AeroRegistry_RegisterRelay_FullMethodName     = "/aeroarc.registry.v1.AeroRegistry/RegisterRelay"
-	AeroRegistry_HeartbeatRelay_FullMethodName    = "/aeroarc.registry.v1.AeroRegistry/HeartbeatRelay"
-	AeroRegistry_ListRelays_FullMethodName        = "/aeroarc.registry.v1.AeroRegistry/ListRelays"
-	AeroRegistry_RegisterAgent_FullMethodName     = "/aeroarc.registry.v1.AeroRegistry/RegisterAgent"
-	AeroRegistry_HeartbeatAgent_FullMethodName    = "/aeroarc.registry.v1.AeroRegistry/HeartbeatAgent"
-	AeroRegistry_ListAgents_FullMethodName        = "/aeroarc.registry.v1.AeroRegistry/ListAgents"
-	AeroRegistry_GetAgentPlacement_FullMethodName = "/aeroarc.registry.v1.AeroRegistry/GetAgentPlacement"
+	AeroRegistry_RegisterRelay_FullMethodName                = "/aeroarc.registry.v1.AeroRegistry/RegisterRelay"
+	AeroRegistry_HeartbeatRelay_FullMethodName               = "/aeroarc.registry.v1.AeroRegistry/HeartbeatRelay"
+	AeroRegistry_ListRelays_FullMethodName                   = "/aeroarc.registry.v1.AeroRegistry/ListRelays"
+	AeroRegistry_RegisterAgent_FullMethodName                = "/aeroarc.registry.v1.AeroRegistry/RegisterAgent"
+	AeroRegistry_HeartbeatAgent_FullMethodName               = "/aeroarc.registry.v1.AeroRegistry/HeartbeatAgent"
+	AeroRegistry_ListAgents_FullMethodName                   = "/aeroarc.registry.v1.AeroRegistry/ListAgents"
+	AeroRegistry_GetAgentPlacement_FullMethodName            = "/aeroarc.registry.v1.AeroRegistry/GetAgentPlacement"
+	AeroRegistry_PublishConformanceSummary_FullMethodName    = "/aeroarc.registry.v1.AeroRegistry/PublishConformanceSummary"
+	AeroRegistry_GetConformanceSummary_FullMethodName        = "/aeroarc.registry.v1.AeroRegistry/GetConformanceSummary"
+	AeroRegistry_BatchGetConformanceSummaries_FullMethodName = "/aeroarc.registry.v1.AeroRegistry/BatchGetConformanceSummaries"
 )
 
 // AeroRegistryClient is the client API for AeroRegistry service.
@@ -36,6 +39,9 @@ const (
 //
 // The registry acts as a backend-agnostic control plane for discovering
 // relays and agents, tracking liveness, and resolving agent-to-relay placement.
+// This public service name predates lint enforcement and cannot be changed
+// without breaking generated clients.
+// buf:lint:ignore SERVICE_SUFFIX
 type AeroRegistryClient interface {
 	// ---- Relay lifecycle ----
 	RegisterRelay(ctx context.Context, in *RegisterRelayRequest, opts ...grpc.CallOption) (*RegisterRelayResponse, error)
@@ -46,6 +52,10 @@ type AeroRegistryClient interface {
 	HeartbeatAgent(ctx context.Context, in *HeartbeatAgentRequest, opts ...grpc.CallOption) (*HeartbeatAgentResponse, error)
 	ListAgents(ctx context.Context, in *ListAgentsRequest, opts ...grpc.CallOption) (*ListAgentsResponse, error)
 	GetAgentPlacement(ctx context.Context, in *GetAgentPlacementRequest, opts ...grpc.CallOption) (*GetAgentPlacementResponse, error)
+	// ---- Current conformance projection ----
+	PublishConformanceSummary(ctx context.Context, in *PublishConformanceSummaryRequest, opts ...grpc.CallOption) (*PublishConformanceSummaryResponse, error)
+	GetConformanceSummary(ctx context.Context, in *GetConformanceSummaryRequest, opts ...grpc.CallOption) (*GetConformanceSummaryResponse, error)
+	BatchGetConformanceSummaries(ctx context.Context, in *BatchGetConformanceSummariesRequest, opts ...grpc.CallOption) (*BatchGetConformanceSummariesResponse, error)
 }
 
 type aeroRegistryClient struct {
@@ -126,6 +136,36 @@ func (c *aeroRegistryClient) GetAgentPlacement(ctx context.Context, in *GetAgent
 	return out, nil
 }
 
+func (c *aeroRegistryClient) PublishConformanceSummary(ctx context.Context, in *PublishConformanceSummaryRequest, opts ...grpc.CallOption) (*PublishConformanceSummaryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(PublishConformanceSummaryResponse)
+	err := c.cc.Invoke(ctx, AeroRegistry_PublishConformanceSummary_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aeroRegistryClient) GetConformanceSummary(ctx context.Context, in *GetConformanceSummaryRequest, opts ...grpc.CallOption) (*GetConformanceSummaryResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetConformanceSummaryResponse)
+	err := c.cc.Invoke(ctx, AeroRegistry_GetConformanceSummary_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *aeroRegistryClient) BatchGetConformanceSummaries(ctx context.Context, in *BatchGetConformanceSummariesRequest, opts ...grpc.CallOption) (*BatchGetConformanceSummariesResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(BatchGetConformanceSummariesResponse)
+	err := c.cc.Invoke(ctx, AeroRegistry_BatchGetConformanceSummaries_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // AeroRegistryServer is the server API for AeroRegistry service.
 // All implementations must embed UnimplementedAeroRegistryServer
 // for forward compatibility.
@@ -134,6 +174,9 @@ func (c *aeroRegistryClient) GetAgentPlacement(ctx context.Context, in *GetAgent
 //
 // The registry acts as a backend-agnostic control plane for discovering
 // relays and agents, tracking liveness, and resolving agent-to-relay placement.
+// This public service name predates lint enforcement and cannot be changed
+// without breaking generated clients.
+// buf:lint:ignore SERVICE_SUFFIX
 type AeroRegistryServer interface {
 	// ---- Relay lifecycle ----
 	RegisterRelay(context.Context, *RegisterRelayRequest) (*RegisterRelayResponse, error)
@@ -144,6 +187,10 @@ type AeroRegistryServer interface {
 	HeartbeatAgent(context.Context, *HeartbeatAgentRequest) (*HeartbeatAgentResponse, error)
 	ListAgents(context.Context, *ListAgentsRequest) (*ListAgentsResponse, error)
 	GetAgentPlacement(context.Context, *GetAgentPlacementRequest) (*GetAgentPlacementResponse, error)
+	// ---- Current conformance projection ----
+	PublishConformanceSummary(context.Context, *PublishConformanceSummaryRequest) (*PublishConformanceSummaryResponse, error)
+	GetConformanceSummary(context.Context, *GetConformanceSummaryRequest) (*GetConformanceSummaryResponse, error)
+	BatchGetConformanceSummaries(context.Context, *BatchGetConformanceSummariesRequest) (*BatchGetConformanceSummariesResponse, error)
 	mustEmbedUnimplementedAeroRegistryServer()
 }
 
@@ -174,6 +221,15 @@ func (UnimplementedAeroRegistryServer) ListAgents(context.Context, *ListAgentsRe
 }
 func (UnimplementedAeroRegistryServer) GetAgentPlacement(context.Context, *GetAgentPlacementRequest) (*GetAgentPlacementResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAgentPlacement not implemented")
+}
+func (UnimplementedAeroRegistryServer) PublishConformanceSummary(context.Context, *PublishConformanceSummaryRequest) (*PublishConformanceSummaryResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method PublishConformanceSummary not implemented")
+}
+func (UnimplementedAeroRegistryServer) GetConformanceSummary(context.Context, *GetConformanceSummaryRequest) (*GetConformanceSummaryResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetConformanceSummary not implemented")
+}
+func (UnimplementedAeroRegistryServer) BatchGetConformanceSummaries(context.Context, *BatchGetConformanceSummariesRequest) (*BatchGetConformanceSummariesResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method BatchGetConformanceSummaries not implemented")
 }
 func (UnimplementedAeroRegistryServer) mustEmbedUnimplementedAeroRegistryServer() {}
 func (UnimplementedAeroRegistryServer) testEmbeddedByValue()                      {}
@@ -322,6 +378,60 @@ func _AeroRegistry_GetAgentPlacement_Handler(srv interface{}, ctx context.Contex
 	return interceptor(ctx, in, info, handler)
 }
 
+func _AeroRegistry_PublishConformanceSummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(PublishConformanceSummaryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AeroRegistryServer).PublishConformanceSummary(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AeroRegistry_PublishConformanceSummary_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AeroRegistryServer).PublishConformanceSummary(ctx, req.(*PublishConformanceSummaryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AeroRegistry_GetConformanceSummary_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetConformanceSummaryRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AeroRegistryServer).GetConformanceSummary(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AeroRegistry_GetConformanceSummary_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AeroRegistryServer).GetConformanceSummary(ctx, req.(*GetConformanceSummaryRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _AeroRegistry_BatchGetConformanceSummaries_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(BatchGetConformanceSummariesRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(AeroRegistryServer).BatchGetConformanceSummaries(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: AeroRegistry_BatchGetConformanceSummaries_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(AeroRegistryServer).BatchGetConformanceSummaries(ctx, req.(*BatchGetConformanceSummariesRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // AeroRegistry_ServiceDesc is the grpc.ServiceDesc for AeroRegistry service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -356,6 +466,18 @@ var AeroRegistry_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAgentPlacement",
 			Handler:    _AeroRegistry_GetAgentPlacement_Handler,
+		},
+		{
+			MethodName: "PublishConformanceSummary",
+			Handler:    _AeroRegistry_PublishConformanceSummary_Handler,
+		},
+		{
+			MethodName: "GetConformanceSummary",
+			Handler:    _AeroRegistry_GetConformanceSummary_Handler,
+		},
+		{
+			MethodName: "BatchGetConformanceSummaries",
+			Handler:    _AeroRegistry_BatchGetConformanceSummaries_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
