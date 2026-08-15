@@ -3,6 +3,9 @@ syntax = "proto3";
 
 package aeroarc.registry.v1;
 
+import "aeroarc/conformance/v1/conformance.proto";
+import "google/protobuf/timestamp.proto";
+
 option go_package = "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/registry/v1;registryv1";
 
 // Aero Arc Registry RPC API.
@@ -23,6 +26,11 @@ service AeroRegistry {
   rpc HeartbeatAgent(HeartbeatAgentRequest) returns (HeartbeatAgentResponse);
   rpc ListAgents(ListAgentsRequest) returns (ListAgentsResponse);
   rpc GetAgentPlacement(GetAgentPlacementRequest) returns (GetAgentPlacementResponse);
+
+  // ---- Current conformance projection ----
+  rpc PublishConformanceSummary(PublishConformanceSummaryRequest) returns (PublishConformanceSummaryResponse);
+  rpc GetConformanceSummary(GetConformanceSummaryRequest) returns (GetConformanceSummaryResponse);
+  rpc BatchGetConformanceSummaries(BatchGetConformanceSummariesRequest) returns (BatchGetConformanceSummariesResponse);
 }
 
 // ----- Relay messages -----
@@ -110,4 +118,44 @@ message ListAgentsRequest {};
 
 message ListAgentsResponse {
   repeated Agent agents = 1;
+}
+
+// ----- Current conformance projection -----
+
+enum ConformancePublishDisposition {
+  CONFORMANCE_PUBLISH_DISPOSITION_UNSPECIFIED = 0;
+  CONFORMANCE_PUBLISH_DISPOSITION_APPLIED = 1;
+  CONFORMANCE_PUBLISH_DISPOSITION_IDEMPOTENT = 2;
+}
+
+message ConformanceProjection {
+  aeroarc.conformance.v1.ConformanceSummary summary = 1;
+  google.protobuf.Timestamp stored_at = 2;
+  google.protobuf.Timestamp expires_at = 3;
+}
+
+message PublishConformanceSummaryRequest {
+  aeroarc.conformance.v1.ConformanceSummary summary = 1;
+}
+
+message PublishConformanceSummaryResponse {
+  ConformancePublishDisposition disposition = 1;
+  ConformanceProjection projection = 2;
+}
+
+message GetConformanceSummaryRequest {
+  string assignment_id = 1;
+}
+
+message GetConformanceSummaryResponse {
+  ConformanceProjection projection = 1;
+}
+
+message BatchGetConformanceSummariesRequest {
+  repeated string assignment_ids = 1;
+}
+
+message BatchGetConformanceSummariesResponse {
+  repeated ConformanceProjection projections = 1;
+  repeated string missing_assignment_ids = 2;
 }
