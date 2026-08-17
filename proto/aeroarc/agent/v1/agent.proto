@@ -16,41 +16,40 @@ service AgentGateway {
   // These established stream envelope names intentionally describe direction.
   // buf:lint:ignore RPC_REQUEST_STANDARD_NAME
   // buf:lint:ignore RPC_RESPONSE_STANDARD_NAME
-  rpc TelemetryStream(stream AgentStreamMessage)
-      returns (stream RelayStreamMessage);
+  rpc TelemetryStream(stream AgentStreamMessage) returns (stream RelayStreamMessage);
 }
 
 // ----- Registration -----
 
 message RegisterRequest {
-  string agent_id      = 1;
+  string agent_id = 1;
 
   string agent_version = 2;
-  string platform      = 3; // e.g. "linux/arm64"
+  string platform = 3; // e.g. "linux/arm64"
 }
 
 message RegisterResponse {
-  string agent_id    = 1;
-  string session_id  = 3;
+  string agent_id = 1;
+  string session_id = 3;
 
-  int64  max_inflight = 4; // recommended unacked frames in flight
+  int64 max_inflight = 4; // recommended unacked frames in flight
 }
 
 // ----- Telemetry -----
 
 message TelemetryFrame {
   string session_id = 1; // server-issued session ID from RegisterResponse
-  string agent_id   = 2;
+  string agent_id = 2;
 
-  uint64 seq        = 3; // monotonically increasing sequence number
+  uint64 seq = 3; // monotonically increasing sequence number
 
-  int64  sent_at_unix_ns   = 4;
+  int64 sent_at_unix_ns = 4;
   double device_timestamp_sec = 5;
 
-  bytes  raw_mavlink       = 6;
-  string dialect           = 7;
-  uint32 msg_id            = 8;
-  string msg_name          = 9;
+  bytes raw_mavlink = 6;
+  string dialect = 7;
+  uint32 msg_id = 8;
+  string msg_name = 9;
 
   // Parsed MAVLink fields as stringified key/value pairs.
   // Not guaranteed to preserve original types.
@@ -71,14 +70,14 @@ message TelemetryAck {
     // This public enum value predates lint enforcement and cannot be renamed
     // without changing its JSON representation.
     // buf:lint:ignore ENUM_ZERO_VALUE_SUFFIX
-    STATUS_OK              = 0;
+    STATUS_OK = 0;
     STATUS_TEMPORARY_ERROR = 1;
     STATUS_PERMANENT_ERROR = 2;
     STATUS_RETRY_WITH_BACKOFF = 3;
   }
 
   Status status = 3;
-  string error  = 4;
+  string error = 4;
 }
 
 // AgentStreamMessage multiplexes telemetry and acknowledgements for commands
@@ -87,6 +86,7 @@ message AgentStreamMessage {
   oneof payload {
     TelemetryFrame telemetry_frame = 1;
     OperationContextCommandAck operation_context_command_ack = 2;
+    AircraftCommandResult aircraft_command_result = 3;
   }
 }
 
@@ -97,7 +97,45 @@ message RelayStreamMessage {
     TelemetryAck telemetry_ack = 1;
     SetOperationContextCommand set_operation_context = 2;
     ClearOperationContextCommand clear_operation_context = 3;
+    AircraftCommand aircraft_command = 4;
   }
+}
+
+// AircraftCommandType is the intentionally small set of vehicle commands
+// supported by the first cloud-to-aircraft control slice.
+enum AircraftCommandType {
+  AIRCRAFT_COMMAND_TYPE_UNSPECIFIED = 0;
+  AIRCRAFT_COMMAND_TYPE_ARM = 1;
+  AIRCRAFT_COMMAND_TYPE_DISARM = 2;
+}
+
+// AircraftCommand addresses an immediate command to an Aero Arc aircraft.
+// Commands are delivered only to the Agent session active when the Relay RPC
+// is handled; they are not persisted or replayed after reconnect.
+message AircraftCommand {
+  string command_id = 1;
+  string aircraft_id = 2;
+  AircraftCommandType type = 3;
+  int64 issued_at_unix_ms = 4;
+}
+
+// AircraftCommandResult reports the autopilot-level outcome of a command.
+// STATUS_ACCEPTED means the vehicle protocol acknowledged execution, not merely
+// that Relay or Agent accepted the envelope.
+message AircraftCommandResult {
+  string command_id = 1;
+  string aircraft_id = 2;
+
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_ACCEPTED = 1;
+    STATUS_REJECTED = 2;
+    STATUS_TIMEOUT = 3;
+    STATUS_DELIVERY_FAILED = 4;
+  }
+
+  Status status = 3;
+  string message = 4;
 }
 
 // OperationContext identifies the API-authoritative flight and intent that the

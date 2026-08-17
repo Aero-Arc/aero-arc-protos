@@ -12,22 +12,21 @@ option go_package = "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/relay/v1
 // without breaking generated clients.
 // buf:lint:ignore SERVICE_SUFFIX
 service RelayControl {
-
   // List all drones currently connected to this relay.
-  rpc ListActiveDrones(ListActiveDronesRequest)
-      returns (ListActiveDronesResponse);
+  rpc ListActiveDrones(ListActiveDronesRequest) returns (ListActiveDronesResponse);
 
   // Get the current status of a single drone by drone_id.
-  rpc GetDroneStatus(GetDroneStatusRequest)
-      returns (GetDroneStatusResponse);
+  rpc GetDroneStatus(GetDroneStatusRequest) returns (GetDroneStatusResponse);
 
   // Set and durably confirm the active operation context on an agent.
-  rpc SetOperationContext(SetOperationContextRequest)
-      returns (SetOperationContextResponse);
+  rpc SetOperationContext(SetOperationContextRequest) returns (SetOperationContextResponse);
 
   // Clear and durably confirm the active operation context on an agent.
-  rpc ClearOperationContext(ClearOperationContextRequest)
-      returns (ClearOperationContextResponse);
+  rpc ClearOperationContext(ClearOperationContextRequest) returns (ClearOperationContextResponse);
+
+  // Send an immediate ARM or DISARM command to the currently connected Agent
+  // session and wait for its autopilot-level result.
+  rpc SendAircraftCommand(SendAircraftCommandRequest) returns (SendAircraftCommandResponse);
 }
 
 // ----- Requests -----
@@ -48,6 +47,11 @@ message SetOperationContextRequest {
 message ClearOperationContextRequest {
   string agent_id = 1;
   aeroarc.agent.v1.ClearOperationContextCommand command = 2;
+}
+
+message SendAircraftCommandRequest {
+  string agent_id = 1;
+  aeroarc.agent.v1.AircraftCommand command = 2;
 }
 
 // ----- Responses -----
@@ -71,6 +75,13 @@ message SetOperationContextResponse {
 // the target agent. Inspect result.status for the application outcome.
 message ClearOperationContextResponse {
   aeroarc.agent.v1.OperationContextCommandAck result = 1;
+}
+
+// A successful RPC response means the target Agent returned a correlated
+// result. Inspect result.status for acceptance, rejection, timeout, or a local
+// Agent-to-autopilot delivery failure.
+message SendAircraftCommandResponse {
+  aeroarc.agent.v1.AircraftCommandResult result = 1;
 }
 
 // ----- Core Types -----
