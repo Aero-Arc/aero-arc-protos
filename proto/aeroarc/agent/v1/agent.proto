@@ -41,7 +41,7 @@ message TelemetryFrame {
   string session_id = 1; // server-issued session ID from RegisterResponse
   string agent_id = 2;
 
-  uint64 seq = 3; // monotonically increasing sequence number
+  uint64 seq = 3; // monotonically increasing within one WAL generation
 
   int64 sent_at_unix_ns = 4;
   double device_timestamp_sec = 5;
@@ -60,6 +60,10 @@ message TelemetryFrame {
   string flight_id = 11;
   string intent_id = 12;
   uint32 intent_version = 13;
+
+  // Stable identity of the Agent WAL generation that owns seq. It persists
+  // across process restarts and changes only when the WAL is recreated.
+  string wal_id = 14;
 }
 
 message TelemetryAck {
