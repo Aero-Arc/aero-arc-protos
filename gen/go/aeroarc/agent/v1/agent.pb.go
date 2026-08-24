@@ -1057,8 +1057,11 @@ func (x *SetOperationContextCommand) GetContext() *OperationContext {
 	return nil
 }
 
-// ClearOperationContextCommand clears the active context only when flight_id
-// matches it. This prevents a delayed command from clearing a newer flight.
+// ClearOperationContextCommand clears the active context when a non-empty
+// flight_id matches it. This prevents a delayed conditional command from
+// clearing a newer flight. An empty flight_id is a distinct authoritative
+// assertion that no operation context should be active; Relay may send it only
+// during control-plane reconciliation before telemetry admission opens.
 type ClearOperationContextCommand struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CommandId     string                 `protobuf:"bytes,1,opt,name=command_id,json=commandId,proto3" json:"command_id,omitempty"`
