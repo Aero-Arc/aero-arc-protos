@@ -161,14 +161,17 @@ message SetOperationContextCommand {
   OperationContext context = 2;
 }
 
-// ClearOperationContextCommand clears the active context when a non-empty
-// flight_id matches it. This prevents a delayed conditional command from
-// clearing a newer flight. An empty flight_id is a distinct authoritative
-// assertion that no operation context should be active; Relay may send it only
-// during control-plane reconciliation before telemetry admission opens.
+// ClearOperationContextCommand clears the active context when authoritative is
+// false and a non-empty flight_id matches it. This prevents a delayed
+// conditional command from clearing a newer flight. When authoritative is
+// true, flight_id must be empty and the command asserts that no operation
+// context should be active; Relay may use that mode only during control-plane
+// reconciliation before telemetry admission opens. The explicit discriminator
+// keeps legacy messages that omit both fields safely invalid.
 message ClearOperationContextCommand {
   string command_id = 1;
   string flight_id = 2;
+  bool authoritative = 3;
 }
 
 // OperationContextCommandAck reports the durable result of applying a set or

@@ -1057,15 +1057,18 @@ func (x *SetOperationContextCommand) GetContext() *OperationContext {
 	return nil
 }
 
-// ClearOperationContextCommand clears the active context when a non-empty
-// flight_id matches it. This prevents a delayed conditional command from
-// clearing a newer flight. An empty flight_id is a distinct authoritative
-// assertion that no operation context should be active; Relay may send it only
-// during control-plane reconciliation before telemetry admission opens.
+// ClearOperationContextCommand clears the active context when authoritative is
+// false and a non-empty flight_id matches it. This prevents a delayed
+// conditional command from clearing a newer flight. When authoritative is
+// true, flight_id must be empty and the command asserts that no operation
+// context should be active; Relay may use that mode only during control-plane
+// reconciliation before telemetry admission opens. The explicit discriminator
+// keeps legacy messages that omit both fields safely invalid.
 type ClearOperationContextCommand struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	CommandId     string                 `protobuf:"bytes,1,opt,name=command_id,json=commandId,proto3" json:"command_id,omitempty"`
 	FlightId      string                 `protobuf:"bytes,2,opt,name=flight_id,json=flightId,proto3" json:"flight_id,omitempty"`
+	Authoritative bool                   `protobuf:"varint,3,opt,name=authoritative,proto3" json:"authoritative,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1112,6 +1115,13 @@ func (x *ClearOperationContextCommand) GetFlightId() string {
 		return x.FlightId
 	}
 	return ""
+}
+
+func (x *ClearOperationContextCommand) GetAuthoritative() bool {
+	if x != nil {
+		return x.Authoritative
+	}
+	return false
 }
 
 // OperationContextCommandAck reports the durable result of applying a set or
@@ -1267,11 +1277,12 @@ const file_aeroarc_agent_v1_agent_proto_rawDesc = "" +
 	"\x1aSetOperationContextCommand\x12\x1d\n" +
 	"\n" +
 	"command_id\x18\x01 \x01(\tR\tcommandId\x12<\n" +
-	"\acontext\x18\x02 \x01(\v2\".aeroarc.agent.v1.OperationContextR\acontext\"Z\n" +
+	"\acontext\x18\x02 \x01(\v2\".aeroarc.agent.v1.OperationContextR\acontext\"\x80\x01\n" +
 	"\x1cClearOperationContextCommand\x12\x1d\n" +
 	"\n" +
 	"command_id\x18\x01 \x01(\tR\tcommandId\x12\x1b\n" +
-	"\tflight_id\x18\x02 \x01(\tR\bflightId\"\xed\x02\n" +
+	"\tflight_id\x18\x02 \x01(\tR\bflightId\x12$\n" +
+	"\rauthoritative\x18\x03 \x01(\bR\rauthoritative\"\xed\x02\n" +
 	"\x1aOperationContextCommandAck\x12\x1d\n" +
 	"\n" +
 	"command_id\x18\x01 \x01(\tR\tcommandId\x12K\n" +
