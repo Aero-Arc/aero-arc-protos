@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	ConformanceService_PrepareAssignment_FullMethodName         = "/aeroarc.conformance.v1.ConformanceService/PrepareAssignment"
+	ConformanceService_ArmAssignment_FullMethodName             = "/aeroarc.conformance.v1.ConformanceService/ArmAssignment"
 	ConformanceService_CancelAssignmentCandidate_FullMethodName = "/aeroarc.conformance.v1.ConformanceService/CancelAssignmentCandidate"
 	ConformanceService_CutoverAssignment_FullMethodName         = "/aeroarc.conformance.v1.ConformanceService/CutoverAssignment"
 	ConformanceService_GetAssignment_FullMethodName             = "/aeroarc.conformance.v1.ConformanceService/GetAssignment"
@@ -34,6 +35,7 @@ const (
 // establishes the candidate's half-open authority interval.
 type ConformanceServiceClient interface {
 	PrepareAssignment(ctx context.Context, in *PrepareAssignmentRequest, opts ...grpc.CallOption) (*PrepareAssignmentResponse, error)
+	ArmAssignment(ctx context.Context, in *ArmAssignmentRequest, opts ...grpc.CallOption) (*ArmAssignmentResponse, error)
 	CancelAssignmentCandidate(ctx context.Context, in *CancelAssignmentCandidateRequest, opts ...grpc.CallOption) (*CancelAssignmentCandidateResponse, error)
 	CutoverAssignment(ctx context.Context, in *CutoverAssignmentRequest, opts ...grpc.CallOption) (*CutoverAssignmentResponse, error)
 	GetAssignment(ctx context.Context, in *GetAssignmentRequest, opts ...grpc.CallOption) (*GetAssignmentResponse, error)
@@ -51,6 +53,16 @@ func (c *conformanceServiceClient) PrepareAssignment(ctx context.Context, in *Pr
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
 	out := new(PrepareAssignmentResponse)
 	err := c.cc.Invoke(ctx, ConformanceService_PrepareAssignment_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *conformanceServiceClient) ArmAssignment(ctx context.Context, in *ArmAssignmentRequest, opts ...grpc.CallOption) (*ArmAssignmentResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ArmAssignmentResponse)
+	err := c.cc.Invoke(ctx, ConformanceService_ArmAssignment_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -96,6 +108,7 @@ func (c *conformanceServiceClient) GetAssignment(ctx context.Context, in *GetAss
 // establishes the candidate's half-open authority interval.
 type ConformanceServiceServer interface {
 	PrepareAssignment(context.Context, *PrepareAssignmentRequest) (*PrepareAssignmentResponse, error)
+	ArmAssignment(context.Context, *ArmAssignmentRequest) (*ArmAssignmentResponse, error)
 	CancelAssignmentCandidate(context.Context, *CancelAssignmentCandidateRequest) (*CancelAssignmentCandidateResponse, error)
 	CutoverAssignment(context.Context, *CutoverAssignmentRequest) (*CutoverAssignmentResponse, error)
 	GetAssignment(context.Context, *GetAssignmentRequest) (*GetAssignmentResponse, error)
@@ -111,6 +124,9 @@ type UnimplementedConformanceServiceServer struct{}
 
 func (UnimplementedConformanceServiceServer) PrepareAssignment(context.Context, *PrepareAssignmentRequest) (*PrepareAssignmentResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method PrepareAssignment not implemented")
+}
+func (UnimplementedConformanceServiceServer) ArmAssignment(context.Context, *ArmAssignmentRequest) (*ArmAssignmentResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ArmAssignment not implemented")
 }
 func (UnimplementedConformanceServiceServer) CancelAssignmentCandidate(context.Context, *CancelAssignmentCandidateRequest) (*CancelAssignmentCandidateResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method CancelAssignmentCandidate not implemented")
@@ -156,6 +172,24 @@ func _ConformanceService_PrepareAssignment_Handler(srv interface{}, ctx context.
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
 		return srv.(ConformanceServiceServer).PrepareAssignment(ctx, req.(*PrepareAssignmentRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _ConformanceService_ArmAssignment_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ArmAssignmentRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConformanceServiceServer).ArmAssignment(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConformanceService_ArmAssignment_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConformanceServiceServer).ArmAssignment(ctx, req.(*ArmAssignmentRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -224,6 +258,10 @@ var ConformanceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "PrepareAssignment",
 			Handler:    _ConformanceService_PrepareAssignment_Handler,
+		},
+		{
+			MethodName: "ArmAssignment",
+			Handler:    _ConformanceService_ArmAssignment_Handler,
 		},
 		{
 			MethodName: "CancelAssignmentCandidate",

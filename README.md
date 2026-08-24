@@ -79,10 +79,18 @@ deploy consumers that reject a missing or invalid value. A consumer must not
 silently change an existing storage identity formula merely because the new
 cursor is available; that requires an explicit schema-version transition.
 
+### Conformance Assignment Lifecycle
+
+The public conformance control plane uses separate, idempotent assignment
+commands. `PrepareAssignment` persists a candidate, `ArmAssignment` marks that
+candidate ready after validation, and `CutoverAssignment` establishes its
+half-open telemetry-authority interval at an explicit event-time boundary.
+Arming alone never authorizes telemetry. A candidate that will not be cut over
+can be removed with `CancelAssignmentCandidate`.
+
 ### Optional Tooling (Future)
 
 You can add:
 
 - `buf.yaml` and `buf.gen.yaml` in the repo root if you choose [Buf](https://buf.build/) for linting and codegen.
 - Language-specific generation scripts under `tools/` (e.g., `tools/gen-go.sh`, `tools/gen-ts.sh`).
-

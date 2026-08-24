@@ -11,6 +11,7 @@ option go_package = "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/conforma
 // establishes the candidate's half-open authority interval.
 service ConformanceService {
   rpc PrepareAssignment(PrepareAssignmentRequest) returns (PrepareAssignmentResponse);
+  rpc ArmAssignment(ArmAssignmentRequest) returns (ArmAssignmentResponse);
   rpc CancelAssignmentCandidate(CancelAssignmentCandidateRequest) returns (CancelAssignmentCandidateResponse);
   rpc CutoverAssignment(CutoverAssignmentRequest) returns (CutoverAssignmentResponse);
   rpc GetAssignment(GetAssignmentRequest) returns (GetAssignmentResponse);
@@ -86,6 +87,15 @@ message PrepareAssignmentRequest {
   Assignment assignment = 3;
 }
 
+// ArmAssignmentRequest marks a prepared assignment generation as ready for
+// cutover. Arming does not grant telemetry authority.
+message ArmAssignmentRequest {
+  string source = 1;
+  string message_id = 2;
+  string assignment_id = 3;
+  uint64 assignment_generation = 4;
+}
+
 message CancelAssignmentCandidateRequest {
   string source = 1;
   string message_id = 2;
@@ -102,6 +112,11 @@ message CutoverAssignmentRequest {
 }
 
 message PrepareAssignmentResponse {
+  AssignmentCommandDisposition disposition = 1;
+  AssignmentRecord assignment = 2;
+}
+
+message ArmAssignmentResponse {
   AssignmentCommandDisposition disposition = 1;
   AssignmentRecord assignment = 2;
 }
