@@ -361,7 +361,7 @@ type TelemetryFrame struct {
 	state              protoimpl.MessageState `protogen:"open.v1"`
 	SessionId          string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"` // server-issued session ID from RegisterResponse
 	AgentId            string                 `protobuf:"bytes,2,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
-	Seq                uint64                 `protobuf:"varint,3,opt,name=seq,proto3" json:"seq,omitempty"` // monotonically increasing sequence number
+	Seq                uint64                 `protobuf:"varint,3,opt,name=seq,proto3" json:"seq,omitempty"` // monotonically increasing within one WAL generation
 	SentAtUnixNs       int64                  `protobuf:"varint,4,opt,name=sent_at_unix_ns,json=sentAtUnixNs,proto3" json:"sent_at_unix_ns,omitempty"`
 	DeviceTimestampSec float64                `protobuf:"fixed64,5,opt,name=device_timestamp_sec,json=deviceTimestampSec,proto3" json:"device_timestamp_sec,omitempty"`
 	RawMavlink         []byte                 `protobuf:"bytes,6,opt,name=raw_mavlink,json=rawMavlink,proto3" json:"raw_mavlink,omitempty"`
@@ -376,6 +376,9 @@ type TelemetryFrame struct {
 	FlightId      string `protobuf:"bytes,11,opt,name=flight_id,json=flightId,proto3" json:"flight_id,omitempty"`
 	IntentId      string `protobuf:"bytes,12,opt,name=intent_id,json=intentId,proto3" json:"intent_id,omitempty"`
 	IntentVersion uint32 `protobuf:"varint,13,opt,name=intent_version,json=intentVersion,proto3" json:"intent_version,omitempty"`
+	// Stable identity of the Agent WAL generation that owns seq. It persists
+	// across process restarts and changes only when the WAL is recreated.
+	WalId         string `protobuf:"bytes,14,opt,name=wal_id,json=walId,proto3" json:"wal_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -499,6 +502,13 @@ func (x *TelemetryFrame) GetIntentVersion() uint32 {
 		return x.IntentVersion
 	}
 	return 0
+}
+
+func (x *TelemetryFrame) GetWalId() string {
+	if x != nil {
+		return x.WalId
+	}
+	return ""
 }
 
 type TelemetryAck struct {
@@ -1180,7 +1190,7 @@ const file_aeroarc_agent_v1_agent_proto_rawDesc = "" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x03 \x01(\tR\tsessionId\x12!\n" +
-	"\fmax_inflight\x18\x04 \x01(\x03R\vmaxInflight\"\x84\x04\n" +
+	"\fmax_inflight\x18\x04 \x01(\x03R\vmaxInflight\"\x9b\x04\n" +
 	"\x0eTelemetryFrame\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x19\n" +
@@ -1197,7 +1207,8 @@ const file_aeroarc_agent_v1_agent_proto_rawDesc = "" +
 	" \x03(\v2,.aeroarc.agent.v1.TelemetryFrame.FieldsEntryR\x06fields\x12\x1b\n" +
 	"\tflight_id\x18\v \x01(\tR\bflightId\x12\x1b\n" +
 	"\tintent_id\x18\f \x01(\tR\bintentId\x12%\n" +
-	"\x0eintent_version\x18\r \x01(\rR\rintentVersion\x1a9\n" +
+	"\x0eintent_version\x18\r \x01(\rR\rintentVersion\x12\x15\n" +
+	"\x06wal_id\x18\x0e \x01(\tR\x05walId\x1a9\n" +
 	"\vFieldsEntry\x12\x10\n" +
 	"\x03key\x18\x01 \x01(\tR\x03key\x12\x14\n" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"\x80\x02\n" +
