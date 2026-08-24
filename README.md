@@ -65,12 +65,24 @@ This keeps imports and generated code consistent and easy to navigate.
 2. **Create a new `.proto` file** following the package naming convention.
 3. **Reuse common messages** from `aeroarc.common.v1` where possible.
 
+### Telemetry Cursor Compatibility
+
+`TelemetryFrame` uses `(wal_id, seq)` as its durable transport cursor.
+`wal_id` identifies one Agent WAL append generation and `seq` is monotonic only
+within that generation. An Agent rotates the generation whenever it opens a WAL
+for new capture, while a frame already persisted retains its original pair
+through retry and restart.
+
+The field is additive on the wire, but enforcement is a deployment concern:
+publish Protos first, deploy producers that populate `wal_id`, and only then
+deploy consumers that reject a missing or invalid value. A consumer must not
+silently change an existing storage identity formula merely because the new
+cursor is available; that requires an explicit schema-version transition.
+
 ### Optional Tooling (Future)
 
 You can add:
 
 - `buf.yaml` and `buf.gen.yaml` in the repo root if you choose [Buf](https://buf.build/) for linting and codegen.
 - Language-specific generation scripts under `tools/` (e.g., `tools/gen-go.sh`, `tools/gen-ts.sh`).
-
-
 

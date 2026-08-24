@@ -358,16 +358,17 @@ func (x *RegisterResponse) GetMaxInflight() int64 {
 }
 
 type TelemetryFrame struct {
-	state              protoimpl.MessageState `protogen:"open.v1"`
-	SessionId          string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"` // server-issued session ID from RegisterResponse
-	AgentId            string                 `protobuf:"bytes,2,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
-	Seq                uint64                 `protobuf:"varint,3,opt,name=seq,proto3" json:"seq,omitempty"` // monotonically increasing within one WAL generation
-	SentAtUnixNs       int64                  `protobuf:"varint,4,opt,name=sent_at_unix_ns,json=sentAtUnixNs,proto3" json:"sent_at_unix_ns,omitempty"`
-	DeviceTimestampSec float64                `protobuf:"fixed64,5,opt,name=device_timestamp_sec,json=deviceTimestampSec,proto3" json:"device_timestamp_sec,omitempty"`
-	RawMavlink         []byte                 `protobuf:"bytes,6,opt,name=raw_mavlink,json=rawMavlink,proto3" json:"raw_mavlink,omitempty"`
-	Dialect            string                 `protobuf:"bytes,7,opt,name=dialect,proto3" json:"dialect,omitempty"`
-	MsgId              uint32                 `protobuf:"varint,8,opt,name=msg_id,json=msgId,proto3" json:"msg_id,omitempty"`
-	MsgName            string                 `protobuf:"bytes,9,opt,name=msg_name,json=msgName,proto3" json:"msg_name,omitempty"`
+	state     protoimpl.MessageState `protogen:"open.v1"`
+	SessionId string                 `protobuf:"bytes,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"` // server-issued session ID from RegisterResponse
+	AgentId   string                 `protobuf:"bytes,2,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	// Monotonically increasing sequence within the wal_id append generation.
+	Seq                uint64  `protobuf:"varint,3,opt,name=seq,proto3" json:"seq,omitempty"`
+	SentAtUnixNs       int64   `protobuf:"varint,4,opt,name=sent_at_unix_ns,json=sentAtUnixNs,proto3" json:"sent_at_unix_ns,omitempty"`
+	DeviceTimestampSec float64 `protobuf:"fixed64,5,opt,name=device_timestamp_sec,json=deviceTimestampSec,proto3" json:"device_timestamp_sec,omitempty"`
+	RawMavlink         []byte  `protobuf:"bytes,6,opt,name=raw_mavlink,json=rawMavlink,proto3" json:"raw_mavlink,omitempty"`
+	Dialect            string  `protobuf:"bytes,7,opt,name=dialect,proto3" json:"dialect,omitempty"`
+	MsgId              uint32  `protobuf:"varint,8,opt,name=msg_id,json=msgId,proto3" json:"msg_id,omitempty"`
+	MsgName            string  `protobuf:"bytes,9,opt,name=msg_name,json=msgName,proto3" json:"msg_name,omitempty"`
 	// Parsed MAVLink fields as stringified key/value pairs.
 	// Not guaranteed to preserve original types.
 	Fields map[string]string `protobuf:"bytes,10,rep,name=fields,proto3" json:"fields,omitempty" protobuf_key:"bytes,1,opt,name=key" protobuf_val:"bytes,2,opt,name=value"`
@@ -376,8 +377,11 @@ type TelemetryFrame struct {
 	FlightId      string `protobuf:"bytes,11,opt,name=flight_id,json=flightId,proto3" json:"flight_id,omitempty"`
 	IntentId      string `protobuf:"bytes,12,opt,name=intent_id,json=intentId,proto3" json:"intent_id,omitempty"`
 	IntentVersion uint32 `protobuf:"varint,13,opt,name=intent_version,json=intentVersion,proto3" json:"intent_version,omitempty"`
-	// Stable identity of the Agent WAL generation that owns seq. It persists
-	// across process restarts and changes only when the WAL is recreated.
+	// Durable identity of the Agent WAL append generation that owns seq. The
+	// agent stamps wal_id into each frame before its first persistence, and
+	// persisted frames retain it across delivery retries and process restarts.
+	// A WAL opened for new capture must rotate to a fresh generation, including
+	// after its database is cloned or restored, so (wal_id, seq) is never reused.
 	WalId         string `protobuf:"bytes,14,opt,name=wal_id,json=walId,proto3" json:"wal_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
