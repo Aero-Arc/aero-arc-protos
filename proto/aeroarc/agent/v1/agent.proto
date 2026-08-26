@@ -232,12 +232,15 @@ message MissionDeploymentResult {
   int64 completed_at_unix_ms = 8;
 }
 
-// OperationContext identifies the API-authoritative flight and intent that the
-// agent stamps onto newly captured telemetry frames.
+// OperationContext identifies the API-authoritative aircraft, flight, and
+// intent that the agent stamps onto newly captured telemetry frames.
+// aircraft_id is additive for compatibility with existing context producers,
+// but consumers must require it before accepting a mission deployment.
 message OperationContext {
   string flight_id = 1;
   string intent_id = 2;
   uint32 intent_version = 3;
+  string aircraft_id = 4;
 }
 
 // SetOperationContextCommand replaces the agent's active operation context.

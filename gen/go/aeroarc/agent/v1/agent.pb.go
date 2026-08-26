@@ -1526,13 +1526,16 @@ func (x *MissionDeploymentResult) GetCompletedAtUnixMs() int64 {
 	return 0
 }
 
-// OperationContext identifies the API-authoritative flight and intent that the
-// agent stamps onto newly captured telemetry frames.
+// OperationContext identifies the API-authoritative aircraft, flight, and
+// intent that the agent stamps onto newly captured telemetry frames.
+// aircraft_id is additive for compatibility with existing context producers,
+// but consumers must require it before accepting a mission deployment.
 type OperationContext struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	FlightId      string                 `protobuf:"bytes,1,opt,name=flight_id,json=flightId,proto3" json:"flight_id,omitempty"`
 	IntentId      string                 `protobuf:"bytes,2,opt,name=intent_id,json=intentId,proto3" json:"intent_id,omitempty"`
 	IntentVersion uint32                 `protobuf:"varint,3,opt,name=intent_version,json=intentVersion,proto3" json:"intent_version,omitempty"`
+	AircraftId    string                 `protobuf:"bytes,4,opt,name=aircraft_id,json=aircraftId,proto3" json:"aircraft_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1586,6 +1589,13 @@ func (x *OperationContext) GetIntentVersion() uint32 {
 		return x.IntentVersion
 	}
 	return 0
+}
+
+func (x *OperationContext) GetAircraftId() string {
+	if x != nil {
+		return x.AircraftId
+	}
+	return ""
 }
 
 // SetOperationContextCommand replaces the agent's active operation context.
@@ -1915,11 +1925,13 @@ const file_aeroarc_agent_v1_agent_proto_rawDesc = "" +
 	"\x16STATUS_OUTCOME_UNKNOWN\x10\x05\x12\x1b\n" +
 	"\x17STATUS_BINDING_MISMATCH\x10\x06\x12#\n" +
 	"\x1fSTATUS_ONBOARD_MISSION_MISMATCH\x10\aB\x1b\n" +
-	"\x19_mavlink_mission_ack_type\"s\n" +
+	"\x19_mavlink_mission_ack_type\"\x94\x01\n" +
 	"\x10OperationContext\x12\x1b\n" +
 	"\tflight_id\x18\x01 \x01(\tR\bflightId\x12\x1b\n" +
 	"\tintent_id\x18\x02 \x01(\tR\bintentId\x12%\n" +
-	"\x0eintent_version\x18\x03 \x01(\rR\rintentVersion\"y\n" +
+	"\x0eintent_version\x18\x03 \x01(\rR\rintentVersion\x12\x1f\n" +
+	"\vaircraft_id\x18\x04 \x01(\tR\n" +
+	"aircraftId\"y\n" +
 	"\x1aSetOperationContextCommand\x12\x1d\n" +
 	"\n" +
 	"command_id\x18\x01 \x01(\tR\tcommandId\x12<\n" +
