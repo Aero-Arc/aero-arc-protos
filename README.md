@@ -97,9 +97,12 @@ modifies an operational volume.
 
 The first contract slice carries a schema-versioned `MissionPlan` containing at
 most 200 canonical `MissionItem` records. For schema version 1, sequence numbers
-are contiguous from zero, coordinates use signed degrees times 1e7, unknown
-fields are rejected, and the mission digest is lowercase hexadecimal SHA-256 of
-the deterministic protobuf serialization of `MissionPlan`.
+are contiguous from zero, coordinates use signed degrees times 1e7, and unknown
+fields are rejected. Canonical items exclude autopilot HOME entries and
+Mission Planner/QGC export metadata. `MissionItem.current` is reserved and must
+be false because ArduPilot changes it dynamically during execution and readback.
+The mission digest is lowercase hexadecimal SHA-256 of the deterministic
+protobuf serialization of this normalized `MissionPlan`.
 
 `DeployMission` targets only the Agent session selected by the Relay at command
 admission. The command ID and payload remain stable across reconciliation.

@@ -1152,8 +1152,10 @@ func (x *MissionBinding) GetIntentVersion() uint32 {
 // MissionItem is the bounded canonical representation of one MAVLink mission
 // item in the first deployment slice. API producers must allow at most 200
 // items, require sequence values contiguous from zero, reject unsupported frame
-// and command values, and range-check every scalar before constructing it.
-// latitude_e7 and longitude_e7 avoid floating-point coordinate ambiguity.
+// and command values, and range-check every scalar before constructing it. The
+// current field is reserved and must be false in schema version 1 because the
+// autopilot changes its value dynamically. latitude_e7 and longitude_e7 avoid
+// floating-point coordinate ambiguity.
 type MissionItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Sequence      uint32                 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
@@ -1287,9 +1289,11 @@ func (x *MissionItem) GetAltitudeM() float64 {
 }
 
 // MissionPlan is the canonical digest input. For schema_version 1, producers
-// must reject unknown fields and compute mission_digest as lowercase
-// hexadecimal SHA-256 over the deterministic protobuf serialization of this
-// message. Consumers must reject unsupported schema versions.
+// must exclude autopilot HOME entries and source-file/export metadata, reject
+// unknown fields, require every item's current field to be false, and compute
+// mission_digest as lowercase hexadecimal SHA-256 over the deterministic
+// protobuf serialization of this message. Consumers must reject unsupported
+// schema versions.
 type MissionPlan struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SchemaVersion uint32                 `protobuf:"varint,1,opt,name=schema_version,json=schemaVersion,proto3" json:"schema_version,omitempty"`
