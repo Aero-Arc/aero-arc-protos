@@ -88,6 +88,26 @@ half-open telemetry-authority interval at an explicit event-time boundary.
 Arming alone never authorizes telemetry. A candidate that will not be cut over
 can be removed with `CancelAssignmentCandidate`.
 
+### Mission Deployment Contract
+
+Mission deployment is strictly separate from operational-intent geometry.
+`MissionBinding` ties one immutable mission version and digest to a deployment,
+operator, aircraft, flight, and exact intent version; it never authorizes or
+modifies an operational volume.
+
+The first contract slice carries a schema-versioned `MissionPlan` containing at
+most 200 canonical `MissionItem` records. For schema version 1, sequence numbers
+are contiguous from zero, coordinates use signed degrees times 1e7, unknown
+fields are rejected, and the mission digest is lowercase hexadecimal SHA-256 of
+the deterministic protobuf serialization of `MissionPlan`.
+
+`DeployMission` targets only the Agent session selected by the Relay at command
+admission. The command ID and payload remain stable across reconciliation.
+`APPLIED` and `ALREADY_APPLIED` mean the Agent read back the onboard mission and
+confirmed its digest. `OUTCOME_UNKNOWN` is not permission to issue a new command
+ID: the caller reconciles the same logical command. Binding and onboard digest
+mismatches are explicit terminal outcomes.
+
 ### Optional Tooling (Future)
 
 You can add:

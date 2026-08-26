@@ -24,6 +24,7 @@ const (
 	RelayControl_SetOperationContext_FullMethodName   = "/aeroarc.relay.v1.RelayControl/SetOperationContext"
 	RelayControl_ClearOperationContext_FullMethodName = "/aeroarc.relay.v1.RelayControl/ClearOperationContext"
 	RelayControl_SendAircraftCommand_FullMethodName   = "/aeroarc.relay.v1.RelayControl/SendAircraftCommand"
+	RelayControl_DeployMission_FullMethodName         = "/aeroarc.relay.v1.RelayControl/DeployMission"
 )
 
 // RelayControlClient is the client API for RelayControl service.
@@ -47,6 +48,9 @@ type RelayControlClient interface {
 	// Send an immediate ARM or DISARM command to the currently connected Agent
 	// session and wait for its autopilot-level result.
 	SendAircraftCommand(ctx context.Context, in *SendAircraftCommandRequest, opts ...grpc.CallOption) (*SendAircraftCommandResponse, error)
+	// Deploy one immutable mission to the currently connected Agent session and
+	// wait for its correlated upload-and-readback result.
+	DeployMission(ctx context.Context, in *DeployMissionRequest, opts ...grpc.CallOption) (*DeployMissionResponse, error)
 }
 
 type relayControlClient struct {
@@ -107,6 +111,16 @@ func (c *relayControlClient) SendAircraftCommand(ctx context.Context, in *SendAi
 	return out, nil
 }
 
+func (c *relayControlClient) DeployMission(ctx context.Context, in *DeployMissionRequest, opts ...grpc.CallOption) (*DeployMissionResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(DeployMissionResponse)
+	err := c.cc.Invoke(ctx, RelayControl_DeployMission_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // RelayControlServer is the server API for RelayControl service.
 // All implementations must embed UnimplementedRelayControlServer
 // for forward compatibility.
@@ -128,6 +142,9 @@ type RelayControlServer interface {
 	// Send an immediate ARM or DISARM command to the currently connected Agent
 	// session and wait for its autopilot-level result.
 	SendAircraftCommand(context.Context, *SendAircraftCommandRequest) (*SendAircraftCommandResponse, error)
+	// Deploy one immutable mission to the currently connected Agent session and
+	// wait for its correlated upload-and-readback result.
+	DeployMission(context.Context, *DeployMissionRequest) (*DeployMissionResponse, error)
 	mustEmbedUnimplementedRelayControlServer()
 }
 
@@ -152,6 +169,9 @@ func (UnimplementedRelayControlServer) ClearOperationContext(context.Context, *C
 }
 func (UnimplementedRelayControlServer) SendAircraftCommand(context.Context, *SendAircraftCommandRequest) (*SendAircraftCommandResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method SendAircraftCommand not implemented")
+}
+func (UnimplementedRelayControlServer) DeployMission(context.Context, *DeployMissionRequest) (*DeployMissionResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method DeployMission not implemented")
 }
 func (UnimplementedRelayControlServer) mustEmbedUnimplementedRelayControlServer() {}
 func (UnimplementedRelayControlServer) testEmbeddedByValue()                      {}
@@ -264,6 +284,24 @@ func _RelayControl_SendAircraftCommand_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _RelayControl_DeployMission_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(DeployMissionRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RelayControlServer).DeployMission(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RelayControl_DeployMission_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RelayControlServer).DeployMission(ctx, req.(*DeployMissionRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // RelayControl_ServiceDesc is the grpc.ServiceDesc for RelayControl service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -290,6 +328,10 @@ var RelayControl_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "SendAircraftCommand",
 			Handler:    _RelayControl_SendAircraftCommand_Handler,
+		},
+		{
+			MethodName: "DeployMission",
+			Handler:    _RelayControl_DeployMission_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

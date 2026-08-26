@@ -95,6 +95,7 @@ message AgentStreamMessage {
     TelemetryFrame telemetry_frame = 1;
     OperationContextCommandAck operation_context_command_ack = 2;
     AircraftCommandResult aircraft_command_result = 3;
+    MissionDeploymentResult mission_deployment_result = 4;
   }
 }
 
@@ -106,6 +107,7 @@ message RelayStreamMessage {
     SetOperationContextCommand set_operation_context = 2;
     ClearOperationContextCommand clear_operation_context = 3;
     AircraftCommand aircraft_command = 4;
+    DeployMissionCommand deploy_mission = 5;
   }
 }
 
@@ -144,6 +146,90 @@ message AircraftCommandResult {
 
   Status status = 3;
   string message = 4;
+}
+
+// MissionBinding identifies the immutable API-authoritative mission revision
+// and the exact operation to which it may be deployed. Every non-version field
+// must be non-empty, versions must be positive, and mission_digest must be the
+// lowercase hexadecimal SHA-256 digest of the canonical MissionPlan.
+message MissionBinding {
+  string mission_id = 1;
+  uint32 mission_version = 2;
+  string mission_digest = 3;
+  string deployment_id = 4;
+  string operator_id = 5;
+  string aircraft_id = 6;
+  string flight_id = 7;
+  string intent_id = 8;
+  uint32 intent_version = 9;
+}
+
+// MissionItem is the bounded canonical representation of one MAVLink mission
+// item in the first deployment slice. API producers must allow at most 200
+// items, require sequence values contiguous from zero, reject unsupported frame
+// and command values, and range-check every scalar before constructing it.
+// latitude_e7 and longitude_e7 avoid floating-point coordinate ambiguity.
+message MissionItem {
+  uint32 sequence = 1;
+  uint32 frame = 2;
+  uint32 command = 3;
+  bool current = 4;
+  bool autocontinue = 5;
+  double param1 = 6;
+  double param2 = 7;
+  double param3 = 8;
+  double param4 = 9;
+  sint32 latitude_e7 = 10;
+  sint32 longitude_e7 = 11;
+  double altitude_m = 12;
+}
+
+// MissionPlan is the canonical digest input. For schema_version 1, producers
+// must reject unknown fields and compute mission_digest as lowercase
+// hexadecimal SHA-256 over the deterministic protobuf serialization of this
+// message. Consumers must reject unsupported schema versions.
+message MissionPlan {
+  uint32 schema_version = 1;
+  repeated MissionItem items = 2;
+}
+
+// DeployMissionCommand requests replacement of the autopilot's standard
+// mission with one exact, immutable plan. command_id is a durable idempotency
+// key and must remain stable across API and Relay retries. A delayed command
+// must be rejected after expires_at_unix_ms rather than applied to a later
+// operation.
+message DeployMissionCommand {
+  string command_id = 1;
+  MissionBinding binding = 2;
+  MissionPlan plan = 3;
+  int64 issued_at_unix_ms = 4;
+  int64 expires_at_unix_ms = 5;
+}
+
+// MissionDeploymentResult reports the durable Agent/autopilot outcome for one
+// DeployMissionCommand. APPLIED and ALREADY_APPLIED require a successful
+// onboard readback whose canonical digest equals binding.mission_digest.
+message MissionDeploymentResult {
+  string command_id = 1;
+  MissionBinding binding = 2;
+
+  enum Status {
+    STATUS_UNSPECIFIED = 0;
+    STATUS_APPLIED = 1;
+    STATUS_ALREADY_APPLIED = 2;
+    STATUS_REJECTED = 3;
+    STATUS_TEMPORARY_ERROR = 4;
+    STATUS_OUTCOME_UNKNOWN = 5;
+    STATUS_BINDING_MISMATCH = 6;
+    STATUS_ONBOARD_MISSION_MISMATCH = 7;
+  }
+
+  Status status = 3;
+  string message = 4;
+  uint32 uploaded_item_count = 5;
+  string onboard_mission_digest = 6;
+  optional uint32 mavlink_mission_ack_type = 7;
+  int64 completed_at_unix_ms = 8;
 }
 
 // OperationContext identifies the API-authoritative flight and intent that the
