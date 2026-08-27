@@ -101,6 +101,9 @@ are contiguous from zero, coordinates use signed degrees times 1e7, and unknown
 fields are rejected. Canonical items exclude autopilot HOME entries and
 Mission Planner/QGC export metadata. `MissionItem.current` is reserved and must
 be false because ArduPilot changes it dynamically during execution and readback.
+Parameters 1–3 use positive zero. Parameter 4 uses positive zero for
+`MAV_CMD_NAV_WAYPOINT` (16) and `MAV_CMD_NAV_TAKEOFF` (22), but exactly `+1` for
+`MAV_CMD_NAV_LAND` (21), matching ArduPilot's stable stored/readback form.
 The mission digest is lowercase hexadecimal SHA-256 of the deterministic
 protobuf serialization of this normalized `MissionPlan`.
 

@@ -1154,8 +1154,11 @@ func (x *MissionBinding) GetIntentVersion() uint32 {
 // items, require sequence values contiguous from zero, reject unsupported frame
 // and command values, and range-check every scalar before constructing it. The
 // current field is reserved and must be false in schema version 1 because the
-// autopilot changes its value dynamically. latitude_e7 and longitude_e7 avoid
-// floating-point coordinate ambiguity.
+// autopilot changes its value dynamically. Schema version 1 also requires
+// param1, param2, and param3 to be positive zero. param4 must be positive zero
+// for MAV_CMD_NAV_WAYPOINT (16) and MAV_CMD_NAV_TAKEOFF (22), and exactly +1
+// for MAV_CMD_NAV_LAND (21), matching stable ArduPilot readback. latitude_e7
+// and longitude_e7 avoid floating-point coordinate ambiguity.
 type MissionItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Sequence      uint32                 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
