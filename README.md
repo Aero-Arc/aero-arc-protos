@@ -115,18 +115,21 @@ The mission digest is lowercase hexadecimal SHA-256 of the deterministic
 protobuf serialization of this normalized `MissionPlan`.
 
 `DeployMission` targets only the Agent session selected by the Relay at command
-admission. Before any autopilot mutation, the Agent requires an active operation
-context whose aircraft, flight, intent, and intent version exactly equal the
-mission binding; otherwise it returns `BINDING_MISMATCH` without uploading. The
-command ID and payload remain stable across reconciliation. The Agent looks up
-the durable command and verifies its payload fingerprint before checking
-expiry. Expiry prevents first admission and new uploads, but a matching
-previously admitted command still replays its terminal result. When that durable
-command records a started effect with an unknown outcome, post-expiry
-reconciliation is readback-only: a matching digest yields `ALREADY_APPLIED`; a
-mismatch yields `ONBOARD_MISSION_MISMATCH` and never starts a replacement
-upload. Before expiry, an uncertain mismatch may be uploaded again only after
-all binding and safety fences pass. `APPLIED` and `ALREADY_APPLIED` mean the
+admission. Before admitting a first-seen command or reporting its first success,
+including `ALREADY_APPLIED`, the Agent requires an active operation context
+whose aircraft, flight, intent, and intent version exactly equal the mission
+binding; otherwise it returns `BINDING_MISMATCH`. The command ID and payload
+remain stable across reconciliation. The Agent looks up the durable command and
+verifies its payload fingerprint before checking expiry. Exact durable terminal
+replay and readback-only reconciliation remain available after the active
+context changes because they create no new effect. Expiry prevents first
+admission and new uploads, but a matching previously admitted command still
+replays its terminal result. When that durable command records a started effect
+with an unknown outcome, post-expiry reconciliation is readback-only: a matching
+digest yields `ALREADY_APPLIED`; a mismatch yields
+`ONBOARD_MISSION_MISMATCH` and never starts a replacement upload. Before expiry,
+an uncertain mismatch may be uploaded again only after rechecking the exact
+active binding and every safety fence. `APPLIED` and `ALREADY_APPLIED` mean the
 Agent read back the onboard mission and confirmed its digest. `OUTCOME_UNKNOWN`
 is not permission to issue a new command ID: the caller reconciles the same
 logical command. Binding and onboard digest mismatches are explicit terminal

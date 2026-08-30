@@ -1366,11 +1366,14 @@ func (x *MissionPlan) GetItems() []*MissionItem {
 // expiry, an uncertain mismatching readback may start another upload only after
 // all binding and safety checks pass. Expiry rejects first-seen commands and
 // prevents every new upload, but it must not prevent readback or replay for a
-// matching durable command. Before any autopilot mutation, the Agent must
-// require an active OperationContext whose aircraft_id, flight_id, intent_id,
-// and intent_version exactly equal the corresponding binding fields. A missing
-// or unequal context must produce STATUS_BINDING_MISMATCH without starting an
-// upload.
+// matching durable command. Before admitting any first-seen command or returning
+// its first success, including ALREADY_APPLIED from an onboard digest match, the
+// Agent must require an active OperationContext whose aircraft_id, flight_id,
+// intent_id, and intent_version exactly equal the corresponding binding fields.
+// A missing or unequal context must produce STATUS_BINDING_MISMATCH. Exact
+// durable terminal replay and readback-only reconciliation are exempt from this
+// active-context requirement because they create no new effect; every new
+// upload, including a pre-expiry retry, must recheck the exact active binding.
 type DeployMissionCommand struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	CommandId       string                 `protobuf:"bytes,1,opt,name=command_id,json=commandId,proto3" json:"command_id,omitempty"`
@@ -1450,8 +1453,9 @@ func (x *DeployMissionCommand) GetExpiresAtUnixMs() int64 {
 // MissionDeploymentResult reports the durable Agent/autopilot outcome for one
 // DeployMissionCommand. APPLIED and ALREADY_APPLIED require a successful
 // onboard readback whose canonical digest equals binding.mission_digest.
-// BINDING_MISMATCH means no upload was started because the active operation
-// context was missing or did not exactly match the command binding.
+// BINDING_MISMATCH means a first-seen command was not admitted, or a new upload
+// was not started, because the active operation context was missing or did not
+// exactly match the command binding.
 type MissionDeploymentResult struct {
 	state                 protoimpl.MessageState         `protogen:"open.v1"`
 	CommandId             string                         `protobuf:"bytes,1,opt,name=command_id,json=commandId,proto3" json:"command_id,omitempty"`
