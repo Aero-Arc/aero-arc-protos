@@ -1358,7 +1358,10 @@ func (x *MissionPlan) GetItems() []*MissionItem {
 // mission with one exact, immutable plan. command_id is a durable idempotency
 // key and must remain stable across API and Relay retries. A delayed command
 // must be rejected after expires_at_unix_ms rather than applied to a later
-// operation.
+// operation. Before any autopilot mutation, the Agent must require an active
+// OperationContext whose aircraft_id, flight_id, intent_id, and intent_version
+// exactly equal the corresponding binding fields. A missing or unequal context
+// must produce STATUS_BINDING_MISMATCH without starting an upload.
 type DeployMissionCommand struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	CommandId       string                 `protobuf:"bytes,1,opt,name=command_id,json=commandId,proto3" json:"command_id,omitempty"`
@@ -1438,6 +1441,8 @@ func (x *DeployMissionCommand) GetExpiresAtUnixMs() int64 {
 // MissionDeploymentResult reports the durable Agent/autopilot outcome for one
 // DeployMissionCommand. APPLIED and ALREADY_APPLIED require a successful
 // onboard readback whose canonical digest equals binding.mission_digest.
+// BINDING_MISMATCH means no upload was started because the active operation
+// context was missing or did not exactly match the command binding.
 type MissionDeploymentResult struct {
 	state                 protoimpl.MessageState         `protogen:"open.v1"`
 	CommandId             string                         `protobuf:"bytes,1,opt,name=command_id,json=commandId,proto3" json:"command_id,omitempty"`

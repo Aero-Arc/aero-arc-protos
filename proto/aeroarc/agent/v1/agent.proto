@@ -209,7 +209,10 @@ message MissionPlan {
 // mission with one exact, immutable plan. command_id is a durable idempotency
 // key and must remain stable across API and Relay retries. A delayed command
 // must be rejected after expires_at_unix_ms rather than applied to a later
-// operation.
+// operation. Before any autopilot mutation, the Agent must require an active
+// OperationContext whose aircraft_id, flight_id, intent_id, and intent_version
+// exactly equal the corresponding binding fields. A missing or unequal context
+// must produce STATUS_BINDING_MISMATCH without starting an upload.
 message DeployMissionCommand {
   string command_id = 1;
   MissionBinding binding = 2;
@@ -221,6 +224,8 @@ message DeployMissionCommand {
 // MissionDeploymentResult reports the durable Agent/autopilot outcome for one
 // DeployMissionCommand. APPLIED and ALREADY_APPLIED require a successful
 // onboard readback whose canonical digest equals binding.mission_digest.
+// BINDING_MISMATCH means no upload was started because the active operation
+// context was missing or did not exactly match the command binding.
 message MissionDeploymentResult {
   string command_id = 1;
   MissionBinding binding = 2;
