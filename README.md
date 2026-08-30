@@ -129,11 +129,16 @@ with an unknown outcome, post-expiry reconciliation is readback-only: a matching
 digest yields `ALREADY_APPLIED`; a mismatch yields
 `ONBOARD_MISSION_MISMATCH` and never starts a replacement upload. Before expiry,
 an uncertain mismatch may be uploaded again only after rechecking the exact
-active binding and every safety fence. `APPLIED` and `ALREADY_APPLIED` mean the
-Agent read back the onboard mission and confirmed its digest. `OUTCOME_UNKNOWN`
-is not permission to issue a new command ID: the caller reconciles the same
-logical command. Binding and onboard digest mismatches are explicit terminal
-outcomes.
+active binding and every safety fence. Before calling any transport operation
+that can mutate the autopilot, the Agent durably commits the exact payload
+fingerprint and an `effect_started` state; a failed write-ahead commit prevents
+the upload and returns `TEMPORARY_ERROR`. Readback outcomes are stored before
+response. If outcome persistence fails, the durable started-effect record
+remains the recovery anchor so a retry cannot appear first-seen. `APPLIED` and
+`ALREADY_APPLIED` mean the Agent read back the onboard mission and confirmed its
+digest. `OUTCOME_UNKNOWN` is not permission to issue a new command ID: the
+caller reconciles the same logical command. Binding and onboard digest
+mismatches are explicit terminal outcomes.
 
 ### Optional Tooling (Future)
 

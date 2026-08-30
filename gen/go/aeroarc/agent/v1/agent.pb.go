@@ -1374,6 +1374,13 @@ func (x *MissionPlan) GetItems() []*MissionItem {
 // durable terminal replay and readback-only reconciliation are exempt from this
 // active-context requirement because they create no new effect; every new
 // upload, including a pre-expiry retry, must recheck the exact active binding.
+// Before invoking any operation that can mutate the autopilot, the Agent must
+// durably commit the exact command payload fingerprint and an effect-started
+// state; failure to commit that write-ahead transition must prevent the upload
+// and produce TEMPORARY_ERROR.
+// After readback, the Agent must durably store a terminal result or unknown
+// outcome before responding. If that store fails, the effect-started record must
+// remain recoverable and a retry must never treat the command as first-seen.
 type DeployMissionCommand struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	CommandId       string                 `protobuf:"bytes,1,opt,name=command_id,json=commandId,proto3" json:"command_id,omitempty"`
