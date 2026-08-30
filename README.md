@@ -103,6 +103,14 @@ and `MAV_CMD_NAV_TAKEOFF` (22). Sequence numbers are contiguous from zero,
 fields are rejected. Canonical items exclude autopilot HOME entries and Mission
 Planner/QGC export metadata. `MissionItem.current` is reserved and must be false
 because ArduPilot changes it dynamically during execution and readback.
+ArduPilot upload performs the inverse HOME mapping: send one additional wire
+item at sequence zero for synthetic HOME, map canonical operational sequence
+`n` to wire sequence `n+1`, and advertise canonical count plus one in
+`MISSION_COUNT`. Preserve an existing HOME when available. If the onboard
+mission is empty, the first fully validated canonical item may be used at wire
+zero only as ArduPilot's HOME-bootstrap placeholder, but it must be sent again
+at wire one as canonical operational item zero. Synthetic HOME is excluded from
+the canonical plan and `uploaded_item_count`.
 Readback reconstruction must discard ArduPilot's synthetic HOME item at wire
 sequence zero, reassign the remaining operational items contiguous canonical
 sequences from zero, discard the dynamic current marker, and force `current` to
