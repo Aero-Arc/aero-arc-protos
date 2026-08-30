@@ -95,15 +95,22 @@ Mission deployment is strictly separate from operational-intent geometry.
 operator, aircraft, flight, and exact intent version; it never authorizes or
 modifies an operational volume.
 
-The first contract slice carries a schema-versioned `MissionPlan` containing at
-most 200 canonical `MissionItem` records. For schema version 1, sequence numbers
-are contiguous from zero, coordinates use signed degrees times 1e7, and unknown
-fields are rejected. Canonical items exclude autopilot HOME entries and
-Mission Planner/QGC export metadata. `MissionItem.current` is reserved and must
-be false because ArduPilot changes it dynamically during execution and readback.
-Parameters 1–3 use positive zero. Parameter 4 uses positive zero for
-`MAV_CMD_NAV_WAYPOINT` (16) and `MAV_CMD_NAV_TAKEOFF` (22), but exactly `+1` for
-`MAV_CMD_NAV_LAND` (21), matching ArduPilot's stable stored/readback form.
+The first contract slice carries a schema-versioned `MissionPlan` containing 1
+to 200 canonical `MissionItem` records. Schema version 1 allows only
+`MAV_FRAME_GLOBAL` (0), `MAV_CMD_NAV_WAYPOINT` (16), `MAV_CMD_NAV_LAND` (21),
+and `MAV_CMD_NAV_TAKEOFF` (22). Sequence numbers are contiguous from zero,
+`autocontinue` is true, coordinates use signed degrees times 1e7, and unknown
+fields are rejected. Canonical items exclude autopilot HOME entries and Mission
+Planner/QGC export metadata. `MissionItem.current` is reserved and must be false
+because ArduPilot changes it dynamically during execution and readback.
+Parameters 1–3 use positive zero. Parameter 4 uses positive zero for waypoint
+and takeoff, but exactly `+1` for land, matching ArduPilot's stable
+stored/readback form. Altitude is encoded as protobuf `float` so the canonical
+digest contains the exact float32 value transported by MAVLink; producers must
+also require that it round-trip through ArduPilot's signed centimeter storage.
+Coordinates are exact `MISSION_ITEM_INT` E7 values and do not need to round-trip
+through legacy `MISSION_ITEM` float coordinates; an Agent unable to use the INT
+exchange must fail closed rather than narrowing the canonical contract.
 The mission digest is lowercase hexadecimal SHA-256 of the deterministic
 protobuf serialization of this normalized `MissionPlan`.
 

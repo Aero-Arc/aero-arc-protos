@@ -165,15 +165,20 @@ message MissionBinding {
 }
 
 // MissionItem is the bounded canonical representation of one MAVLink mission
-// item in the first deployment slice. API producers must allow at most 200
-// items, require sequence values contiguous from zero, reject unsupported frame
-// and command values, and range-check every scalar before constructing it. The
-// current field is reserved and must be false in schema version 1 because the
-// autopilot changes its value dynamically. Schema version 1 also requires
-// param1, param2, and param3 to be positive zero. param4 must be positive zero
-// for MAV_CMD_NAV_WAYPOINT (16) and MAV_CMD_NAV_TAKEOFF (22), and exactly +1
-// for MAV_CMD_NAV_LAND (21), matching stable ArduPilot readback. latitude_e7
-// and longitude_e7 avoid floating-point coordinate ambiguity.
+// item in the first deployment slice. Schema version 1 allows only
+// MAV_FRAME_GLOBAL (0), and only MAV_CMD_NAV_WAYPOINT (16), MAV_CMD_NAV_LAND
+// (21), and MAV_CMD_NAV_TAKEOFF (22). Producers must require autocontinue=true;
+// require sequence values contiguous from zero; and range-check latitude_e7 to
+// [-900000000, 900000000] and longitude_e7 to [-1800000000, 1800000000]. The
+// current field is reserved and must be false because the autopilot changes it
+// dynamically during execution and readback. param1, param2, and param3 must be
+// positive zero. param4 must be positive zero for WAYPOINT and TAKEOFF, and
+// exactly +1 for LAND, matching stable ArduPilot readback. altitude_m must be
+// finite, must round-trip through ArduPilot's signed centimeter storage, and is
+// a protobuf float so the digest contains exactly the float32 value transported
+// by MAVLink MISSION_ITEM_INT.z. latitude_e7 and longitude_e7 are exact
+// MISSION_ITEM_INT coordinates; schema version 1 does not require them to
+// round-trip through legacy MISSION_ITEM float coordinates.
 message MissionItem {
   uint32 sequence = 1;
   uint32 frame = 2;
@@ -186,15 +191,15 @@ message MissionItem {
   double param4 = 9;
   sint32 latitude_e7 = 10;
   sint32 longitude_e7 = 11;
-  double altitude_m = 12;
+  float altitude_m = 12;
 }
 
 // MissionPlan is the canonical digest input. For schema_version 1, producers
-// must exclude autopilot HOME entries and source-file/export metadata, reject
-// unknown fields, require every item's current field to be false, and compute
-// mission_digest as lowercase hexadecimal SHA-256 over the deterministic
-// protobuf serialization of this message. Consumers must reject unsupported
-// schema versions.
+// must include 1 to 200 MissionItem records, exclude autopilot HOME entries and
+// source-file/export metadata, reject unknown fields in the plan and its items,
+// and compute mission_digest as lowercase hexadecimal SHA-256 over the
+// deterministic protobuf serialization of this message. Consumers must enforce
+// the same normalization and reject unsupported schema versions.
 message MissionPlan {
   uint32 schema_version = 1;
   repeated MissionItem items = 2;

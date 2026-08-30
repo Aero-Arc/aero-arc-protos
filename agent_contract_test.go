@@ -46,8 +46,8 @@ func TestMissionDeploymentContractRoundTrip(t *testing.T) {
 	plan := &agentv1.MissionPlan{
 		SchemaVersion: 1,
 		Items: []*agentv1.MissionItem{{
-			Sequence: 0, Frame: 3, Command: 16, Current: true, Autocontinue: true,
-			LatitudeE7: -353632620, LongitudeE7: 1491652370, AltitudeM: 20,
+			Sequence: 0, Frame: 0, Command: 16, Current: false, Autocontinue: true,
+			LatitudeE7: -353632620, LongitudeE7: 1491652370, AltitudeM: 20.1,
 		}},
 	}
 	canonical, err := proto.MarshalOptions{Deterministic: true}.Marshal(plan)
@@ -81,6 +81,15 @@ func TestMissionDeploymentContractRoundTrip(t *testing.T) {
 	}
 	if got := decoded.GetDeployMission().GetBinding().GetMissionDigest(); got != hex.EncodeToString(digest[:]) {
 		t.Fatalf("mission digest = %q, want %q", got, hex.EncodeToString(digest[:]))
+	}
+	readbackPlan := proto.Clone(decoded.GetDeployMission().GetPlan()).(*agentv1.MissionPlan)
+	readbackPlan.Items[0].AltitudeM = float32(readbackPlan.Items[0].GetAltitudeM())
+	readbackCanonical, err := proto.MarshalOptions{Deterministic: true}.Marshal(readbackPlan)
+	if err != nil {
+		t.Fatal(err)
+	}
+	if readbackDigest := sha256.Sum256(readbackCanonical); readbackDigest != digest {
+		t.Fatalf("float32 readback digest = %x, want %x", readbackDigest, digest)
 	}
 
 	relayPayload := (&agentv1.RelayStreamMessage{}).ProtoReflect().Descriptor().Oneofs().ByName("payload")

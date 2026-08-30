@@ -1150,15 +1150,20 @@ func (x *MissionBinding) GetIntentVersion() uint32 {
 }
 
 // MissionItem is the bounded canonical representation of one MAVLink mission
-// item in the first deployment slice. API producers must allow at most 200
-// items, require sequence values contiguous from zero, reject unsupported frame
-// and command values, and range-check every scalar before constructing it. The
-// current field is reserved and must be false in schema version 1 because the
-// autopilot changes its value dynamically. Schema version 1 also requires
-// param1, param2, and param3 to be positive zero. param4 must be positive zero
-// for MAV_CMD_NAV_WAYPOINT (16) and MAV_CMD_NAV_TAKEOFF (22), and exactly +1
-// for MAV_CMD_NAV_LAND (21), matching stable ArduPilot readback. latitude_e7
-// and longitude_e7 avoid floating-point coordinate ambiguity.
+// item in the first deployment slice. Schema version 1 allows only
+// MAV_FRAME_GLOBAL (0), and only MAV_CMD_NAV_WAYPOINT (16), MAV_CMD_NAV_LAND
+// (21), and MAV_CMD_NAV_TAKEOFF (22). Producers must require autocontinue=true;
+// require sequence values contiguous from zero; and range-check latitude_e7 to
+// [-900000000, 900000000] and longitude_e7 to [-1800000000, 1800000000]. The
+// current field is reserved and must be false because the autopilot changes it
+// dynamically during execution and readback. param1, param2, and param3 must be
+// positive zero. param4 must be positive zero for WAYPOINT and TAKEOFF, and
+// exactly +1 for LAND, matching stable ArduPilot readback. altitude_m must be
+// finite, must round-trip through ArduPilot's signed centimeter storage, and is
+// a protobuf float so the digest contains exactly the float32 value transported
+// by MAVLink MISSION_ITEM_INT.z. latitude_e7 and longitude_e7 are exact
+// MISSION_ITEM_INT coordinates; schema version 1 does not require them to
+// round-trip through legacy MISSION_ITEM float coordinates.
 type MissionItem struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Sequence      uint32                 `protobuf:"varint,1,opt,name=sequence,proto3" json:"sequence,omitempty"`
@@ -1172,7 +1177,7 @@ type MissionItem struct {
 	Param4        float64                `protobuf:"fixed64,9,opt,name=param4,proto3" json:"param4,omitempty"`
 	LatitudeE7    int32                  `protobuf:"zigzag32,10,opt,name=latitude_e7,json=latitudeE7,proto3" json:"latitude_e7,omitempty"`
 	LongitudeE7   int32                  `protobuf:"zigzag32,11,opt,name=longitude_e7,json=longitudeE7,proto3" json:"longitude_e7,omitempty"`
-	AltitudeM     float64                `protobuf:"fixed64,12,opt,name=altitude_m,json=altitudeM,proto3" json:"altitude_m,omitempty"`
+	AltitudeM     float32                `protobuf:"fixed32,12,opt,name=altitude_m,json=altitudeM,proto3" json:"altitude_m,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -1284,7 +1289,7 @@ func (x *MissionItem) GetLongitudeE7() int32 {
 	return 0
 }
 
-func (x *MissionItem) GetAltitudeM() float64 {
+func (x *MissionItem) GetAltitudeM() float32 {
 	if x != nil {
 		return x.AltitudeM
 	}
@@ -1292,11 +1297,11 @@ func (x *MissionItem) GetAltitudeM() float64 {
 }
 
 // MissionPlan is the canonical digest input. For schema_version 1, producers
-// must exclude autopilot HOME entries and source-file/export metadata, reject
-// unknown fields, require every item's current field to be false, and compute
-// mission_digest as lowercase hexadecimal SHA-256 over the deterministic
-// protobuf serialization of this message. Consumers must reject unsupported
-// schema versions.
+// must include 1 to 200 MissionItem records, exclude autopilot HOME entries and
+// source-file/export metadata, reject unknown fields in the plan and its items,
+// and compute mission_digest as lowercase hexadecimal SHA-256 over the
+// deterministic protobuf serialization of this message. Consumers must enforce
+// the same normalization and reject unsupported schema versions.
 type MissionPlan struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SchemaVersion uint32                 `protobuf:"varint,1,opt,name=schema_version,json=schemaVersion,proto3" json:"schema_version,omitempty"`
@@ -1902,7 +1907,7 @@ const file_aeroarc_agent_v1_agent_proto_rawDesc = "" +
 	"latitudeE7\x12!\n" +
 	"\flongitude_e7\x18\v \x01(\x11R\vlongitudeE7\x12\x1d\n" +
 	"\n" +
-	"altitude_m\x18\f \x01(\x01R\taltitudeM\"i\n" +
+	"altitude_m\x18\f \x01(\x02R\taltitudeM\"i\n" +
 	"\vMissionPlan\x12%\n" +
 	"\x0eschema_version\x18\x01 \x01(\rR\rschemaVersion\x123\n" +
 	"\x05items\x18\x02 \x03(\v2\x1d.aeroarc.agent.v1.MissionItemR\x05items\"\xfc\x01\n" +
