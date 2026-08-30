@@ -133,7 +133,11 @@ package rather than duplicating the encoder; other runtimes must match the same
 byte specification and golden vector.
 
 `DeployMission` targets only the Agent session selected by the Relay at command
-admission. Before admitting a first-seen command or reporting its first success,
+admission. The Agent first validates and canonically digests the supplied plan,
+requires that digest to equal `MissionBinding.mission_digest`, and rejects a
+mismatch before any onboard readback or upload. This supplied-plan check is
+separate from later comparing onboard readback with the binding digest. Before
+admitting a first-seen command or reporting its first success,
 including `ALREADY_APPLIED`, the Agent requires an active operation context
 whose aircraft, flight, intent, and intent version exactly equal the mission
 binding; otherwise it returns `BINDING_MISMATCH`. The command ID and payload

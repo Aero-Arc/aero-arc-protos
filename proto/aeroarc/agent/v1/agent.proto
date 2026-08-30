@@ -225,6 +225,10 @@ message MissionPlan {
 // DeployMissionCommand requests replacement of the autopilot's standard
 // mission with one exact, immutable plan. command_id is a durable idempotency
 // key and must remain stable across API and Relay retries. On every request, the
+// Agent must validate and canonically digest plan, require that digest to equal
+// binding.mission_digest, and reject a mismatch before any onboard readback or
+// upload. This supplied-plan check is distinct from later comparing onboard
+// readback with the same binding digest. On every request, the
 // Agent must look up command_id and compare its durable payload fingerprint
 // before evaluating expires_at_unix_ms. A matching durable terminal result must
 // replay even after expiry. A durable command whose effect was started but has
