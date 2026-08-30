@@ -1040,7 +1040,8 @@ func (x *AircraftCommandResult) GetMessage() string {
 // MissionBinding identifies the immutable API-authoritative mission revision
 // and the exact operation to which it may be deployed. Every non-version field
 // must be non-empty, versions must be positive, and mission_digest must be the
-// lowercase hexadecimal SHA-256 digest of the canonical MissionPlan.
+// lowercase hexadecimal SHA-256 digest of the MissionPlan schema-version
+// canonical bytes defined below.
 type MissionBinding struct {
 	state          protoimpl.MessageState `protogen:"open.v1"`
 	MissionId      string                 `protobuf:"bytes,1,opt,name=mission_id,json=missionId,proto3" json:"mission_id,omitempty"`
@@ -1296,12 +1297,21 @@ func (x *MissionItem) GetAltitudeM() float32 {
 	return 0
 }
 
-// MissionPlan is the canonical digest input. For schema_version 1, producers
-// must include 1 to 200 MissionItem records, exclude autopilot HOME entries and
-// source-file/export metadata, reject unknown fields in the plan and its items,
-// and compute mission_digest as lowercase hexadecimal SHA-256 over the
-// deterministic protobuf serialization of this message. Consumers must enforce
-// the same normalization and reject unsupported schema versions.
+// MissionPlan is the mission digest input. For schema_version 1, producers must
+// include 1 to 200 MissionItem records, exclude autopilot HOME entries and
+// source-file/export metadata, and reject unknown fields in the plan and its
+// items. The canonical bytes are, in order: ASCII
+// "aeroarc-mission-plan-v1", one zero byte, item count as unsigned 32-bit
+// big-endian, then each item in repeated-field order. Each item is sequence,
+// frame, and command as unsigned 32-bit big-endian; current and autocontinue as
+// one byte each (0 or 1); param1 through param4 as their IEEE-754 binary64 bit
+// patterns in big-endian order; latitude_e7 and longitude_e7 as signed 32-bit
+// two's-complement big-endian; and altitude_m as its IEEE-754 binary32 bit
+// pattern in big-endian order. No protobuf wire bytes, field tags, lengths, or
+// unknown fields are included, and no alignment padding is inserted.
+// mission_digest is lowercase hexadecimal SHA-256 of exactly these canonical
+// bytes. Consumers must enforce the same normalization and reject unsupported
+// schema versions before encoding.
 type MissionPlan struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	SchemaVersion uint32                 `protobuf:"varint,1,opt,name=schema_version,json=schemaVersion,proto3" json:"schema_version,omitempty"`

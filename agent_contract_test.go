@@ -1,11 +1,11 @@
 package protos_test
 
 import (
-	"crypto/sha256"
 	"encoding/hex"
 	"testing"
 
 	agentv1 "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/agent/v1"
+	"github.com/aero-arc/aero-arc-protos/missiondigest"
 	"google.golang.org/protobuf/proto"
 	"google.golang.org/protobuf/reflect/protoreflect"
 )
@@ -50,14 +50,25 @@ func TestMissionDeploymentContractRoundTrip(t *testing.T) {
 			LatitudeE7: -353632620, LongitudeE7: 1491652370, AltitudeM: 20.1,
 		}},
 	}
-	canonical, err := proto.MarshalOptions{Deterministic: true}.Marshal(plan)
+	canonical, err := missiondigest.CanonicalBytes(plan)
 	if err != nil {
 		t.Fatal(err)
 	}
-	digest := sha256.Sum256(canonical)
+	const expectedCanonicalHex = "6165726f6172632d6d697373696f6e2d706c616e2d7631000000000100000000000000000000001000010000000000000000000000000000000000000000000000000000000000000000eaebfe9458e8cf1241a0cccd"
+	if got := hex.EncodeToString(canonical); got != expectedCanonicalHex {
+		t.Fatalf("schema-one canonical bytes = %q, want %q", got, expectedCanonicalHex)
+	}
+	digest, err := missiondigest.Digest(plan)
+	if err != nil {
+		t.Fatal(err)
+	}
+	const expectedDigest = "6efa96b36af29a800d53ee7d7baf57d4b24f00d9ce2b408327281e74824acf4f"
+	if digest != expectedDigest {
+		t.Fatalf("schema-one digest = %q, want %q", digest, expectedDigest)
+	}
 	binding := &agentv1.MissionBinding{
 		MissionId: "mission-1", MissionVersion: 1,
-		MissionDigest: hex.EncodeToString(digest[:]), DeploymentId: "deployment-1",
+		MissionDigest: digest, DeploymentId: "deployment-1",
 		OperatorId: "operator-1", AircraftId: "aircraft-1", FlightId: "flight-1",
 		IntentId: "intent-1", IntentVersion: 2,
 	}
@@ -79,17 +90,17 @@ func TestMissionDeploymentContractRoundTrip(t *testing.T) {
 	if !proto.Equal(message, decoded) {
 		t.Fatalf("decoded deployment = %#v, want %#v", decoded, message)
 	}
-	if got := decoded.GetDeployMission().GetBinding().GetMissionDigest(); got != hex.EncodeToString(digest[:]) {
-		t.Fatalf("mission digest = %q, want %q", got, hex.EncodeToString(digest[:]))
+	if got := decoded.GetDeployMission().GetBinding().GetMissionDigest(); got != digest {
+		t.Fatalf("mission digest = %q, want %q", got, digest)
 	}
 	readbackPlan := proto.Clone(decoded.GetDeployMission().GetPlan()).(*agentv1.MissionPlan)
 	readbackPlan.Items[0].AltitudeM = float32(readbackPlan.Items[0].GetAltitudeM())
-	readbackCanonical, err := proto.MarshalOptions{Deterministic: true}.Marshal(readbackPlan)
+	readbackDigest, err := missiondigest.Digest(readbackPlan)
 	if err != nil {
 		t.Fatal(err)
 	}
-	if readbackDigest := sha256.Sum256(readbackCanonical); readbackDigest != digest {
-		t.Fatalf("float32 readback digest = %x, want %x", readbackDigest, digest)
+	if readbackDigest != digest {
+		t.Fatalf("float32 readback digest = %q, want %q", readbackDigest, digest)
 	}
 
 	relayPayload := (&agentv1.RelayStreamMessage{}).ProtoReflect().Descriptor().Oneofs().ByName("payload")

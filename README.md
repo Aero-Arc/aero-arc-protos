@@ -111,8 +111,19 @@ also require that it round-trip through ArduPilot's signed centimeter storage.
 Coordinates are exact `MISSION_ITEM_INT` E7 values and do not need to round-trip
 through legacy `MISSION_ITEM` float coordinates; an Agent unable to use the INT
 exchange must fail closed rather than narrowing the canonical contract.
-The mission digest is lowercase hexadecimal SHA-256 of the deterministic
-protobuf serialization of this normalized `MissionPlan`.
+
+The schema-one digest encoding is independent of protobuf runtime behavior. It
+starts with ASCII `aeroarc-mission-plan-v1` and a zero byte, followed by the item
+count as unsigned 32-bit big-endian. Each item then encodes, in order: sequence,
+frame, and command as unsigned 32-bit big-endian; current and autocontinue as
+one byte each; parameters 1–4 as IEEE-754 binary64 bits in big-endian order;
+latitude and longitude E7 as signed 32-bit two's-complement big-endian; and
+altitude as IEEE-754 binary32 bits in big-endian order. Protobuf tags, lengths,
+wire ordering, unknown fields, and alignment padding are not included. The
+mission digest is lowercase hexadecimal SHA-256 of exactly these bytes after
+validation. Go producers and consumers should use the shared `missiondigest`
+package rather than duplicating the encoder; other runtimes must match the same
+byte specification and golden vector.
 
 `DeployMission` targets only the Agent session selected by the Relay at command
 admission. Before admitting a first-seen command or reporting its first success,
