@@ -205,7 +205,10 @@ message MissionItem {
 // MissionPlan is the mission digest input. For schema_version 1, producers must
 // include 1 to 200 MissionItem records, exclude autopilot HOME entries and
 // source-file/export metadata, and reject unknown fields in the plan and its
-// items. The canonical bytes are, in order: ASCII
+// items. When reconstructing a plan from ArduPilot readback, consumers must
+// discard the synthetic HOME item at wire sequence zero and reassign the
+// remaining operational items contiguous canonical sequences from zero before
+// validation or digest calculation. The canonical bytes are, in order: ASCII
 // "aeroarc-mission-plan-v1", one zero byte, item count as unsigned 32-bit
 // big-endian, then each item in repeated-field order. Each item is sequence,
 // frame, and command as unsigned 32-bit big-endian; current and autocontinue as
