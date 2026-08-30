@@ -166,7 +166,10 @@ response. If outcome persistence fails, the durable admission record and, when
 applicable, the started-effect record remain recovery anchors so a retry cannot
 appear first-seen. `APPLIED` and
 `ALREADY_APPLIED` mean the Agent read back the onboard mission and confirmed its
-digest. `OUTCOME_UNKNOWN` is not permission to issue a new command ID: the
+digest. `uploaded_item_count` is the number transferred by the execution that
+produced the result: `APPLIED` reports the complete plan length and a
+readback-only `ALREADY_APPLIED` reports zero; durable replay preserves that
+original count. `OUTCOME_UNKNOWN` is not permission to issue a new command ID: the
 caller reconciles the same logical command. Binding and onboard digest
 mismatches are explicit terminal outcomes.
 

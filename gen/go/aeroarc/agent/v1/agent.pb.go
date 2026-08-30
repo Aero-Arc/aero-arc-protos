@@ -1489,6 +1489,10 @@ func (x *DeployMissionCommand) GetExpiresAtUnixMs() int64 {
 // MissionDeploymentResult reports the durable Agent/autopilot outcome for one
 // DeployMissionCommand. APPLIED and ALREADY_APPLIED require a successful
 // onboard readback whose canonical digest equals binding.mission_digest.
+// uploaded_item_count reports items transferred by the execution that produced
+// this result: APPLIED must report the complete plan length, while readback-only
+// ALREADY_APPLIED must report zero. Replaying either durable terminal result
+// preserves its original count.
 // BINDING_MISMATCH means a first-seen command was not admitted, or a new upload
 // was not started, because the active operation context was missing or did not
 // exactly match the command binding.
