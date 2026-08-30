@@ -1381,17 +1381,20 @@ func (x *MissionPlan) GetItems() []*MissionItem {
 // Agent must validate and canonically digest plan, require that digest to equal
 // binding.mission_digest, and reject a mismatch before any onboard readback or
 // upload. This supplied-plan check is distinct from later comparing onboard
-// readback with the same binding digest. On every request, the
-// Agent must look up command_id and compare its durable payload fingerprint
-// before evaluating expires_at_unix_ms. A matching durable terminal result must
-// replay even after expiry. A durable command whose effect was started but has
-// an unknown outcome may reconcile after expiry by readback only: a matching
-// digest produces ALREADY_APPLIED, while a mismatching digest produces
+// readback with the same binding digest. On every request, the Agent must look
+// up command_id and compare its durable payload fingerprint before evaluating
+// expires_at_unix_ms. After validating a first-seen unexpired command and its
+// active binding, but before its first onboard readback, the Agent must durably
+// commit that exact fingerprint in an admitted, no-effect-started state. A
+// matching durable terminal result must replay even after expiry. A durable
+// admitted command whose terminal outcome was not stored may reconcile after
+// expiry by readback only, whether or not an upload effect was started: a
+// matching digest produces ALREADY_APPLIED, while a mismatching digest produces
 // ONBOARD_MISSION_MISMATCH and must not trigger a replacement upload. Before
-// expiry, an uncertain mismatching readback may start another upload only after
-// all binding and safety checks pass. Expiry rejects first-seen commands and
+// expiry, an admitted mismatching readback may start an upload only after all
+// binding and safety checks pass. Expiry rejects first-seen commands and
 // prevents every new upload, but it must not prevent readback or replay for a
-// matching durable command. Before admitting any first-seen command or returning
+// matching durable admitted command. Before admitting any first-seen command or returning
 // its first success, including ALREADY_APPLIED from an onboard digest match, the
 // Agent must require an active OperationContext whose aircraft_id, flight_id,
 // intent_id, and intent_version exactly equal the corresponding binding fields.
@@ -1404,8 +1407,9 @@ func (x *MissionPlan) GetItems() []*MissionItem {
 // state; failure to commit that write-ahead transition must prevent the upload
 // and produce TEMPORARY_ERROR.
 // After readback, the Agent must durably store a terminal result or unknown
-// outcome before responding. If that store fails, the effect-started record must
-// remain recoverable and a retry must never treat the command as first-seen.
+// outcome before responding. If that store fails, the admitted record (and the
+// effect-started record when an upload began) must remain recoverable and a
+// retry must never treat the command as first-seen.
 type DeployMissionCommand struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	CommandId       string                 `protobuf:"bytes,1,opt,name=command_id,json=commandId,proto3" json:"command_id,omitempty"`

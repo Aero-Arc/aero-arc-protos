@@ -145,22 +145,26 @@ admitting a first-seen command or reporting its first success,
 including `ALREADY_APPLIED`, the Agent requires an active operation context
 whose aircraft, flight, intent, and intent version exactly equal the mission
 binding; otherwise it returns `BINDING_MISMATCH`. The command ID and payload
-remain stable across reconciliation. The Agent looks up the durable command and
-verifies its payload fingerprint before checking expiry. Exact durable terminal
-replay and readback-only reconciliation remain available after the active
-context changes because they create no new effect. Expiry prevents first
-admission and new uploads, but a matching previously admitted command still
-replays its terminal result. When that durable command records a started effect
-with an unknown outcome, post-expiry reconciliation is readback-only: a matching
-digest yields `ALREADY_APPLIED`; a mismatch yields
+remain stable across reconciliation. After validating a first-seen unexpired
+command and its active binding, but before its first onboard readback, the Agent
+durably records the exact payload fingerprint as admitted with no effect
+started. The Agent looks up that record and verifies its fingerprint before
+checking expiry. Exact durable terminal replay and readback-only reconciliation
+remain available after the active context changes because they create no new
+effect. Expiry prevents first admission and new uploads, but a matching
+previously admitted command still replays its terminal result or performs an
+effect-free recovery readback. For an admitted command whose terminal result
+was not stored, post-expiry reconciliation is readback-only whether or not an
+upload started: a matching digest yields `ALREADY_APPLIED`; a mismatch yields
 `ONBOARD_MISSION_MISMATCH` and never starts a replacement upload. Before expiry,
-an uncertain mismatch may be uploaded again only after rechecking the exact
-active binding and every safety fence. Before calling any transport operation
+an admitted mismatch may be uploaded only after rechecking the exact active
+binding and every safety fence. Before calling any transport operation
 that can mutate the autopilot, the Agent durably commits the exact payload
 fingerprint and an `effect_started` state; a failed write-ahead commit prevents
 the upload and returns `TEMPORARY_ERROR`. Readback outcomes are stored before
-response. If outcome persistence fails, the durable started-effect record
-remains the recovery anchor so a retry cannot appear first-seen. `APPLIED` and
+response. If outcome persistence fails, the durable admission record and, when
+applicable, the started-effect record remain recovery anchors so a retry cannot
+appear first-seen. `APPLIED` and
 `ALREADY_APPLIED` mean the Agent read back the onboard mission and confirmed its
 digest. `OUTCOME_UNKNOWN` is not permission to issue a new command ID: the
 caller reconciles the same logical command. Binding and onboard digest
