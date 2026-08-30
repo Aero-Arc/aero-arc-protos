@@ -118,11 +118,15 @@ protobuf serialization of this normalized `MissionPlan`.
 admission. Before any autopilot mutation, the Agent requires an active operation
 context whose aircraft, flight, intent, and intent version exactly equal the
 mission binding; otherwise it returns `BINDING_MISMATCH` without uploading. The
-command ID and payload remain stable across reconciliation. `APPLIED` and
-`ALREADY_APPLIED` mean the Agent read back the onboard mission and confirmed its
-digest. `OUTCOME_UNKNOWN` is not permission to issue a new command ID: the
-caller reconciles the same logical command. Binding and onboard digest
-mismatches are explicit terminal outcomes.
+command ID and payload remain stable across reconciliation. The Agent looks up
+the durable command and verifies its payload fingerprint before checking
+expiry. Expiry prevents first admission and new uploads, but a matching
+previously admitted command still replays its terminal result or performs
+readback reconciliation after expiry. `APPLIED` and `ALREADY_APPLIED` mean the
+Agent read back the onboard mission and confirmed its digest. `OUTCOME_UNKNOWN`
+is not permission to issue a new command ID: the caller reconciles the same
+logical command. Binding and onboard digest mismatches are explicit terminal
+outcomes.
 
 ### Optional Tooling (Future)
 
