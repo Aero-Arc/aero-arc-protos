@@ -177,7 +177,11 @@ message MissionBinding {
 // exactly +1 for LAND, matching stable ArduPilot readback. altitude_m must be
 // finite, must round-trip through ArduPilot's signed centimeter storage, and is
 // a protobuf float so the digest contains exactly the float32 value transported
-// by MAVLink MISSION_ITEM_INT.z. latitude_e7 and longitude_e7 are exact
+// by MAVLink MISSION_ITEM_INT.z. The round-trip conversion is the ArduPilot
+// operation: multiply the float32 altitude by float32 100, convert that product
+// to signed int32 by truncating toward zero, then multiply the stored int32 by
+// float32 0.01 for readback. The readback float32 bits must equal the input
+// altitude_m bits. latitude_e7 and longitude_e7 are exact
 // MISSION_ITEM_INT coordinates; schema version 1 does not require them to
 // round-trip through legacy MISSION_ITEM float coordinates.
 message MissionItem {

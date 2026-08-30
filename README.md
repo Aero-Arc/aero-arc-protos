@@ -108,6 +108,11 @@ and takeoff, but exactly `+1` for land, matching ArduPilot's stable
 stored/readback form. Altitude is encoded as protobuf `float` so the canonical
 digest contains the exact float32 value transported by MAVLink; producers must
 also require that it round-trip through ArduPilot's signed centimeter storage.
+That conversion multiplies the float32 altitude by float32 `100`, converts the
+product to signed int32 by truncating toward zero, and multiplies the stored
+value by float32 `0.01` for readback; the readback float32 bits must equal the
+input bits. Rounding to the nearest centimeter is not equivalent (for example,
+float32 `16.8` stores as `1679` cm and reads back as `16.79`, so it is rejected).
 Coordinates are exact `MISSION_ITEM_INT` E7 values and do not need to round-trip
 through legacy `MISSION_ITEM` float coordinates; an Agent unable to use the INT
 exchange must fail closed rather than narrowing the canonical contract.
