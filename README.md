@@ -103,6 +103,8 @@ and `MAV_CMD_NAV_TAKEOFF` (22). Sequence numbers are contiguous from zero,
 fields are rejected. Canonical items exclude autopilot HOME entries and Mission
 Planner/QGC export metadata. `MissionItem.current` is reserved and must be false
 because ArduPilot changes it dynamically during execution and readback.
+Readback reconstruction must discard that dynamic marker and force `current`
+to false before validation or canonical digest calculation.
 Parameters 1–3 use positive zero. Parameter 4 uses positive zero for waypoint
 and takeoff, but exactly `+1` for land, matching ArduPilot's stable
 stored/readback form. Altitude is encoded as protobuf `float` so the canonical

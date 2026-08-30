@@ -1157,7 +1157,10 @@ func (x *MissionBinding) GetIntentVersion() uint32 {
 // require sequence values contiguous from zero; and range-check latitude_e7 to
 // [-900000000, 900000000] and longitude_e7 to [-1800000000, 1800000000]. The
 // current field is reserved and must be false because the autopilot changes it
-// dynamically during execution and readback. param1, param2, and param3 must be
+// dynamically during execution and readback. Consumers reconstructing a plan
+// from autopilot readback must discard that dynamic marker and set current=false
+// before validating or computing the canonical digest. param1, param2, and
+// param3 must be
 // positive zero. param4 must be positive zero for WAYPOINT and TAKEOFF, and
 // exactly +1 for LAND, matching stable ArduPilot readback. altitude_m must be
 // finite, must round-trip through ArduPilot's signed centimeter storage, and is
