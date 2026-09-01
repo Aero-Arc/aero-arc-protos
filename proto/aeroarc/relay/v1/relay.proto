@@ -27,6 +27,10 @@ service RelayControl {
   // Send an immediate ARM or DISARM command to the currently connected Agent
   // session and wait for its autopilot-level result.
   rpc SendAircraftCommand(SendAircraftCommandRequest) returns (SendAircraftCommandResponse);
+
+  // Deploy one immutable mission to the currently connected Agent session and
+  // wait for its correlated upload-and-readback result.
+  rpc DeployMission(DeployMissionRequest) returns (DeployMissionResponse);
 }
 
 // ----- Requests -----
@@ -52,6 +56,11 @@ message ClearOperationContextRequest {
 message SendAircraftCommandRequest {
   string agent_id = 1;
   aeroarc.agent.v1.AircraftCommand command = 2;
+}
+
+message DeployMissionRequest {
+  string agent_id = 1;
+  aeroarc.agent.v1.DeployMissionCommand command = 2;
 }
 
 // ----- Responses -----
@@ -82,6 +91,14 @@ message ClearOperationContextResponse {
 // Agent-to-autopilot delivery failure.
 message SendAircraftCommandResponse {
   aeroarc.agent.v1.AircraftCommandResult result = 1;
+}
+
+// A successful RPC response means the target Agent returned a correlated
+// deployment result. Inspect result.status before treating the mission as
+// present onboard; an RPC error or OUTCOME_UNKNOWN requires reconciliation
+// with the same command ID and payload rather than a newly identified upload.
+message DeployMissionResponse {
+  aeroarc.agent.v1.MissionDeploymentResult result = 1;
 }
 
 // ----- Core Types -----
