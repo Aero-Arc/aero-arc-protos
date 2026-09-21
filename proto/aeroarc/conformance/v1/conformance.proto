@@ -53,6 +53,12 @@ message ConformanceHistoryEvent {
   optional double deviation_m = 12;
   string frame_id = 13;
   uint64 evaluation_revision = 14;
+  // Outer bounds of the matching immutable assignment generation's planned
+  // volume windows, not its monitoring authority interval or actual completion.
+  // Absence means no complete valid planned-window evidence is available.
+  // These bounds do not imply authorization inside gaps between volume windows.
+  google.protobuf.Timestamp planned_start_at = 15;
+  google.protobuf.Timestamp planned_end_at = 16;
 }
 
 // ListConformanceEventsResponse returns at most the requested page size.

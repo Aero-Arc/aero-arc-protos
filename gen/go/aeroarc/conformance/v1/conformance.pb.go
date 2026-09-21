@@ -575,8 +575,14 @@ type ConformanceHistoryEvent struct {
 	DeviationM         *float64 `protobuf:"fixed64,12,opt,name=deviation_m,json=deviationM,proto3,oneof" json:"deviation_m,omitempty"`
 	FrameId            string   `protobuf:"bytes,13,opt,name=frame_id,json=frameId,proto3" json:"frame_id,omitempty"`
 	EvaluationRevision uint64   `protobuf:"varint,14,opt,name=evaluation_revision,json=evaluationRevision,proto3" json:"evaluation_revision,omitempty"`
-	unknownFields      protoimpl.UnknownFields
-	sizeCache          protoimpl.SizeCache
+	// Outer bounds of the matching immutable assignment generation's planned
+	// volume windows, not its monitoring authority interval or actual completion.
+	// Absence means no complete valid planned-window evidence is available.
+	// These bounds do not imply authorization inside gaps between volume windows.
+	PlannedStartAt *timestamppb.Timestamp `protobuf:"bytes,15,opt,name=planned_start_at,json=plannedStartAt,proto3" json:"planned_start_at,omitempty"`
+	PlannedEndAt   *timestamppb.Timestamp `protobuf:"bytes,16,opt,name=planned_end_at,json=plannedEndAt,proto3" json:"planned_end_at,omitempty"`
+	unknownFields  protoimpl.UnknownFields
+	sizeCache      protoimpl.SizeCache
 }
 
 func (x *ConformanceHistoryEvent) Reset() {
@@ -705,6 +711,20 @@ func (x *ConformanceHistoryEvent) GetEvaluationRevision() uint64 {
 		return x.EvaluationRevision
 	}
 	return 0
+}
+
+func (x *ConformanceHistoryEvent) GetPlannedStartAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PlannedStartAt
+	}
+	return nil
+}
+
+func (x *ConformanceHistoryEvent) GetPlannedEndAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.PlannedEndAt
+	}
+	return nil
 }
 
 // ListConformanceEventsResponse returns at most the requested page size.
@@ -1961,7 +1981,7 @@ const file_aeroarc_conformance_v1_conformance_proto_rawDesc = "" +
 	"\x05until\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x05until\x12\x1b\n" +
 	"\tpage_size\x18\x05 \x01(\x05R\bpageSize\x12\x1d\n" +
 	"\n" +
-	"page_token\x18\x06 \x01(\tR\tpageToken\"\xde\x04\n" +
+	"page_token\x18\x06 \x01(\tR\tpageToken\"\xe6\x05\n" +
 	"\x17ConformanceHistoryEvent\x12\x19\n" +
 	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12#\n" +
 	"\rassignment_id\x18\x02 \x01(\tR\fassignmentId\x123\n" +
@@ -1983,7 +2003,9 @@ const file_aeroarc_conformance_v1_conformance_proto_rawDesc = "" +
 	"\vdeviation_m\x18\f \x01(\x01H\x00R\n" +
 	"deviationM\x88\x01\x01\x12\x19\n" +
 	"\bframe_id\x18\r \x01(\tR\aframeId\x12/\n" +
-	"\x13evaluation_revision\x18\x0e \x01(\x04R\x12evaluationRevisionB\x0e\n" +
+	"\x13evaluation_revision\x18\x0e \x01(\x04R\x12evaluationRevision\x12D\n" +
+	"\x10planned_start_at\x18\x0f \x01(\v2\x1a.google.protobuf.TimestampR\x0eplannedStartAt\x12@\n" +
+	"\x0eplanned_end_at\x18\x10 \x01(\v2\x1a.google.protobuf.TimestampR\fplannedEndAtB\x0e\n" +
 	"\f_deviation_m\"\x90\x01\n" +
 	"\x1dListConformanceEventsResponse\x12G\n" +
 	"\x06events\x18\x01 \x03(\v2/.aeroarc.conformance.v1.ConformanceHistoryEventR\x06events\x12&\n" +
@@ -2216,58 +2238,60 @@ var file_aeroarc_conformance_v1_conformance_proto_depIdxs = []int32{
 	27, // 1: aeroarc.conformance.v1.ListConformanceEventsRequest.until:type_name -> google.protobuf.Timestamp
 	6,  // 2: aeroarc.conformance.v1.ConformanceHistoryEvent.violation_type:type_name -> aeroarc.conformance.v1.ViolationType
 	27, // 3: aeroarc.conformance.v1.ConformanceHistoryEvent.observed_at:type_name -> google.protobuf.Timestamp
-	9,  // 4: aeroarc.conformance.v1.ListConformanceEventsResponse.events:type_name -> aeroarc.conformance.v1.ConformanceHistoryEvent
-	11, // 5: aeroarc.conformance.v1.ConformanceVolume.polygon:type_name -> aeroarc.conformance.v1.GeographicPoint
-	2,  // 6: aeroarc.conformance.v1.ConformanceVolume.altitude_reference:type_name -> aeroarc.conformance.v1.AltitudeReference
-	27, // 7: aeroarc.conformance.v1.ConformanceVolume.starts_at:type_name -> google.protobuf.Timestamp
-	27, // 8: aeroarc.conformance.v1.ConformanceVolume.ends_at:type_name -> google.protobuf.Timestamp
-	27, // 9: aeroarc.conformance.v1.Assignment.effective_from:type_name -> google.protobuf.Timestamp
-	27, // 10: aeroarc.conformance.v1.Assignment.effective_until:type_name -> google.protobuf.Timestamp
-	12, // 11: aeroarc.conformance.v1.Assignment.volumes:type_name -> aeroarc.conformance.v1.ConformanceVolume
-	13, // 12: aeroarc.conformance.v1.AssignmentRecord.assignment:type_name -> aeroarc.conformance.v1.Assignment
-	1,  // 13: aeroarc.conformance.v1.AssignmentRecord.lifecycle:type_name -> aeroarc.conformance.v1.AssignmentLifecycle
-	27, // 14: aeroarc.conformance.v1.AssignmentRecord.authority_from:type_name -> google.protobuf.Timestamp
-	27, // 15: aeroarc.conformance.v1.AssignmentRecord.authority_until:type_name -> google.protobuf.Timestamp
-	27, // 16: aeroarc.conformance.v1.AssignmentRecord.prepared_at:type_name -> google.protobuf.Timestamp
-	27, // 17: aeroarc.conformance.v1.AssignmentRecord.armed_at:type_name -> google.protobuf.Timestamp
-	27, // 18: aeroarc.conformance.v1.AssignmentRecord.cutover_at:type_name -> google.protobuf.Timestamp
-	13, // 19: aeroarc.conformance.v1.PrepareAssignmentRequest.assignment:type_name -> aeroarc.conformance.v1.Assignment
-	27, // 20: aeroarc.conformance.v1.CutoverAssignmentRequest.effective_at:type_name -> google.protobuf.Timestamp
-	0,  // 21: aeroarc.conformance.v1.PrepareAssignmentResponse.disposition:type_name -> aeroarc.conformance.v1.AssignmentCommandDisposition
-	14, // 22: aeroarc.conformance.v1.PrepareAssignmentResponse.assignment:type_name -> aeroarc.conformance.v1.AssignmentRecord
-	0,  // 23: aeroarc.conformance.v1.ArmAssignmentResponse.disposition:type_name -> aeroarc.conformance.v1.AssignmentCommandDisposition
-	14, // 24: aeroarc.conformance.v1.ArmAssignmentResponse.assignment:type_name -> aeroarc.conformance.v1.AssignmentRecord
-	0,  // 25: aeroarc.conformance.v1.CancelAssignmentCandidateResponse.disposition:type_name -> aeroarc.conformance.v1.AssignmentCommandDisposition
-	14, // 26: aeroarc.conformance.v1.CancelAssignmentCandidateResponse.assignment:type_name -> aeroarc.conformance.v1.AssignmentRecord
-	0,  // 27: aeroarc.conformance.v1.CutoverAssignmentResponse.disposition:type_name -> aeroarc.conformance.v1.AssignmentCommandDisposition
-	14, // 28: aeroarc.conformance.v1.CutoverAssignmentResponse.assignment:type_name -> aeroarc.conformance.v1.AssignmentRecord
-	14, // 29: aeroarc.conformance.v1.GetAssignmentResponse.assignment:type_name -> aeroarc.conformance.v1.AssignmentRecord
-	6,  // 30: aeroarc.conformance.v1.ViolationSummary.violation_type:type_name -> aeroarc.conformance.v1.ViolationType
-	7,  // 31: aeroarc.conformance.v1.ViolationSummary.phase:type_name -> aeroarc.conformance.v1.IncidentPhase
-	27, // 32: aeroarc.conformance.v1.ViolationSummary.opened_at:type_name -> google.protobuf.Timestamp
-	27, // 33: aeroarc.conformance.v1.ViolationSummary.last_observed_at:type_name -> google.protobuf.Timestamp
-	3,  // 34: aeroarc.conformance.v1.ConformanceSummary.condition:type_name -> aeroarc.conformance.v1.ConformanceCondition
-	4,  // 35: aeroarc.conformance.v1.ConformanceSummary.monitoring_status:type_name -> aeroarc.conformance.v1.MonitoringStatus
-	5,  // 36: aeroarc.conformance.v1.ConformanceSummary.recording_status:type_name -> aeroarc.conformance.v1.RecordingStatus
-	27, // 37: aeroarc.conformance.v1.ConformanceSummary.observed_at:type_name -> google.protobuf.Timestamp
-	25, // 38: aeroarc.conformance.v1.ConformanceSummary.violations:type_name -> aeroarc.conformance.v1.ViolationSummary
-	15, // 39: aeroarc.conformance.v1.ConformanceService.PrepareAssignment:input_type -> aeroarc.conformance.v1.PrepareAssignmentRequest
-	16, // 40: aeroarc.conformance.v1.ConformanceService.ArmAssignment:input_type -> aeroarc.conformance.v1.ArmAssignmentRequest
-	17, // 41: aeroarc.conformance.v1.ConformanceService.CancelAssignmentCandidate:input_type -> aeroarc.conformance.v1.CancelAssignmentCandidateRequest
-	18, // 42: aeroarc.conformance.v1.ConformanceService.CutoverAssignment:input_type -> aeroarc.conformance.v1.CutoverAssignmentRequest
-	23, // 43: aeroarc.conformance.v1.ConformanceService.GetAssignment:input_type -> aeroarc.conformance.v1.GetAssignmentRequest
-	8,  // 44: aeroarc.conformance.v1.ConformanceService.ListConformanceEvents:input_type -> aeroarc.conformance.v1.ListConformanceEventsRequest
-	19, // 45: aeroarc.conformance.v1.ConformanceService.PrepareAssignment:output_type -> aeroarc.conformance.v1.PrepareAssignmentResponse
-	20, // 46: aeroarc.conformance.v1.ConformanceService.ArmAssignment:output_type -> aeroarc.conformance.v1.ArmAssignmentResponse
-	21, // 47: aeroarc.conformance.v1.ConformanceService.CancelAssignmentCandidate:output_type -> aeroarc.conformance.v1.CancelAssignmentCandidateResponse
-	22, // 48: aeroarc.conformance.v1.ConformanceService.CutoverAssignment:output_type -> aeroarc.conformance.v1.CutoverAssignmentResponse
-	24, // 49: aeroarc.conformance.v1.ConformanceService.GetAssignment:output_type -> aeroarc.conformance.v1.GetAssignmentResponse
-	10, // 50: aeroarc.conformance.v1.ConformanceService.ListConformanceEvents:output_type -> aeroarc.conformance.v1.ListConformanceEventsResponse
-	45, // [45:51] is the sub-list for method output_type
-	39, // [39:45] is the sub-list for method input_type
-	39, // [39:39] is the sub-list for extension type_name
-	39, // [39:39] is the sub-list for extension extendee
-	0,  // [0:39] is the sub-list for field type_name
+	27, // 4: aeroarc.conformance.v1.ConformanceHistoryEvent.planned_start_at:type_name -> google.protobuf.Timestamp
+	27, // 5: aeroarc.conformance.v1.ConformanceHistoryEvent.planned_end_at:type_name -> google.protobuf.Timestamp
+	9,  // 6: aeroarc.conformance.v1.ListConformanceEventsResponse.events:type_name -> aeroarc.conformance.v1.ConformanceHistoryEvent
+	11, // 7: aeroarc.conformance.v1.ConformanceVolume.polygon:type_name -> aeroarc.conformance.v1.GeographicPoint
+	2,  // 8: aeroarc.conformance.v1.ConformanceVolume.altitude_reference:type_name -> aeroarc.conformance.v1.AltitudeReference
+	27, // 9: aeroarc.conformance.v1.ConformanceVolume.starts_at:type_name -> google.protobuf.Timestamp
+	27, // 10: aeroarc.conformance.v1.ConformanceVolume.ends_at:type_name -> google.protobuf.Timestamp
+	27, // 11: aeroarc.conformance.v1.Assignment.effective_from:type_name -> google.protobuf.Timestamp
+	27, // 12: aeroarc.conformance.v1.Assignment.effective_until:type_name -> google.protobuf.Timestamp
+	12, // 13: aeroarc.conformance.v1.Assignment.volumes:type_name -> aeroarc.conformance.v1.ConformanceVolume
+	13, // 14: aeroarc.conformance.v1.AssignmentRecord.assignment:type_name -> aeroarc.conformance.v1.Assignment
+	1,  // 15: aeroarc.conformance.v1.AssignmentRecord.lifecycle:type_name -> aeroarc.conformance.v1.AssignmentLifecycle
+	27, // 16: aeroarc.conformance.v1.AssignmentRecord.authority_from:type_name -> google.protobuf.Timestamp
+	27, // 17: aeroarc.conformance.v1.AssignmentRecord.authority_until:type_name -> google.protobuf.Timestamp
+	27, // 18: aeroarc.conformance.v1.AssignmentRecord.prepared_at:type_name -> google.protobuf.Timestamp
+	27, // 19: aeroarc.conformance.v1.AssignmentRecord.armed_at:type_name -> google.protobuf.Timestamp
+	27, // 20: aeroarc.conformance.v1.AssignmentRecord.cutover_at:type_name -> google.protobuf.Timestamp
+	13, // 21: aeroarc.conformance.v1.PrepareAssignmentRequest.assignment:type_name -> aeroarc.conformance.v1.Assignment
+	27, // 22: aeroarc.conformance.v1.CutoverAssignmentRequest.effective_at:type_name -> google.protobuf.Timestamp
+	0,  // 23: aeroarc.conformance.v1.PrepareAssignmentResponse.disposition:type_name -> aeroarc.conformance.v1.AssignmentCommandDisposition
+	14, // 24: aeroarc.conformance.v1.PrepareAssignmentResponse.assignment:type_name -> aeroarc.conformance.v1.AssignmentRecord
+	0,  // 25: aeroarc.conformance.v1.ArmAssignmentResponse.disposition:type_name -> aeroarc.conformance.v1.AssignmentCommandDisposition
+	14, // 26: aeroarc.conformance.v1.ArmAssignmentResponse.assignment:type_name -> aeroarc.conformance.v1.AssignmentRecord
+	0,  // 27: aeroarc.conformance.v1.CancelAssignmentCandidateResponse.disposition:type_name -> aeroarc.conformance.v1.AssignmentCommandDisposition
+	14, // 28: aeroarc.conformance.v1.CancelAssignmentCandidateResponse.assignment:type_name -> aeroarc.conformance.v1.AssignmentRecord
+	0,  // 29: aeroarc.conformance.v1.CutoverAssignmentResponse.disposition:type_name -> aeroarc.conformance.v1.AssignmentCommandDisposition
+	14, // 30: aeroarc.conformance.v1.CutoverAssignmentResponse.assignment:type_name -> aeroarc.conformance.v1.AssignmentRecord
+	14, // 31: aeroarc.conformance.v1.GetAssignmentResponse.assignment:type_name -> aeroarc.conformance.v1.AssignmentRecord
+	6,  // 32: aeroarc.conformance.v1.ViolationSummary.violation_type:type_name -> aeroarc.conformance.v1.ViolationType
+	7,  // 33: aeroarc.conformance.v1.ViolationSummary.phase:type_name -> aeroarc.conformance.v1.IncidentPhase
+	27, // 34: aeroarc.conformance.v1.ViolationSummary.opened_at:type_name -> google.protobuf.Timestamp
+	27, // 35: aeroarc.conformance.v1.ViolationSummary.last_observed_at:type_name -> google.protobuf.Timestamp
+	3,  // 36: aeroarc.conformance.v1.ConformanceSummary.condition:type_name -> aeroarc.conformance.v1.ConformanceCondition
+	4,  // 37: aeroarc.conformance.v1.ConformanceSummary.monitoring_status:type_name -> aeroarc.conformance.v1.MonitoringStatus
+	5,  // 38: aeroarc.conformance.v1.ConformanceSummary.recording_status:type_name -> aeroarc.conformance.v1.RecordingStatus
+	27, // 39: aeroarc.conformance.v1.ConformanceSummary.observed_at:type_name -> google.protobuf.Timestamp
+	25, // 40: aeroarc.conformance.v1.ConformanceSummary.violations:type_name -> aeroarc.conformance.v1.ViolationSummary
+	15, // 41: aeroarc.conformance.v1.ConformanceService.PrepareAssignment:input_type -> aeroarc.conformance.v1.PrepareAssignmentRequest
+	16, // 42: aeroarc.conformance.v1.ConformanceService.ArmAssignment:input_type -> aeroarc.conformance.v1.ArmAssignmentRequest
+	17, // 43: aeroarc.conformance.v1.ConformanceService.CancelAssignmentCandidate:input_type -> aeroarc.conformance.v1.CancelAssignmentCandidateRequest
+	18, // 44: aeroarc.conformance.v1.ConformanceService.CutoverAssignment:input_type -> aeroarc.conformance.v1.CutoverAssignmentRequest
+	23, // 45: aeroarc.conformance.v1.ConformanceService.GetAssignment:input_type -> aeroarc.conformance.v1.GetAssignmentRequest
+	8,  // 46: aeroarc.conformance.v1.ConformanceService.ListConformanceEvents:input_type -> aeroarc.conformance.v1.ListConformanceEventsRequest
+	19, // 47: aeroarc.conformance.v1.ConformanceService.PrepareAssignment:output_type -> aeroarc.conformance.v1.PrepareAssignmentResponse
+	20, // 48: aeroarc.conformance.v1.ConformanceService.ArmAssignment:output_type -> aeroarc.conformance.v1.ArmAssignmentResponse
+	21, // 49: aeroarc.conformance.v1.ConformanceService.CancelAssignmentCandidate:output_type -> aeroarc.conformance.v1.CancelAssignmentCandidateResponse
+	22, // 50: aeroarc.conformance.v1.ConformanceService.CutoverAssignment:output_type -> aeroarc.conformance.v1.CutoverAssignmentResponse
+	24, // 51: aeroarc.conformance.v1.ConformanceService.GetAssignment:output_type -> aeroarc.conformance.v1.GetAssignmentResponse
+	10, // 52: aeroarc.conformance.v1.ConformanceService.ListConformanceEvents:output_type -> aeroarc.conformance.v1.ListConformanceEventsResponse
+	47, // [47:53] is the sub-list for method output_type
+	41, // [41:47] is the sub-list for method input_type
+	41, // [41:41] is the sub-list for extension type_name
+	41, // [41:41] is the sub-list for extension extendee
+	0,  // [0:41] is the sub-list for field type_name
 }
 
 func init() { file_aeroarc_conformance_v1_conformance_proto_init() }
