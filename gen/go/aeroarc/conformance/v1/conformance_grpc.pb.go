@@ -24,6 +24,7 @@ const (
 	ConformanceService_CancelAssignmentCandidate_FullMethodName = "/aeroarc.conformance.v1.ConformanceService/CancelAssignmentCandidate"
 	ConformanceService_CutoverAssignment_FullMethodName         = "/aeroarc.conformance.v1.ConformanceService/CutoverAssignment"
 	ConformanceService_GetAssignment_FullMethodName             = "/aeroarc.conformance.v1.ConformanceService/GetAssignment"
+	ConformanceService_ListConformanceEvents_FullMethodName     = "/aeroarc.conformance.v1.ConformanceService/ListConformanceEvents"
 )
 
 // ConformanceServiceClient is the client API for ConformanceService service.
@@ -39,6 +40,8 @@ type ConformanceServiceClient interface {
 	CancelAssignmentCandidate(ctx context.Context, in *CancelAssignmentCandidateRequest, opts ...grpc.CallOption) (*CancelAssignmentCandidateResponse, error)
 	CutoverAssignment(ctx context.Context, in *CutoverAssignmentRequest, opts ...grpc.CallOption) (*CutoverAssignmentResponse, error)
 	GetAssignment(ctx context.Context, in *GetAssignmentRequest, opts ...grpc.CallOption) (*GetAssignmentResponse, error)
+	// Reads durable incident transitions; Registry projections are not history.
+	ListConformanceEvents(ctx context.Context, in *ListConformanceEventsRequest, opts ...grpc.CallOption) (*ListConformanceEventsResponse, error)
 }
 
 type conformanceServiceClient struct {
@@ -99,6 +102,16 @@ func (c *conformanceServiceClient) GetAssignment(ctx context.Context, in *GetAss
 	return out, nil
 }
 
+func (c *conformanceServiceClient) ListConformanceEvents(ctx context.Context, in *ListConformanceEventsRequest, opts ...grpc.CallOption) (*ListConformanceEventsResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ListConformanceEventsResponse)
+	err := c.cc.Invoke(ctx, ConformanceService_ListConformanceEvents_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // ConformanceServiceServer is the server API for ConformanceService service.
 // All implementations must embed UnimplementedConformanceServiceServer
 // for forward compatibility.
@@ -112,6 +125,8 @@ type ConformanceServiceServer interface {
 	CancelAssignmentCandidate(context.Context, *CancelAssignmentCandidateRequest) (*CancelAssignmentCandidateResponse, error)
 	CutoverAssignment(context.Context, *CutoverAssignmentRequest) (*CutoverAssignmentResponse, error)
 	GetAssignment(context.Context, *GetAssignmentRequest) (*GetAssignmentResponse, error)
+	// Reads durable incident transitions; Registry projections are not history.
+	ListConformanceEvents(context.Context, *ListConformanceEventsRequest) (*ListConformanceEventsResponse, error)
 	mustEmbedUnimplementedConformanceServiceServer()
 }
 
@@ -136,6 +151,9 @@ func (UnimplementedConformanceServiceServer) CutoverAssignment(context.Context, 
 }
 func (UnimplementedConformanceServiceServer) GetAssignment(context.Context, *GetAssignmentRequest) (*GetAssignmentResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method GetAssignment not implemented")
+}
+func (UnimplementedConformanceServiceServer) ListConformanceEvents(context.Context, *ListConformanceEventsRequest) (*ListConformanceEventsResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ListConformanceEvents not implemented")
 }
 func (UnimplementedConformanceServiceServer) mustEmbedUnimplementedConformanceServiceServer() {}
 func (UnimplementedConformanceServiceServer) testEmbeddedByValue()                            {}
@@ -248,6 +266,24 @@ func _ConformanceService_GetAssignment_Handler(srv interface{}, ctx context.Cont
 	return interceptor(ctx, in, info, handler)
 }
 
+func _ConformanceService_ListConformanceEvents_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ListConformanceEventsRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(ConformanceServiceServer).ListConformanceEvents(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: ConformanceService_ListConformanceEvents_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(ConformanceServiceServer).ListConformanceEvents(ctx, req.(*ListConformanceEventsRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // ConformanceService_ServiceDesc is the grpc.ServiceDesc for ConformanceService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -274,6 +310,10 @@ var ConformanceService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "GetAssignment",
 			Handler:    _ConformanceService_GetAssignment_Handler,
+		},
+		{
+			MethodName: "ListConformanceEvents",
+			Handler:    _ConformanceService_ListConformanceEvents_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

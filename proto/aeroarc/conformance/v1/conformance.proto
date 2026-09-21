@@ -15,6 +15,51 @@ service ConformanceService {
   rpc CancelAssignmentCandidate(CancelAssignmentCandidateRequest) returns (CancelAssignmentCandidateResponse);
   rpc CutoverAssignment(CutoverAssignmentRequest) returns (CutoverAssignmentResponse);
   rpc GetAssignment(GetAssignmentRequest) returns (GetAssignmentResponse);
+  // Reads durable incident transitions; Registry projections are not history.
+  rpc ListConformanceEvents(ListConformanceEventsRequest) returns (ListConformanceEventsResponse);
+}
+
+// ListConformanceEventsRequest scopes a read to exactly one assignment.
+// Results are newest first by (observed_at, event_id). This is not a snapshot:
+// late insertions require refreshing the first page. No evaluation is triggered.
+message ListConformanceEventsRequest {
+  string assignment_id = 1;
+  // Zero includes every generation; nonzero selects an exact generation.
+  uint64 assignment_generation = 2;
+  // Optional inclusive lower and exclusive upper event-time bounds.
+  google.protobuf.Timestamp from = 3;
+  google.protobuf.Timestamp until = 4;
+  // Zero defaults to 50. Valid explicit sizes are 1 through 200.
+  int32 page_size = 5;
+  // Opaque continuation bound to the assignment, generation and time filters.
+  string page_token = 6;
+}
+
+// ConformanceHistoryEvent is immutable transition evidence, not current state.
+message ConformanceHistoryEvent {
+  string event_id = 1;
+  string assignment_id = 2;
+  uint64 assignment_generation = 3;
+  string intent_id = 4;
+  uint32 intent_version = 5;
+  string aircraft_id = 6;
+  string flight_id = 7;
+  string incident_id = 8;
+  // Current persisted transitions are opened and resolved.
+  string transition = 9;
+  ViolationType violation_type = 10;
+  google.protobuf.Timestamp observed_at = 11;
+  // Only populated for measured spatial deviations. Absence is not zero.
+  optional double deviation_m = 12;
+  string frame_id = 13;
+  uint64 evaluation_revision = 14;
+}
+
+// ListConformanceEventsResponse returns at most the requested page size.
+// An empty events list is a successful empty read, not an unavailable service.
+message ListConformanceEventsResponse {
+  repeated ConformanceHistoryEvent events = 1;
+  string next_page_token = 2;
 }
 
 enum AssignmentCommandDisposition {
