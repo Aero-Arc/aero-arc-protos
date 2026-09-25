@@ -19,6 +19,7 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	RelayControl_ExchangeCommand_FullMethodName       = "/aeroarc.relay.v1.RelayControl/ExchangeCommand"
 	RelayControl_ListActiveDrones_FullMethodName      = "/aeroarc.relay.v1.RelayControl/ListActiveDrones"
 	RelayControl_GetDroneStatus_FullMethodName        = "/aeroarc.relay.v1.RelayControl/GetDroneStatus"
 	RelayControl_SetOperationContext_FullMethodName   = "/aeroarc.relay.v1.RelayControl/SetOperationContext"
@@ -37,6 +38,8 @@ const (
 // without breaking generated clients.
 // buf:lint:ignore SERVICE_SUFFIX
 type RelayControlClient interface {
+	// Exchange a durable command for replayable Agent evidence.
+	ExchangeCommand(ctx context.Context, in *ExchangeCommandRequest, opts ...grpc.CallOption) (*ExchangeCommandResponse, error)
 	// List all drones currently connected to this relay.
 	ListActiveDrones(ctx context.Context, in *ListActiveDronesRequest, opts ...grpc.CallOption) (*ListActiveDronesResponse, error)
 	// Get the current status of a single drone by drone_id.
@@ -59,6 +62,16 @@ type relayControlClient struct {
 
 func NewRelayControlClient(cc grpc.ClientConnInterface) RelayControlClient {
 	return &relayControlClient{cc}
+}
+
+func (c *relayControlClient) ExchangeCommand(ctx context.Context, in *ExchangeCommandRequest, opts ...grpc.CallOption) (*ExchangeCommandResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ExchangeCommandResponse)
+	err := c.cc.Invoke(ctx, RelayControl_ExchangeCommand_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
 }
 
 func (c *relayControlClient) ListActiveDrones(ctx context.Context, in *ListActiveDronesRequest, opts ...grpc.CallOption) (*ListActiveDronesResponse, error) {
@@ -131,6 +144,8 @@ func (c *relayControlClient) DeployMission(ctx context.Context, in *DeployMissio
 // without breaking generated clients.
 // buf:lint:ignore SERVICE_SUFFIX
 type RelayControlServer interface {
+	// Exchange a durable command for replayable Agent evidence.
+	ExchangeCommand(context.Context, *ExchangeCommandRequest) (*ExchangeCommandResponse, error)
 	// List all drones currently connected to this relay.
 	ListActiveDrones(context.Context, *ListActiveDronesRequest) (*ListActiveDronesResponse, error)
 	// Get the current status of a single drone by drone_id.
@@ -155,6 +170,9 @@ type RelayControlServer interface {
 // pointer dereference when methods are called.
 type UnimplementedRelayControlServer struct{}
 
+func (UnimplementedRelayControlServer) ExchangeCommand(context.Context, *ExchangeCommandRequest) (*ExchangeCommandResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExchangeCommand not implemented")
+}
 func (UnimplementedRelayControlServer) ListActiveDrones(context.Context, *ListActiveDronesRequest) (*ListActiveDronesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListActiveDrones not implemented")
 }
@@ -192,6 +210,24 @@ func RegisterRelayControlServer(s grpc.ServiceRegistrar, srv RelayControlServer)
 		t.testEmbeddedByValue()
 	}
 	s.RegisterService(&RelayControl_ServiceDesc, srv)
+}
+
+func _RelayControl_ExchangeCommand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExchangeCommandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RelayControlServer).ExchangeCommand(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RelayControl_ExchangeCommand_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RelayControlServer).ExchangeCommand(ctx, req.(*ExchangeCommandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
 }
 
 func _RelayControl_ListActiveDrones_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
@@ -309,6 +345,10 @@ var RelayControl_ServiceDesc = grpc.ServiceDesc{
 	ServiceName: "aeroarc.relay.v1.RelayControl",
 	HandlerType: (*RelayControlServer)(nil),
 	Methods: []grpc.MethodDesc{
+		{
+			MethodName: "ExchangeCommand",
+			Handler:    _RelayControl_ExchangeCommand_Handler,
+		},
 		{
 			MethodName: "ListActiveDrones",
 			Handler:    _RelayControl_ListActiveDrones_Handler,

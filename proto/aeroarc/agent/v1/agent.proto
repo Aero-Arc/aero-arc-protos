@@ -26,6 +26,7 @@ message RegisterRequest {
 
   string agent_version = 2;
   string platform = 3; // e.g. "linux/arm64"
+  repeated string execution_capabilities = 4;
 }
 
 message RegisterResponse {
@@ -96,6 +97,7 @@ message AgentStreamMessage {
     OperationContextCommandAck operation_context_command_ack = 2;
     AircraftCommandResult aircraft_command_result = 3;
     MissionDeploymentResult mission_deployment_result = 4;
+    CommandEvidence command_evidence = 5;
   }
 }
 
@@ -108,6 +110,7 @@ message RelayStreamMessage {
     ClearOperationContextCommand clear_operation_context = 3;
     AircraftCommand aircraft_command = 4;
     DeployMissionCommand deploy_mission = 5;
+    DurableCommand durable_command = 6;
   }
 }
 
@@ -358,4 +361,65 @@ message OperationContextCommandAck {
   Status status = 2;
   string error = 3;
   OperationContext active_context = 4;
+}
+
+// DurableCommand is immutable execution authority. The digest uses commanddigest
+// canonical version 1, not protobuf serialization. Delivery attempts are external.
+message DurableCommand {
+  string command_id = 1;
+  string command_digest = 2;
+  string operator_id = 3;
+  string aircraft_id = 4;
+  string agent_id = 5;
+  OperationContext context = 6;
+  string definition = 7;
+  uint32 definition_version = 8;
+  string capability = 9;
+  int64 issued_at_unix_ms = 10;
+  int64 expires_at_unix_ms = 11;
+  // First-effect retries are prohibited after a durable effect-start marker.
+  string recovery_policy = 12;
+  oneof execution {
+    MavlinkExecution mavlink = 13;
+    DeployMissionCommand mission = 14;
+  }
+}
+
+// MavlinkExecution describes COMMAND_LONG or COMMAND_INT without per-command
+// protobuf types. Parameters must be finite; unused values are positive zero.
+message MavlinkExecution {
+  uint32 command = 1;
+  repeated float parameters = 2;
+  bool use_command_int = 3;
+  uint32 frame = 4;
+  sint32 x = 5;
+  sint32 y = 6;
+  float z = 7;
+  string observation = 8;
+  uint32 expected_custom_mode = 9;
+  // Exact onboard mission requirement, checked by readback before effect.
+  MissionPlan mission_precondition = 10;
+  string mission_precondition_id = 11;
+  uint32 mission_precondition_version = 12;
+  string vehicle_profile = 13;
+}
+
+// CommandEvidence is a replayable snapshot of immutable lifecycle events.
+// Relay receipt is not durable command-authority acknowledgement. Agent retains
+// this evidence across restart and exact command replay.
+message CommandEvidence {
+  string command_id = 1;
+  string command_digest = 2;
+  repeated CommandEvent events = 3;
+}
+
+// CommandEvent records source occurrence separately from server receipt time.
+// Event IDs are stable across retries. observed never substitutes for applied.
+message CommandEvent {
+  string event_id = 1;
+  string stage = 2;
+  int64 occurred_at_unix_ms = 3;
+  string message = 4;
+  string evidence_source = 5;
+  optional uint32 protocol_result = 6;
 }

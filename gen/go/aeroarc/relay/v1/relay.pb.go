@@ -605,10 +605,11 @@ type DroneStatus struct {
 	// Optional flight grouping (client-defined)
 	FlightId string `protobuf:"bytes,7,opt,name=flight_id,json=flightId,proto3" json:"flight_id,omitempty"`
 	// Active intent context reported by the connected agent.
-	IntentId      string `protobuf:"bytes,8,opt,name=intent_id,json=intentId,proto3" json:"intent_id,omitempty"`
-	IntentVersion uint32 `protobuf:"varint,9,opt,name=intent_version,json=intentVersion,proto3" json:"intent_version,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	IntentId              string   `protobuf:"bytes,8,opt,name=intent_id,json=intentId,proto3" json:"intent_id,omitempty"`
+	IntentVersion         uint32   `protobuf:"varint,9,opt,name=intent_version,json=intentVersion,proto3" json:"intent_version,omitempty"`
+	ExecutionCapabilities []string `protobuf:"bytes,10,rep,name=execution_capabilities,json=executionCapabilities,proto3" json:"execution_capabilities,omitempty"`
+	unknownFields         protoimpl.UnknownFields
+	sizeCache             protoimpl.SizeCache
 }
 
 func (x *DroneStatus) Reset() {
@@ -704,6 +705,117 @@ func (x *DroneStatus) GetIntentVersion() uint32 {
 	return 0
 }
 
+func (x *DroneStatus) GetExecutionCapabilities() []string {
+	if x != nil {
+		return x.ExecutionCapabilities
+	}
+	return nil
+}
+
+type ExchangeCommandRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	AgentId       string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	Command       *v1.DurableCommand     `protobuf:"bytes,2,opt,name=command,proto3" json:"command,omitempty"`
+	AttemptId     string                 `protobuf:"bytes,3,opt,name=attempt_id,json=attemptId,proto3" json:"attempt_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExchangeCommandRequest) Reset() {
+	*x = ExchangeCommandRequest{}
+	mi := &file_aeroarc_relay_v1_relay_proto_msgTypes[13]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExchangeCommandRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExchangeCommandRequest) ProtoMessage() {}
+
+func (x *ExchangeCommandRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_aeroarc_relay_v1_relay_proto_msgTypes[13]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExchangeCommandRequest.ProtoReflect.Descriptor instead.
+func (*ExchangeCommandRequest) Descriptor() ([]byte, []int) {
+	return file_aeroarc_relay_v1_relay_proto_rawDescGZIP(), []int{13}
+}
+
+func (x *ExchangeCommandRequest) GetAgentId() string {
+	if x != nil {
+		return x.AgentId
+	}
+	return ""
+}
+
+func (x *ExchangeCommandRequest) GetCommand() *v1.DurableCommand {
+	if x != nil {
+		return x.Command
+	}
+	return nil
+}
+
+func (x *ExchangeCommandRequest) GetAttemptId() string {
+	if x != nil {
+		return x.AttemptId
+	}
+	return ""
+}
+
+type ExchangeCommandResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Evidence      *v1.CommandEvidence    `protobuf:"bytes,1,opt,name=evidence,proto3" json:"evidence,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *ExchangeCommandResponse) Reset() {
+	*x = ExchangeCommandResponse{}
+	mi := &file_aeroarc_relay_v1_relay_proto_msgTypes[14]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *ExchangeCommandResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*ExchangeCommandResponse) ProtoMessage() {}
+
+func (x *ExchangeCommandResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_aeroarc_relay_v1_relay_proto_msgTypes[14]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use ExchangeCommandResponse.ProtoReflect.Descriptor instead.
+func (*ExchangeCommandResponse) Descriptor() ([]byte, []int) {
+	return file_aeroarc_relay_v1_relay_proto_rawDescGZIP(), []int{14}
+}
+
+func (x *ExchangeCommandResponse) GetEvidence() *v1.CommandEvidence {
+	if x != nil {
+		return x.Evidence
+	}
+	return nil
+}
+
 var File_aeroarc_relay_v1_relay_proto protoreflect.FileDescriptor
 
 const file_aeroarc_relay_v1_relay_proto_rawDesc = "" +
@@ -735,7 +847,7 @@ const file_aeroarc_relay_v1_relay_proto_rawDesc = "" +
 	"\x1bSendAircraftCommandResponse\x12?\n" +
 	"\x06result\x18\x01 \x01(\v2'.aeroarc.agent.v1.AircraftCommandResultR\x06result\"Z\n" +
 	"\x15DeployMissionResponse\x12A\n" +
-	"\x06result\x18\x01 \x01(\v2).aeroarc.agent.v1.MissionDeploymentResultR\x06result\"\xc4\x02\n" +
+	"\x06result\x18\x01 \x01(\v2).aeroarc.agent.v1.MissionDeploymentResultR\x06result\"\xfb\x02\n" +
 	"\vDroneStatus\x12\x19\n" +
 	"\bdrone_id\x18\x01 \x01(\tR\adroneId\x12\x1d\n" +
 	"\n" +
@@ -746,8 +858,18 @@ const file_aeroarc_relay_v1_relay_proto_rawDesc = "" +
 	"\x16last_heartbeat_unix_ns\x18\x06 \x01(\x03R\x13lastHeartbeatUnixNs\x12\x1b\n" +
 	"\tflight_id\x18\a \x01(\tR\bflightId\x12\x1b\n" +
 	"\tintent_id\x18\b \x01(\tR\bintentId\x12%\n" +
-	"\x0eintent_version\x18\t \x01(\rR\rintentVersion2\xa2\x05\n" +
-	"\fRelayControl\x12i\n" +
+	"\x0eintent_version\x18\t \x01(\rR\rintentVersion\x125\n" +
+	"\x16execution_capabilities\x18\n" +
+	" \x03(\tR\x15executionCapabilities\"\x8e\x01\n" +
+	"\x16ExchangeCommandRequest\x12\x19\n" +
+	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12:\n" +
+	"\acommand\x18\x02 \x01(\v2 .aeroarc.agent.v1.DurableCommandR\acommand\x12\x1d\n" +
+	"\n" +
+	"attempt_id\x18\x03 \x01(\tR\tattemptId\"X\n" +
+	"\x17ExchangeCommandResponse\x12=\n" +
+	"\bevidence\x18\x01 \x01(\v2!.aeroarc.agent.v1.CommandEvidenceR\bevidence2\x8a\x06\n" +
+	"\fRelayControl\x12f\n" +
+	"\x0fExchangeCommand\x12(.aeroarc.relay.v1.ExchangeCommandRequest\x1a).aeroarc.relay.v1.ExchangeCommandResponse\x12i\n" +
 	"\x10ListActiveDrones\x12).aeroarc.relay.v1.ListActiveDronesRequest\x1a*.aeroarc.relay.v1.ListActiveDronesResponse\x12c\n" +
 	"\x0eGetDroneStatus\x12'.aeroarc.relay.v1.GetDroneStatusRequest\x1a(.aeroarc.relay.v1.GetDroneStatusResponse\x12r\n" +
 	"\x13SetOperationContext\x12,.aeroarc.relay.v1.SetOperationContextRequest\x1a-.aeroarc.relay.v1.SetOperationContextResponse\x12x\n" +
@@ -767,7 +889,7 @@ func file_aeroarc_relay_v1_relay_proto_rawDescGZIP() []byte {
 	return file_aeroarc_relay_v1_relay_proto_rawDescData
 }
 
-var file_aeroarc_relay_v1_relay_proto_msgTypes = make([]protoimpl.MessageInfo, 13)
+var file_aeroarc_relay_v1_relay_proto_msgTypes = make([]protoimpl.MessageInfo, 15)
 var file_aeroarc_relay_v1_relay_proto_goTypes = []any{
 	(*ListActiveDronesRequest)(nil),         // 0: aeroarc.relay.v1.ListActiveDronesRequest
 	(*GetDroneStatusRequest)(nil),           // 1: aeroarc.relay.v1.GetDroneStatusRequest
@@ -782,42 +904,50 @@ var file_aeroarc_relay_v1_relay_proto_goTypes = []any{
 	(*SendAircraftCommandResponse)(nil),     // 10: aeroarc.relay.v1.SendAircraftCommandResponse
 	(*DeployMissionResponse)(nil),           // 11: aeroarc.relay.v1.DeployMissionResponse
 	(*DroneStatus)(nil),                     // 12: aeroarc.relay.v1.DroneStatus
-	(*v1.SetOperationContextCommand)(nil),   // 13: aeroarc.agent.v1.SetOperationContextCommand
-	(*v1.ClearOperationContextCommand)(nil), // 14: aeroarc.agent.v1.ClearOperationContextCommand
-	(*v1.AircraftCommand)(nil),              // 15: aeroarc.agent.v1.AircraftCommand
-	(*v1.DeployMissionCommand)(nil),         // 16: aeroarc.agent.v1.DeployMissionCommand
-	(*v1.OperationContextCommandAck)(nil),   // 17: aeroarc.agent.v1.OperationContextCommandAck
-	(*v1.AircraftCommandResult)(nil),        // 18: aeroarc.agent.v1.AircraftCommandResult
-	(*v1.MissionDeploymentResult)(nil),      // 19: aeroarc.agent.v1.MissionDeploymentResult
+	(*ExchangeCommandRequest)(nil),          // 13: aeroarc.relay.v1.ExchangeCommandRequest
+	(*ExchangeCommandResponse)(nil),         // 14: aeroarc.relay.v1.ExchangeCommandResponse
+	(*v1.SetOperationContextCommand)(nil),   // 15: aeroarc.agent.v1.SetOperationContextCommand
+	(*v1.ClearOperationContextCommand)(nil), // 16: aeroarc.agent.v1.ClearOperationContextCommand
+	(*v1.AircraftCommand)(nil),              // 17: aeroarc.agent.v1.AircraftCommand
+	(*v1.DeployMissionCommand)(nil),         // 18: aeroarc.agent.v1.DeployMissionCommand
+	(*v1.OperationContextCommandAck)(nil),   // 19: aeroarc.agent.v1.OperationContextCommandAck
+	(*v1.AircraftCommandResult)(nil),        // 20: aeroarc.agent.v1.AircraftCommandResult
+	(*v1.MissionDeploymentResult)(nil),      // 21: aeroarc.agent.v1.MissionDeploymentResult
+	(*v1.DurableCommand)(nil),               // 22: aeroarc.agent.v1.DurableCommand
+	(*v1.CommandEvidence)(nil),              // 23: aeroarc.agent.v1.CommandEvidence
 }
 var file_aeroarc_relay_v1_relay_proto_depIdxs = []int32{
-	13, // 0: aeroarc.relay.v1.SetOperationContextRequest.command:type_name -> aeroarc.agent.v1.SetOperationContextCommand
-	14, // 1: aeroarc.relay.v1.ClearOperationContextRequest.command:type_name -> aeroarc.agent.v1.ClearOperationContextCommand
-	15, // 2: aeroarc.relay.v1.SendAircraftCommandRequest.command:type_name -> aeroarc.agent.v1.AircraftCommand
-	16, // 3: aeroarc.relay.v1.DeployMissionRequest.command:type_name -> aeroarc.agent.v1.DeployMissionCommand
+	15, // 0: aeroarc.relay.v1.SetOperationContextRequest.command:type_name -> aeroarc.agent.v1.SetOperationContextCommand
+	16, // 1: aeroarc.relay.v1.ClearOperationContextRequest.command:type_name -> aeroarc.agent.v1.ClearOperationContextCommand
+	17, // 2: aeroarc.relay.v1.SendAircraftCommandRequest.command:type_name -> aeroarc.agent.v1.AircraftCommand
+	18, // 3: aeroarc.relay.v1.DeployMissionRequest.command:type_name -> aeroarc.agent.v1.DeployMissionCommand
 	12, // 4: aeroarc.relay.v1.ListActiveDronesResponse.drones:type_name -> aeroarc.relay.v1.DroneStatus
 	12, // 5: aeroarc.relay.v1.GetDroneStatusResponse.drone:type_name -> aeroarc.relay.v1.DroneStatus
-	17, // 6: aeroarc.relay.v1.SetOperationContextResponse.result:type_name -> aeroarc.agent.v1.OperationContextCommandAck
-	17, // 7: aeroarc.relay.v1.ClearOperationContextResponse.result:type_name -> aeroarc.agent.v1.OperationContextCommandAck
-	18, // 8: aeroarc.relay.v1.SendAircraftCommandResponse.result:type_name -> aeroarc.agent.v1.AircraftCommandResult
-	19, // 9: aeroarc.relay.v1.DeployMissionResponse.result:type_name -> aeroarc.agent.v1.MissionDeploymentResult
-	0,  // 10: aeroarc.relay.v1.RelayControl.ListActiveDrones:input_type -> aeroarc.relay.v1.ListActiveDronesRequest
-	1,  // 11: aeroarc.relay.v1.RelayControl.GetDroneStatus:input_type -> aeroarc.relay.v1.GetDroneStatusRequest
-	2,  // 12: aeroarc.relay.v1.RelayControl.SetOperationContext:input_type -> aeroarc.relay.v1.SetOperationContextRequest
-	3,  // 13: aeroarc.relay.v1.RelayControl.ClearOperationContext:input_type -> aeroarc.relay.v1.ClearOperationContextRequest
-	4,  // 14: aeroarc.relay.v1.RelayControl.SendAircraftCommand:input_type -> aeroarc.relay.v1.SendAircraftCommandRequest
-	5,  // 15: aeroarc.relay.v1.RelayControl.DeployMission:input_type -> aeroarc.relay.v1.DeployMissionRequest
-	6,  // 16: aeroarc.relay.v1.RelayControl.ListActiveDrones:output_type -> aeroarc.relay.v1.ListActiveDronesResponse
-	7,  // 17: aeroarc.relay.v1.RelayControl.GetDroneStatus:output_type -> aeroarc.relay.v1.GetDroneStatusResponse
-	8,  // 18: aeroarc.relay.v1.RelayControl.SetOperationContext:output_type -> aeroarc.relay.v1.SetOperationContextResponse
-	9,  // 19: aeroarc.relay.v1.RelayControl.ClearOperationContext:output_type -> aeroarc.relay.v1.ClearOperationContextResponse
-	10, // 20: aeroarc.relay.v1.RelayControl.SendAircraftCommand:output_type -> aeroarc.relay.v1.SendAircraftCommandResponse
-	11, // 21: aeroarc.relay.v1.RelayControl.DeployMission:output_type -> aeroarc.relay.v1.DeployMissionResponse
-	16, // [16:22] is the sub-list for method output_type
-	10, // [10:16] is the sub-list for method input_type
-	10, // [10:10] is the sub-list for extension type_name
-	10, // [10:10] is the sub-list for extension extendee
-	0,  // [0:10] is the sub-list for field type_name
+	19, // 6: aeroarc.relay.v1.SetOperationContextResponse.result:type_name -> aeroarc.agent.v1.OperationContextCommandAck
+	19, // 7: aeroarc.relay.v1.ClearOperationContextResponse.result:type_name -> aeroarc.agent.v1.OperationContextCommandAck
+	20, // 8: aeroarc.relay.v1.SendAircraftCommandResponse.result:type_name -> aeroarc.agent.v1.AircraftCommandResult
+	21, // 9: aeroarc.relay.v1.DeployMissionResponse.result:type_name -> aeroarc.agent.v1.MissionDeploymentResult
+	22, // 10: aeroarc.relay.v1.ExchangeCommandRequest.command:type_name -> aeroarc.agent.v1.DurableCommand
+	23, // 11: aeroarc.relay.v1.ExchangeCommandResponse.evidence:type_name -> aeroarc.agent.v1.CommandEvidence
+	13, // 12: aeroarc.relay.v1.RelayControl.ExchangeCommand:input_type -> aeroarc.relay.v1.ExchangeCommandRequest
+	0,  // 13: aeroarc.relay.v1.RelayControl.ListActiveDrones:input_type -> aeroarc.relay.v1.ListActiveDronesRequest
+	1,  // 14: aeroarc.relay.v1.RelayControl.GetDroneStatus:input_type -> aeroarc.relay.v1.GetDroneStatusRequest
+	2,  // 15: aeroarc.relay.v1.RelayControl.SetOperationContext:input_type -> aeroarc.relay.v1.SetOperationContextRequest
+	3,  // 16: aeroarc.relay.v1.RelayControl.ClearOperationContext:input_type -> aeroarc.relay.v1.ClearOperationContextRequest
+	4,  // 17: aeroarc.relay.v1.RelayControl.SendAircraftCommand:input_type -> aeroarc.relay.v1.SendAircraftCommandRequest
+	5,  // 18: aeroarc.relay.v1.RelayControl.DeployMission:input_type -> aeroarc.relay.v1.DeployMissionRequest
+	14, // 19: aeroarc.relay.v1.RelayControl.ExchangeCommand:output_type -> aeroarc.relay.v1.ExchangeCommandResponse
+	6,  // 20: aeroarc.relay.v1.RelayControl.ListActiveDrones:output_type -> aeroarc.relay.v1.ListActiveDronesResponse
+	7,  // 21: aeroarc.relay.v1.RelayControl.GetDroneStatus:output_type -> aeroarc.relay.v1.GetDroneStatusResponse
+	8,  // 22: aeroarc.relay.v1.RelayControl.SetOperationContext:output_type -> aeroarc.relay.v1.SetOperationContextResponse
+	9,  // 23: aeroarc.relay.v1.RelayControl.ClearOperationContext:output_type -> aeroarc.relay.v1.ClearOperationContextResponse
+	10, // 24: aeroarc.relay.v1.RelayControl.SendAircraftCommand:output_type -> aeroarc.relay.v1.SendAircraftCommandResponse
+	11, // 25: aeroarc.relay.v1.RelayControl.DeployMission:output_type -> aeroarc.relay.v1.DeployMissionResponse
+	19, // [19:26] is the sub-list for method output_type
+	12, // [12:19] is the sub-list for method input_type
+	12, // [12:12] is the sub-list for extension type_name
+	12, // [12:12] is the sub-list for extension extendee
+	0,  // [0:12] is the sub-list for field type_name
 }
 
 func init() { file_aeroarc_relay_v1_relay_proto_init() }
@@ -831,7 +961,7 @@ func file_aeroarc_relay_v1_relay_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_aeroarc_relay_v1_relay_proto_rawDesc), len(file_aeroarc_relay_v1_relay_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   13,
+			NumMessages:   15,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

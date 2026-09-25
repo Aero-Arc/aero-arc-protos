@@ -12,6 +12,9 @@ option go_package = "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/relay/v1
 // without breaking generated clients.
 // buf:lint:ignore SERVICE_SUFFIX
 service RelayControl {
+  // Exchange a durable command for replayable Agent evidence.
+  rpc ExchangeCommand(ExchangeCommandRequest) returns (ExchangeCommandResponse);
+
   // List all drones currently connected to this relay.
   rpc ListActiveDrones(ListActiveDronesRequest) returns (ListActiveDronesResponse);
 
@@ -130,4 +133,14 @@ message DroneStatus {
   // Active intent context reported by the connected agent.
   string intent_id = 8;
   uint32 intent_version = 9;
+  repeated string execution_capabilities = 10;
+}
+
+message ExchangeCommandRequest {
+  string agent_id = 1;
+  aeroarc.agent.v1.DurableCommand command = 2;
+  string attempt_id = 3;
+}
+message ExchangeCommandResponse {
+  aeroarc.agent.v1.CommandEvidence evidence = 1;
 }
