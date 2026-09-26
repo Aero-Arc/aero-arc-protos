@@ -14,6 +14,9 @@ option go_package = "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/relay/v1
 service RelayControl {
   // Exchange a durable command for replayable Agent evidence.
   rpc ExchangeCommand(ExchangeCommandRequest) returns (ExchangeCommandResponse);
+  // ExecuteCommand delivers once and streams cumulative durable Agent evidence.
+  // Reconnect with the same identity to recover; stream loss proves no outcome.
+  rpc ExecuteCommand(ExecuteCommandRequest) returns (stream ExecuteCommandResponse);
 
   // List all drones currently connected to this relay.
   rpc ListActiveDrones(ListActiveDronesRequest) returns (ListActiveDronesResponse);
@@ -142,5 +145,16 @@ message ExchangeCommandRequest {
   string attempt_id = 3;
 }
 message ExchangeCommandResponse {
+  aeroarc.agent.v1.CommandEvidence evidence = 1;
+}
+
+// ExecuteCommandRequest carries the same immutable authority across recovery.
+message ExecuteCommandRequest {
+  string agent_id = 1;
+  aeroarc.agent.v1.DurableCommand command = 2;
+  string attempt_id = 3;
+}
+// ExecuteCommandResponse contains cumulative, replayable execution evidence.
+message ExecuteCommandResponse {
   aeroarc.agent.v1.CommandEvidence evidence = 1;
 }
