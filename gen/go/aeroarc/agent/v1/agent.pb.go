@@ -1233,8 +1233,10 @@ func (x *MissionBinding) GetIntentVersion() uint32 {
 
 // MissionItem is the bounded canonical representation of one MAVLink mission
 // item in the first deployment slice. Schema version 1 allows only
-// MAV_FRAME_GLOBAL (0), and only MAV_CMD_NAV_WAYPOINT (16), MAV_CMD_NAV_LAND
-// (21), and MAV_CMD_NAV_TAKEOFF (22). Producers must require autocontinue=true;
+// MAV_FRAME_GLOBAL (0), and MAV_CMD_NAV_WAYPOINT (16), terminal
+// MAV_CMD_NAV_RETURN_TO_LAUNCH (20), MAV_CMD_NAV_LAND (21), and
+// MAV_CMD_NAV_TAKEOFF (22). RTL requires zero coordinates and altitude; older
+// adapters reject it until upgraded. Producers must require autocontinue=true;
 // require sequence values contiguous from zero; and range-check latitude_e7 to
 // [-900000000, 900000000] and longitude_e7 to [-1800000000, 1800000000]. The
 // current field is reserved and must be false because the autopilot changes it
@@ -1242,7 +1244,7 @@ func (x *MissionBinding) GetIntentVersion() uint32 {
 // from autopilot readback must discard that dynamic marker and set current=false
 // before validating or computing the canonical digest. param1, param2, and
 // param3 must be
-// positive zero. param4 must be positive zero for WAYPOINT and TAKEOFF, and
+// positive zero. param4 must be positive zero for WAYPOINT, RTL and TAKEOFF, and
 // exactly +1 for LAND, matching stable ArduPilot readback. altitude_m must be
 // finite, must round-trip through ArduPilot's signed centimeter storage, and is
 // a protobuf float so the digest contains exactly the float32 value transported
