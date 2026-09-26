@@ -411,6 +411,9 @@ message CommandEvidence {
   string command_id = 1;
   string command_digest = 2;
   repeated CommandEvent events = 3;
+  // This delivery pass has finished. This is transport metadata, not proof of
+  // application or observation. Recovery may still be needed for missing evidence.
+  bool delivery_complete = 4;
 }
 
 // CommandEvent records source occurrence separately from server receipt time.

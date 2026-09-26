@@ -2240,8 +2240,11 @@ type CommandEvidence struct {
 	CommandId     string                 `protobuf:"bytes,1,opt,name=command_id,json=commandId,proto3" json:"command_id,omitempty"`
 	CommandDigest string                 `protobuf:"bytes,2,opt,name=command_digest,json=commandDigest,proto3" json:"command_digest,omitempty"`
 	Events        []*CommandEvent        `protobuf:"bytes,3,rep,name=events,proto3" json:"events,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	// This delivery pass has finished. This is transport metadata, not proof of
+	// application or observation. Recovery may still be needed for missing evidence.
+	DeliveryComplete bool `protobuf:"varint,4,opt,name=delivery_complete,json=deliveryComplete,proto3" json:"delivery_complete,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
 }
 
 func (x *CommandEvidence) Reset() {
@@ -2293,6 +2296,13 @@ func (x *CommandEvidence) GetEvents() []*CommandEvent {
 		return x.Events
 	}
 	return nil
+}
+
+func (x *CommandEvidence) GetDeliveryComplete() bool {
+	if x != nil {
+		return x.DeliveryComplete
+	}
+	return false
 }
 
 // CommandEvent records source occurrence separately from server receipt time.
@@ -2588,12 +2598,13 @@ const file_aeroarc_agent_v1_agent_proto_rawDesc = "" +
 	" \x01(\v2\x1d.aeroarc.agent.v1.MissionPlanR\x13missionPrecondition\x126\n" +
 	"\x17mission_precondition_id\x18\v \x01(\tR\x15missionPreconditionId\x12@\n" +
 	"\x1cmission_precondition_version\x18\f \x01(\rR\x1amissionPreconditionVersion\x12'\n" +
-	"\x0fvehicle_profile\x18\r \x01(\tR\x0evehicleProfile\"\x8f\x01\n" +
+	"\x0fvehicle_profile\x18\r \x01(\tR\x0evehicleProfile\"\xbc\x01\n" +
 	"\x0fCommandEvidence\x12\x1d\n" +
 	"\n" +
 	"command_id\x18\x01 \x01(\tR\tcommandId\x12%\n" +
 	"\x0ecommand_digest\x18\x02 \x01(\tR\rcommandDigest\x126\n" +
-	"\x06events\x18\x03 \x03(\v2\x1e.aeroarc.agent.v1.CommandEventR\x06events\"\xf3\x01\n" +
+	"\x06events\x18\x03 \x03(\v2\x1e.aeroarc.agent.v1.CommandEventR\x06events\x12+\n" +
+	"\x11delivery_complete\x18\x04 \x01(\bR\x10deliveryComplete\"\xf3\x01\n" +
 	"\fCommandEvent\x12\x19\n" +
 	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12\x14\n" +
 	"\x05stage\x18\x02 \x01(\tR\x05stage\x12-\n" +
