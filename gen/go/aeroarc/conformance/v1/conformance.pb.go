@@ -1978,8 +1978,12 @@ type EndAssignmentRequest struct {
 	AssignmentId         string                 `protobuf:"bytes,3,opt,name=assignment_id,json=assignmentId,proto3" json:"assignment_id,omitempty"`
 	AssignmentGeneration uint64                 `protobuf:"varint,4,opt,name=assignment_generation,json=assignmentGeneration,proto3" json:"assignment_generation,omitempty"`
 	FlightCompletedAt    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=flight_completed_at,json=flightCompletedAt,proto3" json:"flight_completed_at,omitempty"`
-	unknownFields        protoimpl.UnknownFields
-	sizeCache            protoimpl.SizeCache
+	// Required exact flight binding; generation zero resolves that binding.
+	FlightId      string `protobuf:"bytes,6,opt,name=flight_id,json=flightId,proto3" json:"flight_id,omitempty"`
+	AircraftId    string `protobuf:"bytes,7,opt,name=aircraft_id,json=aircraftId,proto3" json:"aircraft_id,omitempty"`
+	IntentVersion uint32 `protobuf:"varint,8,opt,name=intent_version,json=intentVersion,proto3" json:"intent_version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
 }
 
 func (x *EndAssignmentRequest) Reset() {
@@ -2045,6 +2049,27 @@ func (x *EndAssignmentRequest) GetFlightCompletedAt() *timestamppb.Timestamp {
 		return x.FlightCompletedAt
 	}
 	return nil
+}
+
+func (x *EndAssignmentRequest) GetFlightId() string {
+	if x != nil {
+		return x.FlightId
+	}
+	return ""
+}
+
+func (x *EndAssignmentRequest) GetAircraftId() string {
+	if x != nil {
+		return x.AircraftId
+	}
+	return ""
+}
+
+func (x *EndAssignmentRequest) GetIntentVersion() uint32 {
+	if x != nil {
+		return x.IntentVersion
+	}
+	return 0
 }
 
 type EndAssignmentResponse struct {
@@ -2253,14 +2278,18 @@ const file_aeroarc_conformance_v1_conformance_proto_rawDesc = "" +
 	"\bframe_id\x18\x0e \x01(\tR\aframeId\x12H\n" +
 	"\n" +
 	"violations\x18\x0f \x03(\v2(.aeroarc.conformance.v1.ViolationSummaryR\n" +
-	"violations\"\xf3\x01\n" +
+	"violations\"\xd8\x02\n" +
 	"\x14EndAssignmentRequest\x12\x16\n" +
 	"\x06source\x18\x01 \x01(\tR\x06source\x12\x1d\n" +
 	"\n" +
 	"message_id\x18\x02 \x01(\tR\tmessageId\x12#\n" +
 	"\rassignment_id\x18\x03 \x01(\tR\fassignmentId\x123\n" +
 	"\x15assignment_generation\x18\x04 \x01(\x04R\x14assignmentGeneration\x12J\n" +
-	"\x13flight_completed_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x11flightCompletedAt\"Y\n" +
+	"\x13flight_completed_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x11flightCompletedAt\x12\x1b\n" +
+	"\tflight_id\x18\x06 \x01(\tR\bflightId\x12\x1f\n" +
+	"\vaircraft_id\x18\a \x01(\tR\n" +
+	"aircraftId\x12%\n" +
+	"\x0eintent_version\x18\b \x01(\rR\rintentVersion\"Y\n" +
 	"\x15EndAssignmentResponse\x12@\n" +
 	"\x06record\x18\x01 \x01(\v2(.aeroarc.conformance.v1.AssignmentRecordR\x06record*\xd3\x01\n" +
 	"\x1cAssignmentCommandDisposition\x12.\n" +

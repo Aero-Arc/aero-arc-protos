@@ -271,5 +271,9 @@ message EndAssignmentRequest {
   string assignment_id = 3;
   uint64 assignment_generation = 4;
   google.protobuf.Timestamp flight_completed_at = 5;
+  // Required exact flight binding; generation zero resolves that binding.
+  string flight_id = 6;
+  string aircraft_id = 7;
+  uint32 intent_version = 8;
 }
 message EndAssignmentResponse { AssignmentRecord record = 1; }
