@@ -370,12 +370,14 @@ func (x *RegisterRequest) GetExecutionCapabilities() []string {
 }
 
 type RegisterResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AgentId       string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
-	SessionId     string                 `protobuf:"bytes,3,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	MaxInflight   int64                  `protobuf:"varint,4,opt,name=max_inflight,json=maxInflight,proto3" json:"max_inflight,omitempty"` // recommended unacked frames in flight
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	AgentId     string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	SessionId   string                 `protobuf:"bytes,3,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	MaxInflight int64                  `protobuf:"varint,4,opt,name=max_inflight,json=maxInflight,proto3" json:"max_inflight,omitempty"` // recommended unacked frames in flight
+	// True only when Relay can durably admit flight completion notifications.
+	DurableFlightCompletion bool `protobuf:"varint,5,opt,name=durable_flight_completion,json=durableFlightCompletion,proto3" json:"durable_flight_completion,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *RegisterResponse) Reset() {
@@ -427,6 +429,13 @@ func (x *RegisterResponse) GetMaxInflight() int64 {
 		return x.MaxInflight
 	}
 	return 0
+}
+
+func (x *RegisterResponse) GetDurableFlightCompletion() bool {
+	if x != nil {
+		return x.DurableFlightCompletion
+	}
+	return false
 }
 
 type TelemetryFrame struct {
@@ -2624,12 +2633,13 @@ const file_aeroarc_agent_v1_agent_proto_rawDesc = "" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12#\n" +
 	"\ragent_version\x18\x02 \x01(\tR\fagentVersion\x12\x1a\n" +
 	"\bplatform\x18\x03 \x01(\tR\bplatform\x125\n" +
-	"\x16execution_capabilities\x18\x04 \x03(\tR\x15executionCapabilities\"o\n" +
+	"\x16execution_capabilities\x18\x04 \x03(\tR\x15executionCapabilities\"\xab\x01\n" +
 	"\x10RegisterResponse\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x03 \x01(\tR\tsessionId\x12!\n" +
-	"\fmax_inflight\x18\x04 \x01(\x03R\vmaxInflight\"\x9b\x04\n" +
+	"\fmax_inflight\x18\x04 \x01(\x03R\vmaxInflight\x12:\n" +
+	"\x19durable_flight_completion\x18\x05 \x01(\bR\x17durableFlightCompletion\"\x9b\x04\n" +
 	"\x0eTelemetryFrame\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x19\n" +

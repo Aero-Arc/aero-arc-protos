@@ -34,6 +34,8 @@ message RegisterResponse {
   string session_id = 3;
 
   int64 max_inflight = 4; // recommended unacked frames in flight
+  // True only when Relay can durably admit flight completion notifications.
+  bool durable_flight_completion = 5;
 }
 
 // ----- Telemetry -----
