@@ -98,6 +98,7 @@ message AgentStreamMessage {
     AircraftCommandResult aircraft_command_result = 3;
     MissionDeploymentResult mission_deployment_result = 4;
     CommandEvidence command_evidence = 5;
+    FlightCompletionEvidence flight_completion_evidence = 6;
   }
 }
 
@@ -111,6 +112,7 @@ message RelayStreamMessage {
     AircraftCommand aircraft_command = 4;
     DeployMissionCommand deploy_mission = 5;
     DurableCommand durable_command = 6;
+    FlightCompletionReceipt flight_completion_receipt = 7;
   }
 }
 
@@ -425,4 +427,32 @@ message CommandEvent {
   string message = 4;
   string evidence_source = 5;
   optional uint32 protocol_result = 6;
+}
+
+// FlightCompletionEvidence records aircraft completion independently of API
+// finalization. Capture-time evidence remains valid when delivery is delayed.
+// Agent persists it before sending; Relay acknowledges only durable admission.
+message FlightCompletionEvidence {
+  string event_id = 1;
+  string agent_id = 2;
+  OperationContext context = 3;
+  string mission_id = 4;
+  string mission_digest = 5;
+  string start_command_id = 6;
+  // mission_completed or ended_early; never infer success from disarm alone.
+  string outcome = 7;
+  int64 airborne_at_unix_ns = 8;
+  int64 terminal_at_unix_ns = 9;
+  int64 landed_at_unix_ns = 10;
+  int64 disarmed_at_unix_ns = 11;
+  // Source epoch prevents observations spanning an Agent restart from being
+  // presented as one fresh landed/disarmed pair.
+  string observation_epoch = 12;
+}
+
+// FlightCompletionReceipt acknowledges a durable Relay inbox record, not API
+// finalization. The digest binds the receipt to the exact immutable payload.
+message FlightCompletionReceipt {
+  string event_id = 1;
+  string payload_sha256 = 2;
 }
