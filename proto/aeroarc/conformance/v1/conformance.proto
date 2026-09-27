@@ -277,5 +277,7 @@ message EndAssignmentRequest {
   uint32 intent_version = 8;
   // Required intent identity; a version number alone does not bind the intent.
   string intent_id = 9;
+  // Required originating Agent identity from the immutable completion evidence.
+  string agent_id = 10;
 }
 message EndAssignmentResponse { AssignmentRecord record = 1; }
