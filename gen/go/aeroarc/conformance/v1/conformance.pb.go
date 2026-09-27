@@ -1982,6 +1982,8 @@ type EndAssignmentRequest struct {
 	FlightId      string `protobuf:"bytes,6,opt,name=flight_id,json=flightId,proto3" json:"flight_id,omitempty"`
 	AircraftId    string `protobuf:"bytes,7,opt,name=aircraft_id,json=aircraftId,proto3" json:"aircraft_id,omitempty"`
 	IntentVersion uint32 `protobuf:"varint,8,opt,name=intent_version,json=intentVersion,proto3" json:"intent_version,omitempty"`
+	// Required intent identity; a version number alone does not bind the intent.
+	IntentId      string `protobuf:"bytes,9,opt,name=intent_id,json=intentId,proto3" json:"intent_id,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -2070,6 +2072,13 @@ func (x *EndAssignmentRequest) GetIntentVersion() uint32 {
 		return x.IntentVersion
 	}
 	return 0
+}
+
+func (x *EndAssignmentRequest) GetIntentId() string {
+	if x != nil {
+		return x.IntentId
+	}
+	return ""
 }
 
 type EndAssignmentResponse struct {
@@ -2278,7 +2287,7 @@ const file_aeroarc_conformance_v1_conformance_proto_rawDesc = "" +
 	"\bframe_id\x18\x0e \x01(\tR\aframeId\x12H\n" +
 	"\n" +
 	"violations\x18\x0f \x03(\v2(.aeroarc.conformance.v1.ViolationSummaryR\n" +
-	"violations\"\xd8\x02\n" +
+	"violations\"\xf5\x02\n" +
 	"\x14EndAssignmentRequest\x12\x16\n" +
 	"\x06source\x18\x01 \x01(\tR\x06source\x12\x1d\n" +
 	"\n" +
@@ -2289,7 +2298,8 @@ const file_aeroarc_conformance_v1_conformance_proto_rawDesc = "" +
 	"\tflight_id\x18\x06 \x01(\tR\bflightId\x12\x1f\n" +
 	"\vaircraft_id\x18\a \x01(\tR\n" +
 	"aircraftId\x12%\n" +
-	"\x0eintent_version\x18\b \x01(\rR\rintentVersion\"Y\n" +
+	"\x0eintent_version\x18\b \x01(\rR\rintentVersion\x12\x1b\n" +
+	"\tintent_id\x18\t \x01(\tR\bintentId\"Y\n" +
 	"\x15EndAssignmentResponse\x12@\n" +
 	"\x06record\x18\x01 \x01(\v2(.aeroarc.conformance.v1.AssignmentRecordR\x06record*\xd3\x01\n" +
 	"\x1cAssignmentCommandDisposition\x12.\n" +

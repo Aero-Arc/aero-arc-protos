@@ -275,5 +275,7 @@ message EndAssignmentRequest {
   string flight_id = 6;
   string aircraft_id = 7;
   uint32 intent_version = 8;
+  // Required intent identity; a version number alone does not bind the intent.
+  string intent_id = 9;
 }
 message EndAssignmentResponse { AssignmentRecord record = 1; }
