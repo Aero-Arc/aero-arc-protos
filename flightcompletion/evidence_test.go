@@ -14,6 +14,11 @@ func TestCompletionEvidenceRequiresBoundFreshGroundPair(t *testing.T) {
 	if err := Validate(e); err != nil {
 		t.Fatal(err)
 	}
+	upper := proto.Clone(e).(*pb.FlightCompletionEvidence)
+	upper.MissionDigest = strings.ToUpper(upper.MissionDigest)
+	if Validate(upper) == nil {
+		t.Fatal("noncanonical mission digest accepted")
+	}
 	raw, digest, err := Encode(e)
 	if err != nil || len(raw) == 0 || len(digest) != 64 {
 		t.Fatalf("encode %v", err)
