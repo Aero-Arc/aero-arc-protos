@@ -302,11 +302,15 @@ func (OperationContextCommandAck_Status) EnumDescriptor() ([]byte, []int) {
 }
 
 type RegisterRequest struct {
-	state                 protoimpl.MessageState `protogen:"open.v1"`
-	AgentId               string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
-	AgentVersion          string                 `protobuf:"bytes,2,opt,name=agent_version,json=agentVersion,proto3" json:"agent_version,omitempty"`
-	Platform              string                 `protobuf:"bytes,3,opt,name=platform,proto3" json:"platform,omitempty"` // e.g. "linux/arm64"
-	ExecutionCapabilities []string               `protobuf:"bytes,4,rep,name=execution_capabilities,json=executionCapabilities,proto3" json:"execution_capabilities,omitempty"`
+	state        protoimpl.MessageState `protogen:"open.v1"`
+	AgentId      string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	AgentVersion string                 `protobuf:"bytes,2,opt,name=agent_version,json=agentVersion,proto3" json:"agent_version,omitempty"`
+	Platform     string                 `protobuf:"bytes,3,opt,name=platform,proto3" json:"platform,omitempty"` // e.g. "linux/arm64"
+	// mission_rtl_v1 explicitly permits terminal RTL in a schema-one mission or
+	// mission precondition. mission_upload_v1 alone does not imply RTL support.
+	// Relays must gate both deployment and durable command delivery on this
+	// additional capability whenever the canonical plan contains command 20.
+	ExecutionCapabilities []string `protobuf:"bytes,4,rep,name=execution_capabilities,json=executionCapabilities,proto3" json:"execution_capabilities,omitempty"`
 	unknownFields         protoimpl.UnknownFields
 	sizeCache             protoimpl.SizeCache
 }
@@ -1236,7 +1240,8 @@ func (x *MissionBinding) GetIntentVersion() uint32 {
 // MAV_FRAME_GLOBAL (0), and MAV_CMD_NAV_WAYPOINT (16), terminal
 // MAV_CMD_NAV_RETURN_TO_LAUNCH (20), MAV_CMD_NAV_LAND (21), and
 // MAV_CMD_NAV_TAKEOFF (22). RTL requires zero coordinates and altitude; older
-// adapters reject it until upgraded. Producers must require autocontinue=true;
+// adapters must not receive it unless they advertise mission_rtl_v1.
+// Producers must require autocontinue=true;
 // require sequence values contiguous from zero; and range-check latitude_e7 to
 // [-900000000, 900000000] and longitude_e7 to [-1800000000, 1800000000]. The
 // current field is reserved and must be false because the autopilot changes it

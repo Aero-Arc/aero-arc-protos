@@ -190,3 +190,10 @@ You can add:
 
 - `buf.yaml` and `buf.gen.yaml` in the repo root if you choose [Buf](https://buf.build/) for linting and codegen.
 - Language-specific generation scripts under `tools/` (e.g., `tools/gen-go.sh`, `tools/gen-ts.sh`).
+
+Terminal RTL is an opt-in schema-one extension, negotiated through Agent
+registration capability `mission_rtl_v1`. `mission_upload_v1` alone authorizes
+only the original WAYPOINT/LAND/TAKEOFF subset. Relay must reject both mission
+deployments and commands with RTL mission preconditions before dispatch when
+this capability is absent. Deploy capability-aware Relays before enabling RTL
+producers; older Agents remain usable with non-RTL plans.
