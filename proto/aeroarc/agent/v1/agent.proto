@@ -386,6 +386,8 @@ message DurableCommand {
   string definition = 7;
   uint32 definition_version = 8;
   string capability = 9;
+  // Positive Unix milliseconds. Expiry must be strictly later than issuance
+  // and no more than 300000 ms (five minutes) after issuance.
   int64 issued_at_unix_ms = 10;
   int64 expires_at_unix_ms = 11;
   // First-effect retries are prohibited after a durable effect-start marker.

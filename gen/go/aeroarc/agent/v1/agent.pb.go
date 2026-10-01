@@ -1969,8 +1969,10 @@ type DurableCommand struct {
 	Definition        string                 `protobuf:"bytes,7,opt,name=definition,proto3" json:"definition,omitempty"`
 	DefinitionVersion uint32                 `protobuf:"varint,8,opt,name=definition_version,json=definitionVersion,proto3" json:"definition_version,omitempty"`
 	Capability        string                 `protobuf:"bytes,9,opt,name=capability,proto3" json:"capability,omitempty"`
-	IssuedAtUnixMs    int64                  `protobuf:"varint,10,opt,name=issued_at_unix_ms,json=issuedAtUnixMs,proto3" json:"issued_at_unix_ms,omitempty"`
-	ExpiresAtUnixMs   int64                  `protobuf:"varint,11,opt,name=expires_at_unix_ms,json=expiresAtUnixMs,proto3" json:"expires_at_unix_ms,omitempty"`
+	// Positive Unix milliseconds. Expiry must be strictly later than issuance
+	// and no more than 300000 ms (five minutes) after issuance.
+	IssuedAtUnixMs  int64 `protobuf:"varint,10,opt,name=issued_at_unix_ms,json=issuedAtUnixMs,proto3" json:"issued_at_unix_ms,omitempty"`
+	ExpiresAtUnixMs int64 `protobuf:"varint,11,opt,name=expires_at_unix_ms,json=expiresAtUnixMs,proto3" json:"expires_at_unix_ms,omitempty"`
 	// First-effect retries are prohibited after a durable effect-start marker.
 	RecoveryPolicy string `protobuf:"bytes,12,opt,name=recovery_policy,json=recoveryPolicy,proto3" json:"recovery_policy,omitempty"`
 	// Types that are valid to be assigned to Execution:
