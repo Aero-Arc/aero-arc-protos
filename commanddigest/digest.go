@@ -166,7 +166,7 @@ func validatedMissionDigest(plan *pb.MissionPlan) (string, error) {
 			return "", fmt.Errorf("invalid mission coordinates at %d", i)
 		}
 		cm := item.AltitudeM * 100
-		if float64(cm) < math.MinInt32 || float64(cm) > math.MaxInt32 || math.Float32bits(float32(int32(cm))/100) != math.Float32bits(item.AltitudeM) {
+		if float64(cm) < math.MinInt32 || float64(cm) > math.MaxInt32 || math.Float32bits(float32(int32(cm))*float32(0.01)) != math.Float32bits(item.AltitudeM) {
 			return "", fmt.Errorf("mission altitude does not round-trip through centimeter storage at %d", i)
 		}
 	}
