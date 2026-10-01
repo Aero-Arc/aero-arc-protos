@@ -19,6 +19,22 @@ func TestCompletionEvidenceRequiresBoundFreshGroundPair(t *testing.T) {
 	if Validate(upper) == nil {
 		t.Fatal("noncanonical mission digest accepted")
 	}
+	for _, change := range []func(*pb.FlightCompletionEvidence){
+		func(v *pb.FlightCompletionEvidence) { v.MissionId = strings.Repeat("x", 129) },
+		func(v *pb.FlightCompletionEvidence) { v.StartCommandId = strings.Repeat("x", 129) },
+		func(v *pb.FlightCompletionEvidence) { v.ObservationEpoch = strings.Repeat("x", 129) },
+		func(v *pb.FlightCompletionEvidence) { v.Context.AircraftId = strings.Repeat("x", 129) },
+		func(v *pb.FlightCompletionEvidence) { v.Context.IntentId = strings.Repeat("x", 129) },
+		func(v *pb.FlightCompletionEvidence) {
+			v.ProtoReflect().SetUnknown(append([]byte{0xfa, 0x07, 0x80, 0x20}, []byte(strings.Repeat("x", 4096))...))
+		},
+	} {
+		oversized := proto.Clone(e).(*pb.FlightCompletionEvidence)
+		change(oversized)
+		if _, _, err := Encode(oversized); err == nil {
+			t.Fatal("oversized evidence accepted")
+		}
+	}
 	raw, digest, err := Encode(e)
 	if err != nil || len(raw) == 0 || len(digest) != 64 {
 		t.Fatalf("encode %v", err)

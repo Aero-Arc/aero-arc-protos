@@ -18,7 +18,7 @@ import (
 // operation context, canonical lowercase mission digest, and start command.
 // Returns: nil for a supported outcome and chronologically valid airborne,
 // terminal, and contemporaneous landed/disarmed observations; an error for nil,
-// incomplete, oversized, noncanonical, unsupported, or inconsistent evidence.
+// incomplete, oversized (128-byte identities or 4096-byte encoded payload), noncanonical, unsupported, or inconsistent evidence.
 // Validation does not authenticate the producer or authorize flight finalization.
 func Validate(e *pb.FlightCompletionEvidence) error {
 	if e == nil || e.EventId == "" || e.AgentId == "" || e.Context == nil || e.Context.AircraftId == "" || e.Context.FlightId == "" || e.Context.IntentId == "" || e.Context.IntentVersion == 0 || e.MissionId == "" || len(e.MissionDigest) != 64 || e.StartCommandId == "" || e.ObservationEpoch == "" {
@@ -37,8 +37,13 @@ func Validate(e *pb.FlightCompletionEvidence) error {
 	if delta > int64(5*time.Second) || delta < -int64(5*time.Second) {
 		return fmt.Errorf("landed and disarmed observations are not contemporaneous")
 	}
-	if len(e.EventId) > 128 || len(e.AgentId) > 128 || len(e.Context.FlightId) > 128 {
-		return fmt.Errorf("completion identity too long")
+	if proto.Size(e) > 4096 {
+		return fmt.Errorf("completion evidence exceeds 4096-byte limit")
+	}
+	for _, id := range []string{e.EventId, e.AgentId, e.Context.FlightId, e.Context.AircraftId, e.Context.IntentId, e.MissionId, e.StartCommandId, e.ObservationEpoch} {
+		if len(id) > 128 {
+			return fmt.Errorf("completion identity too long")
+		}
 	}
 	return nil
 }
