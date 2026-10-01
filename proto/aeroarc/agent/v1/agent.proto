@@ -429,6 +429,23 @@ message CommandEvidence {
 // Event IDs are stable across retries. observed never substitutes for applied.
 message CommandEvent {
   string event_id = 1;
+  // Canonical lowercase stage values (independent evidence, not a total order):
+  // requested: API received a request; authorized: its policy allowed it;
+  // accepted: API command/audit/outbox transaction committed;
+  // relay_received: Relay admitted this attempt; dispatched: handed to Agent transport;
+  // acknowledged: Agent durably admitted the command, not autopilot application;
+  // verifying_mission: onboard mission verification is in progress;
+  // awaiting_ack: awaiting the correlated autopilot protocol result;
+  // applied: autopilot accepted the action (or mission readback verified upload);
+  // observed: fresh authoritative vehicle evidence satisfies the resulting-state predicate;
+  // observation_unavailable: no authoritative predicate or target attribution exists;
+  // observation_superseded: a newer effect prevents attributing resulting state;
+  // rejected: definitive refusal/no first effect; failed: definitive execution failure;
+  // timed_out: first-effect authority expired before execution;
+  // delivery_unknown: a delivery attempt lacks authoritative execution outcome;
+  // outcome_unknown: an effect may have started, so automatic repetition is prohibited.
+  // Applied and observed are independent: observation never fabricates an ACK.
+  // Unknown future values may be retained for audit but must not advance projections.
   string stage = 2;
   int64 occurred_at_unix_ms = 3;
   string message = 4;
