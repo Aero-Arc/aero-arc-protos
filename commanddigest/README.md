@@ -5,6 +5,10 @@ It is independent of protobuf serialization and JSON formatting. Validation fail
 for unknown protobuf fields, invalid authority/expiry, nonfinite floats, negative
 zero, unsupported capability/recovery combinations, or inconsistent bindings.
 
+Issuance must be positive Unix milliseconds. Expiry must be strictly later
+and at most 300,000 milliseconds (five minutes) after issuance. This limit
+is part of validation in every runtime; it is not extended by retries.
+
 Prefix: UTF-8 `aeroarc-command-v1` followed by one zero byte.
 All integers are big endian. Strings are a uint32 UTF-8 byte length followed by
 those bytes. No Unicode normalization is performed. Signed integers use two's
