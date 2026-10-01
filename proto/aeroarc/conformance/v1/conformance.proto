@@ -10,6 +10,8 @@ option go_package = "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/conforma
 // API. Preparing a candidate never authorizes telemetry; only CutoverAssignment
 // establishes the candidate's half-open authority interval.
 service ConformanceService {
+  // Stop monitoring an exact assignment without rewriting committed findings.
+  rpc EndAssignment(EndAssignmentRequest) returns (EndAssignmentResponse);
   rpc PrepareAssignment(PrepareAssignmentRequest) returns (PrepareAssignmentResponse);
   rpc ArmAssignment(ArmAssignmentRequest) returns (ArmAssignmentResponse);
   rpc CancelAssignmentCandidate(CancelAssignmentCandidateRequest) returns (CancelAssignmentCandidateResponse);
@@ -260,3 +262,22 @@ message ConformanceSummary {
   string frame_id = 14;
   repeated ViolationSummary violations = 15;
 }
+
+// EndAssignmentRequest preserves flight completion as a separate fact from the
+// monitoring boundary, which cannot precede already committed evidence.
+message EndAssignmentRequest {
+  string source = 1;
+  string message_id = 2;
+  string assignment_id = 3;
+  uint64 assignment_generation = 4;
+  google.protobuf.Timestamp flight_completed_at = 5;
+  // Required exact flight binding; generation zero resolves that binding.
+  string flight_id = 6;
+  string aircraft_id = 7;
+  uint32 intent_version = 8;
+  // Required intent identity; a version number alone does not bind the intent.
+  string intent_id = 9;
+  // Required originating Agent identity from the immutable completion evidence.
+  string agent_id = 10;
+}
+message EndAssignmentResponse { AssignmentRecord record = 1; }

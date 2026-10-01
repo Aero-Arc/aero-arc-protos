@@ -374,12 +374,14 @@ func (x *RegisterRequest) GetExecutionCapabilities() []string {
 }
 
 type RegisterResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	AgentId       string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
-	SessionId     string                 `protobuf:"bytes,3,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	MaxInflight   int64                  `protobuf:"varint,4,opt,name=max_inflight,json=maxInflight,proto3" json:"max_inflight,omitempty"` // recommended unacked frames in flight
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
+	state       protoimpl.MessageState `protogen:"open.v1"`
+	AgentId     string                 `protobuf:"bytes,1,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	SessionId   string                 `protobuf:"bytes,3,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	MaxInflight int64                  `protobuf:"varint,4,opt,name=max_inflight,json=maxInflight,proto3" json:"max_inflight,omitempty"` // recommended unacked frames in flight
+	// True only when Relay can durably admit flight completion notifications.
+	DurableFlightCompletion bool `protobuf:"varint,5,opt,name=durable_flight_completion,json=durableFlightCompletion,proto3" json:"durable_flight_completion,omitempty"`
+	unknownFields           protoimpl.UnknownFields
+	sizeCache               protoimpl.SizeCache
 }
 
 func (x *RegisterResponse) Reset() {
@@ -431,6 +433,13 @@ func (x *RegisterResponse) GetMaxInflight() int64 {
 		return x.MaxInflight
 	}
 	return 0
+}
+
+func (x *RegisterResponse) GetDurableFlightCompletion() bool {
+	if x != nil {
+		return x.DurableFlightCompletion
+	}
+	return false
 }
 
 type TelemetryFrame struct {
@@ -670,6 +679,7 @@ type AgentStreamMessage struct {
 	//	*AgentStreamMessage_AircraftCommandResult
 	//	*AgentStreamMessage_MissionDeploymentResult
 	//	*AgentStreamMessage_CommandEvidence
+	//	*AgentStreamMessage_FlightCompletionEvidence
 	Payload       isAgentStreamMessage_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -757,6 +767,15 @@ func (x *AgentStreamMessage) GetCommandEvidence() *CommandEvidence {
 	return nil
 }
 
+func (x *AgentStreamMessage) GetFlightCompletionEvidence() *FlightCompletionEvidence {
+	if x != nil {
+		if x, ok := x.Payload.(*AgentStreamMessage_FlightCompletionEvidence); ok {
+			return x.FlightCompletionEvidence
+		}
+	}
+	return nil
+}
+
 type isAgentStreamMessage_Payload interface {
 	isAgentStreamMessage_Payload()
 }
@@ -781,6 +800,10 @@ type AgentStreamMessage_CommandEvidence struct {
 	CommandEvidence *CommandEvidence `protobuf:"bytes,5,opt,name=command_evidence,json=commandEvidence,proto3,oneof"`
 }
 
+type AgentStreamMessage_FlightCompletionEvidence struct {
+	FlightCompletionEvidence *FlightCompletionEvidence `protobuf:"bytes,6,opt,name=flight_completion_evidence,json=flightCompletionEvidence,proto3,oneof"`
+}
+
 func (*AgentStreamMessage_TelemetryFrame) isAgentStreamMessage_Payload() {}
 
 func (*AgentStreamMessage_OperationContextCommandAck) isAgentStreamMessage_Payload() {}
@@ -790,6 +813,8 @@ func (*AgentStreamMessage_AircraftCommandResult) isAgentStreamMessage_Payload() 
 func (*AgentStreamMessage_MissionDeploymentResult) isAgentStreamMessage_Payload() {}
 
 func (*AgentStreamMessage_CommandEvidence) isAgentStreamMessage_Payload() {}
+
+func (*AgentStreamMessage_FlightCompletionEvidence) isAgentStreamMessage_Payload() {}
 
 // RelayStreamMessage multiplexes telemetry delivery acknowledgements and
 // operation-context commands sent to the agent.
@@ -803,6 +828,7 @@ type RelayStreamMessage struct {
 	//	*RelayStreamMessage_AircraftCommand
 	//	*RelayStreamMessage_DeployMission
 	//	*RelayStreamMessage_DurableCommand
+	//	*RelayStreamMessage_FlightCompletionReceipt
 	Payload       isRelayStreamMessage_Payload `protobuf_oneof:"payload"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
@@ -899,6 +925,15 @@ func (x *RelayStreamMessage) GetDurableCommand() *DurableCommand {
 	return nil
 }
 
+func (x *RelayStreamMessage) GetFlightCompletionReceipt() *FlightCompletionReceipt {
+	if x != nil {
+		if x, ok := x.Payload.(*RelayStreamMessage_FlightCompletionReceipt); ok {
+			return x.FlightCompletionReceipt
+		}
+	}
+	return nil
+}
+
 type isRelayStreamMessage_Payload interface {
 	isRelayStreamMessage_Payload()
 }
@@ -927,6 +962,10 @@ type RelayStreamMessage_DurableCommand struct {
 	DurableCommand *DurableCommand `protobuf:"bytes,6,opt,name=durable_command,json=durableCommand,proto3,oneof"`
 }
 
+type RelayStreamMessage_FlightCompletionReceipt struct {
+	FlightCompletionReceipt *FlightCompletionReceipt `protobuf:"bytes,7,opt,name=flight_completion_receipt,json=flightCompletionReceipt,proto3,oneof"`
+}
+
 func (*RelayStreamMessage_TelemetryAck) isRelayStreamMessage_Payload() {}
 
 func (*RelayStreamMessage_SetOperationContext) isRelayStreamMessage_Payload() {}
@@ -938,6 +977,8 @@ func (*RelayStreamMessage_AircraftCommand) isRelayStreamMessage_Payload() {}
 func (*RelayStreamMessage_DeployMission) isRelayStreamMessage_Payload() {}
 
 func (*RelayStreamMessage_DurableCommand) isRelayStreamMessage_Payload() {}
+
+func (*RelayStreamMessage_FlightCompletionReceipt) isRelayStreamMessage_Payload() {}
 
 // AircraftCommand addresses an immediate command to an Aero Arc aircraft.
 // Commands are delivered only to the Agent session active when the Relay RPC
@@ -2417,6 +2458,201 @@ func (x *CommandEvent) GetProtocolResult() uint32 {
 	return 0
 }
 
+// FlightCompletionEvidence records aircraft completion independently of API
+// finalization. Capture-time evidence remains valid when delivery is delayed.
+// Agent persists it before sending; Relay acknowledges only durable admission.
+type FlightCompletionEvidence struct {
+	state          protoimpl.MessageState `protogen:"open.v1"`
+	EventId        string                 `protobuf:"bytes,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
+	AgentId        string                 `protobuf:"bytes,2,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	Context        *OperationContext      `protobuf:"bytes,3,opt,name=context,proto3" json:"context,omitempty"`
+	MissionId      string                 `protobuf:"bytes,4,opt,name=mission_id,json=missionId,proto3" json:"mission_id,omitempty"`
+	MissionDigest  string                 `protobuf:"bytes,5,opt,name=mission_digest,json=missionDigest,proto3" json:"mission_digest,omitempty"`
+	StartCommandId string                 `protobuf:"bytes,6,opt,name=start_command_id,json=startCommandId,proto3" json:"start_command_id,omitempty"`
+	// mission_completed or ended_early; never infer success from disarm alone.
+	Outcome          string `protobuf:"bytes,7,opt,name=outcome,proto3" json:"outcome,omitempty"`
+	AirborneAtUnixNs int64  `protobuf:"varint,8,opt,name=airborne_at_unix_ns,json=airborneAtUnixNs,proto3" json:"airborne_at_unix_ns,omitempty"`
+	TerminalAtUnixNs int64  `protobuf:"varint,9,opt,name=terminal_at_unix_ns,json=terminalAtUnixNs,proto3" json:"terminal_at_unix_ns,omitempty"`
+	LandedAtUnixNs   int64  `protobuf:"varint,10,opt,name=landed_at_unix_ns,json=landedAtUnixNs,proto3" json:"landed_at_unix_ns,omitempty"`
+	DisarmedAtUnixNs int64  `protobuf:"varint,11,opt,name=disarmed_at_unix_ns,json=disarmedAtUnixNs,proto3" json:"disarmed_at_unix_ns,omitempty"`
+	// Source epoch prevents observations spanning an Agent restart from being
+	// presented as one fresh landed/disarmed pair.
+	ObservationEpoch string `protobuf:"bytes,12,opt,name=observation_epoch,json=observationEpoch,proto3" json:"observation_epoch,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
+func (x *FlightCompletionEvidence) Reset() {
+	*x = FlightCompletionEvidence{}
+	mi := &file_aeroarc_agent_v1_agent_proto_msgTypes[21]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FlightCompletionEvidence) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FlightCompletionEvidence) ProtoMessage() {}
+
+func (x *FlightCompletionEvidence) ProtoReflect() protoreflect.Message {
+	mi := &file_aeroarc_agent_v1_agent_proto_msgTypes[21]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FlightCompletionEvidence.ProtoReflect.Descriptor instead.
+func (*FlightCompletionEvidence) Descriptor() ([]byte, []int) {
+	return file_aeroarc_agent_v1_agent_proto_rawDescGZIP(), []int{21}
+}
+
+func (x *FlightCompletionEvidence) GetEventId() string {
+	if x != nil {
+		return x.EventId
+	}
+	return ""
+}
+
+func (x *FlightCompletionEvidence) GetAgentId() string {
+	if x != nil {
+		return x.AgentId
+	}
+	return ""
+}
+
+func (x *FlightCompletionEvidence) GetContext() *OperationContext {
+	if x != nil {
+		return x.Context
+	}
+	return nil
+}
+
+func (x *FlightCompletionEvidence) GetMissionId() string {
+	if x != nil {
+		return x.MissionId
+	}
+	return ""
+}
+
+func (x *FlightCompletionEvidence) GetMissionDigest() string {
+	if x != nil {
+		return x.MissionDigest
+	}
+	return ""
+}
+
+func (x *FlightCompletionEvidence) GetStartCommandId() string {
+	if x != nil {
+		return x.StartCommandId
+	}
+	return ""
+}
+
+func (x *FlightCompletionEvidence) GetOutcome() string {
+	if x != nil {
+		return x.Outcome
+	}
+	return ""
+}
+
+func (x *FlightCompletionEvidence) GetAirborneAtUnixNs() int64 {
+	if x != nil {
+		return x.AirborneAtUnixNs
+	}
+	return 0
+}
+
+func (x *FlightCompletionEvidence) GetTerminalAtUnixNs() int64 {
+	if x != nil {
+		return x.TerminalAtUnixNs
+	}
+	return 0
+}
+
+func (x *FlightCompletionEvidence) GetLandedAtUnixNs() int64 {
+	if x != nil {
+		return x.LandedAtUnixNs
+	}
+	return 0
+}
+
+func (x *FlightCompletionEvidence) GetDisarmedAtUnixNs() int64 {
+	if x != nil {
+		return x.DisarmedAtUnixNs
+	}
+	return 0
+}
+
+func (x *FlightCompletionEvidence) GetObservationEpoch() string {
+	if x != nil {
+		return x.ObservationEpoch
+	}
+	return ""
+}
+
+// FlightCompletionReceipt acknowledges a durable Relay inbox record, not API
+// finalization. payload_sha256 uses the runtime-independent version-1 canonical
+// wire encoding specified in flightcompletion/README.md: known fields in numeric
+// order, minimal varints, exact UTF-8 strings, canonical nested context, no unknown
+// fields. It is lowercase SHA-256 of those bytes, not arbitrary protobuf output.
+type FlightCompletionReceipt struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	EventId       string                 `protobuf:"bytes,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
+	PayloadSha256 string                 `protobuf:"bytes,2,opt,name=payload_sha256,json=payloadSha256,proto3" json:"payload_sha256,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *FlightCompletionReceipt) Reset() {
+	*x = FlightCompletionReceipt{}
+	mi := &file_aeroarc_agent_v1_agent_proto_msgTypes[22]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *FlightCompletionReceipt) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*FlightCompletionReceipt) ProtoMessage() {}
+
+func (x *FlightCompletionReceipt) ProtoReflect() protoreflect.Message {
+	mi := &file_aeroarc_agent_v1_agent_proto_msgTypes[22]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use FlightCompletionReceipt.ProtoReflect.Descriptor instead.
+func (*FlightCompletionReceipt) Descriptor() ([]byte, []int) {
+	return file_aeroarc_agent_v1_agent_proto_rawDescGZIP(), []int{22}
+}
+
+func (x *FlightCompletionReceipt) GetEventId() string {
+	if x != nil {
+		return x.EventId
+	}
+	return ""
+}
+
+func (x *FlightCompletionReceipt) GetPayloadSha256() string {
+	if x != nil {
+		return x.PayloadSha256
+	}
+	return ""
+}
+
 var File_aeroarc_agent_v1_agent_proto protoreflect.FileDescriptor
 
 const file_aeroarc_agent_v1_agent_proto_rawDesc = "" +
@@ -2426,12 +2662,13 @@ const file_aeroarc_agent_v1_agent_proto_rawDesc = "" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12#\n" +
 	"\ragent_version\x18\x02 \x01(\tR\fagentVersion\x12\x1a\n" +
 	"\bplatform\x18\x03 \x01(\tR\bplatform\x125\n" +
-	"\x16execution_capabilities\x18\x04 \x03(\tR\x15executionCapabilities\"o\n" +
+	"\x16execution_capabilities\x18\x04 \x03(\tR\x15executionCapabilities\"\xab\x01\n" +
 	"\x10RegisterResponse\x12\x19\n" +
 	"\bagent_id\x18\x01 \x01(\tR\aagentId\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x03 \x01(\tR\tsessionId\x12!\n" +
-	"\fmax_inflight\x18\x04 \x01(\x03R\vmaxInflight\"\x9b\x04\n" +
+	"\fmax_inflight\x18\x04 \x01(\x03R\vmaxInflight\x12:\n" +
+	"\x19durable_flight_completion\x18\x05 \x01(\bR\x17durableFlightCompletion\"\x9b\x04\n" +
 	"\x0eTelemetryFrame\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\tR\tsessionId\x12\x19\n" +
@@ -2462,21 +2699,23 @@ const file_aeroarc_agent_v1_agent_proto_rawDesc = "" +
 	"\tSTATUS_OK\x10\x00\x12\x1a\n" +
 	"\x16STATUS_TEMPORARY_ERROR\x10\x01\x12\x1a\n" +
 	"\x16STATUS_PERMANENT_ERROR\x10\x02\x12\x1d\n" +
-	"\x19STATUS_RETRY_WITH_BACKOFF\x10\x03\"\xfb\x03\n" +
+	"\x19STATUS_RETRY_WITH_BACKOFF\x10\x03\"\xe7\x04\n" +
 	"\x12AgentStreamMessage\x12K\n" +
 	"\x0ftelemetry_frame\x18\x01 \x01(\v2 .aeroarc.agent.v1.TelemetryFrameH\x00R\x0etelemetryFrame\x12q\n" +
 	"\x1doperation_context_command_ack\x18\x02 \x01(\v2,.aeroarc.agent.v1.OperationContextCommandAckH\x00R\x1aoperationContextCommandAck\x12a\n" +
 	"\x17aircraft_command_result\x18\x03 \x01(\v2'.aeroarc.agent.v1.AircraftCommandResultH\x00R\x15aircraftCommandResult\x12g\n" +
 	"\x19mission_deployment_result\x18\x04 \x01(\v2).aeroarc.agent.v1.MissionDeploymentResultH\x00R\x17missionDeploymentResult\x12N\n" +
-	"\x10command_evidence\x18\x05 \x01(\v2!.aeroarc.agent.v1.CommandEvidenceH\x00R\x0fcommandEvidenceB\t\n" +
-	"\apayload\"\xa2\x04\n" +
+	"\x10command_evidence\x18\x05 \x01(\v2!.aeroarc.agent.v1.CommandEvidenceH\x00R\x0fcommandEvidence\x12j\n" +
+	"\x1aflight_completion_evidence\x18\x06 \x01(\v2*.aeroarc.agent.v1.FlightCompletionEvidenceH\x00R\x18flightCompletionEvidenceB\t\n" +
+	"\apayload\"\x8b\x05\n" +
 	"\x12RelayStreamMessage\x12E\n" +
 	"\rtelemetry_ack\x18\x01 \x01(\v2\x1e.aeroarc.agent.v1.TelemetryAckH\x00R\ftelemetryAck\x12b\n" +
 	"\x15set_operation_context\x18\x02 \x01(\v2,.aeroarc.agent.v1.SetOperationContextCommandH\x00R\x13setOperationContext\x12h\n" +
 	"\x17clear_operation_context\x18\x03 \x01(\v2..aeroarc.agent.v1.ClearOperationContextCommandH\x00R\x15clearOperationContext\x12N\n" +
 	"\x10aircraft_command\x18\x04 \x01(\v2!.aeroarc.agent.v1.AircraftCommandH\x00R\x0faircraftCommand\x12O\n" +
 	"\x0edeploy_mission\x18\x05 \x01(\v2&.aeroarc.agent.v1.DeployMissionCommandH\x00R\rdeployMission\x12K\n" +
-	"\x0fdurable_command\x18\x06 \x01(\v2 .aeroarc.agent.v1.DurableCommandH\x00R\x0edurableCommandB\t\n" +
+	"\x0fdurable_command\x18\x06 \x01(\v2 .aeroarc.agent.v1.DurableCommandH\x00R\x0edurableCommand\x12g\n" +
+	"\x19flight_completion_receipt\x18\a \x01(\v2).aeroarc.agent.v1.FlightCompletionReceiptH\x00R\x17flightCompletionReceiptB\t\n" +
 	"\apayload\"\xb7\x01\n" +
 	"\x0fAircraftCommand\x12\x1d\n" +
 	"\n" +
@@ -2638,7 +2877,25 @@ const file_aeroarc_agent_v1_agent_proto_rawDesc = "" +
 	"\amessage\x18\x04 \x01(\tR\amessage\x12'\n" +
 	"\x0fevidence_source\x18\x05 \x01(\tR\x0eevidenceSource\x12,\n" +
 	"\x0fprotocol_result\x18\x06 \x01(\rH\x00R\x0eprotocolResult\x88\x01\x01B\x12\n" +
-	"\x10_protocol_result*}\n" +
+	"\x10_protocol_result\"\xfd\x03\n" +
+	"\x18FlightCompletionEvidence\x12\x19\n" +
+	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12\x19\n" +
+	"\bagent_id\x18\x02 \x01(\tR\aagentId\x12<\n" +
+	"\acontext\x18\x03 \x01(\v2\".aeroarc.agent.v1.OperationContextR\acontext\x12\x1d\n" +
+	"\n" +
+	"mission_id\x18\x04 \x01(\tR\tmissionId\x12%\n" +
+	"\x0emission_digest\x18\x05 \x01(\tR\rmissionDigest\x12(\n" +
+	"\x10start_command_id\x18\x06 \x01(\tR\x0estartCommandId\x12\x18\n" +
+	"\aoutcome\x18\a \x01(\tR\aoutcome\x12-\n" +
+	"\x13airborne_at_unix_ns\x18\b \x01(\x03R\x10airborneAtUnixNs\x12-\n" +
+	"\x13terminal_at_unix_ns\x18\t \x01(\x03R\x10terminalAtUnixNs\x12)\n" +
+	"\x11landed_at_unix_ns\x18\n" +
+	" \x01(\x03R\x0elandedAtUnixNs\x12-\n" +
+	"\x13disarmed_at_unix_ns\x18\v \x01(\x03R\x10disarmedAtUnixNs\x12+\n" +
+	"\x11observation_epoch\x18\f \x01(\tR\x10observationEpoch\"[\n" +
+	"\x17FlightCompletionReceipt\x12\x19\n" +
+	"\bevent_id\x18\x01 \x01(\tR\aeventId\x12%\n" +
+	"\x0epayload_sha256\x18\x02 \x01(\tR\rpayloadSha256*}\n" +
 	"\x13AircraftCommandType\x12%\n" +
 	"!AIRCRAFT_COMMAND_TYPE_UNSPECIFIED\x10\x00\x12\x1d\n" +
 	"\x19AIRCRAFT_COMMAND_TYPE_ARM\x10\x01\x12 \n" +
@@ -2660,7 +2917,7 @@ func file_aeroarc_agent_v1_agent_proto_rawDescGZIP() []byte {
 }
 
 var file_aeroarc_agent_v1_agent_proto_enumTypes = make([]protoimpl.EnumInfo, 5)
-var file_aeroarc_agent_v1_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 22)
+var file_aeroarc_agent_v1_agent_proto_msgTypes = make([]protoimpl.MessageInfo, 24)
 var file_aeroarc_agent_v1_agent_proto_goTypes = []any{
 	(AircraftCommandType)(0),               // 0: aeroarc.agent.v1.AircraftCommandType
 	(TelemetryAck_Status)(0),               // 1: aeroarc.agent.v1.TelemetryAck.Status
@@ -2688,46 +2945,51 @@ var file_aeroarc_agent_v1_agent_proto_goTypes = []any{
 	(*MavlinkExecution)(nil),               // 23: aeroarc.agent.v1.MavlinkExecution
 	(*CommandEvidence)(nil),                // 24: aeroarc.agent.v1.CommandEvidence
 	(*CommandEvent)(nil),                   // 25: aeroarc.agent.v1.CommandEvent
-	nil,                                    // 26: aeroarc.agent.v1.TelemetryFrame.FieldsEntry
+	(*FlightCompletionEvidence)(nil),       // 26: aeroarc.agent.v1.FlightCompletionEvidence
+	(*FlightCompletionReceipt)(nil),        // 27: aeroarc.agent.v1.FlightCompletionReceipt
+	nil,                                    // 28: aeroarc.agent.v1.TelemetryFrame.FieldsEntry
 }
 var file_aeroarc_agent_v1_agent_proto_depIdxs = []int32{
-	26, // 0: aeroarc.agent.v1.TelemetryFrame.fields:type_name -> aeroarc.agent.v1.TelemetryFrame.FieldsEntry
+	28, // 0: aeroarc.agent.v1.TelemetryFrame.fields:type_name -> aeroarc.agent.v1.TelemetryFrame.FieldsEntry
 	1,  // 1: aeroarc.agent.v1.TelemetryAck.status:type_name -> aeroarc.agent.v1.TelemetryAck.Status
 	7,  // 2: aeroarc.agent.v1.AgentStreamMessage.telemetry_frame:type_name -> aeroarc.agent.v1.TelemetryFrame
 	21, // 3: aeroarc.agent.v1.AgentStreamMessage.operation_context_command_ack:type_name -> aeroarc.agent.v1.OperationContextCommandAck
 	12, // 4: aeroarc.agent.v1.AgentStreamMessage.aircraft_command_result:type_name -> aeroarc.agent.v1.AircraftCommandResult
 	17, // 5: aeroarc.agent.v1.AgentStreamMessage.mission_deployment_result:type_name -> aeroarc.agent.v1.MissionDeploymentResult
 	24, // 6: aeroarc.agent.v1.AgentStreamMessage.command_evidence:type_name -> aeroarc.agent.v1.CommandEvidence
-	8,  // 7: aeroarc.agent.v1.RelayStreamMessage.telemetry_ack:type_name -> aeroarc.agent.v1.TelemetryAck
-	19, // 8: aeroarc.agent.v1.RelayStreamMessage.set_operation_context:type_name -> aeroarc.agent.v1.SetOperationContextCommand
-	20, // 9: aeroarc.agent.v1.RelayStreamMessage.clear_operation_context:type_name -> aeroarc.agent.v1.ClearOperationContextCommand
-	11, // 10: aeroarc.agent.v1.RelayStreamMessage.aircraft_command:type_name -> aeroarc.agent.v1.AircraftCommand
-	16, // 11: aeroarc.agent.v1.RelayStreamMessage.deploy_mission:type_name -> aeroarc.agent.v1.DeployMissionCommand
-	22, // 12: aeroarc.agent.v1.RelayStreamMessage.durable_command:type_name -> aeroarc.agent.v1.DurableCommand
-	0,  // 13: aeroarc.agent.v1.AircraftCommand.type:type_name -> aeroarc.agent.v1.AircraftCommandType
-	2,  // 14: aeroarc.agent.v1.AircraftCommandResult.status:type_name -> aeroarc.agent.v1.AircraftCommandResult.Status
-	14, // 15: aeroarc.agent.v1.MissionPlan.items:type_name -> aeroarc.agent.v1.MissionItem
-	13, // 16: aeroarc.agent.v1.DeployMissionCommand.binding:type_name -> aeroarc.agent.v1.MissionBinding
-	15, // 17: aeroarc.agent.v1.DeployMissionCommand.plan:type_name -> aeroarc.agent.v1.MissionPlan
-	13, // 18: aeroarc.agent.v1.MissionDeploymentResult.binding:type_name -> aeroarc.agent.v1.MissionBinding
-	3,  // 19: aeroarc.agent.v1.MissionDeploymentResult.status:type_name -> aeroarc.agent.v1.MissionDeploymentResult.Status
-	18, // 20: aeroarc.agent.v1.SetOperationContextCommand.context:type_name -> aeroarc.agent.v1.OperationContext
-	4,  // 21: aeroarc.agent.v1.OperationContextCommandAck.status:type_name -> aeroarc.agent.v1.OperationContextCommandAck.Status
-	18, // 22: aeroarc.agent.v1.OperationContextCommandAck.active_context:type_name -> aeroarc.agent.v1.OperationContext
-	18, // 23: aeroarc.agent.v1.DurableCommand.context:type_name -> aeroarc.agent.v1.OperationContext
-	23, // 24: aeroarc.agent.v1.DurableCommand.mavlink:type_name -> aeroarc.agent.v1.MavlinkExecution
-	16, // 25: aeroarc.agent.v1.DurableCommand.mission:type_name -> aeroarc.agent.v1.DeployMissionCommand
-	15, // 26: aeroarc.agent.v1.MavlinkExecution.mission_precondition:type_name -> aeroarc.agent.v1.MissionPlan
-	25, // 27: aeroarc.agent.v1.CommandEvidence.events:type_name -> aeroarc.agent.v1.CommandEvent
-	5,  // 28: aeroarc.agent.v1.AgentGateway.Register:input_type -> aeroarc.agent.v1.RegisterRequest
-	9,  // 29: aeroarc.agent.v1.AgentGateway.TelemetryStream:input_type -> aeroarc.agent.v1.AgentStreamMessage
-	6,  // 30: aeroarc.agent.v1.AgentGateway.Register:output_type -> aeroarc.agent.v1.RegisterResponse
-	10, // 31: aeroarc.agent.v1.AgentGateway.TelemetryStream:output_type -> aeroarc.agent.v1.RelayStreamMessage
-	30, // [30:32] is the sub-list for method output_type
-	28, // [28:30] is the sub-list for method input_type
-	28, // [28:28] is the sub-list for extension type_name
-	28, // [28:28] is the sub-list for extension extendee
-	0,  // [0:28] is the sub-list for field type_name
+	26, // 7: aeroarc.agent.v1.AgentStreamMessage.flight_completion_evidence:type_name -> aeroarc.agent.v1.FlightCompletionEvidence
+	8,  // 8: aeroarc.agent.v1.RelayStreamMessage.telemetry_ack:type_name -> aeroarc.agent.v1.TelemetryAck
+	19, // 9: aeroarc.agent.v1.RelayStreamMessage.set_operation_context:type_name -> aeroarc.agent.v1.SetOperationContextCommand
+	20, // 10: aeroarc.agent.v1.RelayStreamMessage.clear_operation_context:type_name -> aeroarc.agent.v1.ClearOperationContextCommand
+	11, // 11: aeroarc.agent.v1.RelayStreamMessage.aircraft_command:type_name -> aeroarc.agent.v1.AircraftCommand
+	16, // 12: aeroarc.agent.v1.RelayStreamMessage.deploy_mission:type_name -> aeroarc.agent.v1.DeployMissionCommand
+	22, // 13: aeroarc.agent.v1.RelayStreamMessage.durable_command:type_name -> aeroarc.agent.v1.DurableCommand
+	27, // 14: aeroarc.agent.v1.RelayStreamMessage.flight_completion_receipt:type_name -> aeroarc.agent.v1.FlightCompletionReceipt
+	0,  // 15: aeroarc.agent.v1.AircraftCommand.type:type_name -> aeroarc.agent.v1.AircraftCommandType
+	2,  // 16: aeroarc.agent.v1.AircraftCommandResult.status:type_name -> aeroarc.agent.v1.AircraftCommandResult.Status
+	14, // 17: aeroarc.agent.v1.MissionPlan.items:type_name -> aeroarc.agent.v1.MissionItem
+	13, // 18: aeroarc.agent.v1.DeployMissionCommand.binding:type_name -> aeroarc.agent.v1.MissionBinding
+	15, // 19: aeroarc.agent.v1.DeployMissionCommand.plan:type_name -> aeroarc.agent.v1.MissionPlan
+	13, // 20: aeroarc.agent.v1.MissionDeploymentResult.binding:type_name -> aeroarc.agent.v1.MissionBinding
+	3,  // 21: aeroarc.agent.v1.MissionDeploymentResult.status:type_name -> aeroarc.agent.v1.MissionDeploymentResult.Status
+	18, // 22: aeroarc.agent.v1.SetOperationContextCommand.context:type_name -> aeroarc.agent.v1.OperationContext
+	4,  // 23: aeroarc.agent.v1.OperationContextCommandAck.status:type_name -> aeroarc.agent.v1.OperationContextCommandAck.Status
+	18, // 24: aeroarc.agent.v1.OperationContextCommandAck.active_context:type_name -> aeroarc.agent.v1.OperationContext
+	18, // 25: aeroarc.agent.v1.DurableCommand.context:type_name -> aeroarc.agent.v1.OperationContext
+	23, // 26: aeroarc.agent.v1.DurableCommand.mavlink:type_name -> aeroarc.agent.v1.MavlinkExecution
+	16, // 27: aeroarc.agent.v1.DurableCommand.mission:type_name -> aeroarc.agent.v1.DeployMissionCommand
+	15, // 28: aeroarc.agent.v1.MavlinkExecution.mission_precondition:type_name -> aeroarc.agent.v1.MissionPlan
+	25, // 29: aeroarc.agent.v1.CommandEvidence.events:type_name -> aeroarc.agent.v1.CommandEvent
+	18, // 30: aeroarc.agent.v1.FlightCompletionEvidence.context:type_name -> aeroarc.agent.v1.OperationContext
+	5,  // 31: aeroarc.agent.v1.AgentGateway.Register:input_type -> aeroarc.agent.v1.RegisterRequest
+	9,  // 32: aeroarc.agent.v1.AgentGateway.TelemetryStream:input_type -> aeroarc.agent.v1.AgentStreamMessage
+	6,  // 33: aeroarc.agent.v1.AgentGateway.Register:output_type -> aeroarc.agent.v1.RegisterResponse
+	10, // 34: aeroarc.agent.v1.AgentGateway.TelemetryStream:output_type -> aeroarc.agent.v1.RelayStreamMessage
+	33, // [33:35] is the sub-list for method output_type
+	31, // [31:33] is the sub-list for method input_type
+	31, // [31:31] is the sub-list for extension type_name
+	31, // [31:31] is the sub-list for extension extendee
+	0,  // [0:31] is the sub-list for field type_name
 }
 
 func init() { file_aeroarc_agent_v1_agent_proto_init() }
@@ -2741,6 +3003,7 @@ func file_aeroarc_agent_v1_agent_proto_init() {
 		(*AgentStreamMessage_AircraftCommandResult)(nil),
 		(*AgentStreamMessage_MissionDeploymentResult)(nil),
 		(*AgentStreamMessage_CommandEvidence)(nil),
+		(*AgentStreamMessage_FlightCompletionEvidence)(nil),
 	}
 	file_aeroarc_agent_v1_agent_proto_msgTypes[5].OneofWrappers = []any{
 		(*RelayStreamMessage_TelemetryAck)(nil),
@@ -2749,6 +3012,7 @@ func file_aeroarc_agent_v1_agent_proto_init() {
 		(*RelayStreamMessage_AircraftCommand)(nil),
 		(*RelayStreamMessage_DeployMission)(nil),
 		(*RelayStreamMessage_DurableCommand)(nil),
+		(*RelayStreamMessage_FlightCompletionReceipt)(nil),
 	}
 	file_aeroarc_agent_v1_agent_proto_msgTypes[12].OneofWrappers = []any{}
 	file_aeroarc_agent_v1_agent_proto_msgTypes[17].OneofWrappers = []any{
@@ -2762,7 +3026,7 @@ func file_aeroarc_agent_v1_agent_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_aeroarc_agent_v1_agent_proto_rawDesc), len(file_aeroarc_agent_v1_agent_proto_rawDesc)),
 			NumEnums:      5,
-			NumMessages:   22,
+			NumMessages:   24,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

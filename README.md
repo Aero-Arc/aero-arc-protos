@@ -102,7 +102,8 @@ and `MAV_CMD_NAV_TAKEOFF` (22). The `mission_rtl_v1` capability additionally
 allows `MAV_CMD_NAV_RETURN_TO_LAUNCH` (20) as the final item only. Producers
 and dispatchers must require that capability before using RTL; the schema
 version alone does not grant support. RTL uses frame 0, positive-zero
-parameters 1–4 and altitude, and zero latitude/longitude. Sequence numbers are contiguous from zero,
+parameters 1–4 and altitude, and zero latitude/longitude. Its path depends on
+autopilot HOME/RTL settings. Sequence numbers are contiguous from zero,
 `autocontinue` is true, coordinates use signed degrees times 1e7, and unknown
 fields are rejected. Canonical items exclude autopilot HOME entries and Mission
 Planner/QGC export metadata. `MissionItem.current` is reserved and must be false
@@ -191,3 +192,10 @@ You can add:
 
 - `buf.yaml` and `buf.gen.yaml` in the repo root if you choose [Buf](https://buf.build/) for linting and codegen.
 - Language-specific generation scripts under `tools/` (e.g., `tools/gen-go.sh`, `tools/gen-ts.sh`).
+
+Terminal RTL is an opt-in schema-one extension, negotiated through Agent
+registration capability `mission_rtl_v1`. `mission_upload_v1` alone authorizes
+only the original WAYPOINT/LAND/TAKEOFF subset. Relay must reject both mission
+deployments and commands with RTL mission preconditions before dispatch when
+this capability is absent. Deploy capability-aware Relays before enabling RTL
+producers; older Agents remain usable with non-RTL plans.

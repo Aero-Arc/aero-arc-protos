@@ -1969,6 +1969,171 @@ func (x *ConformanceSummary) GetViolations() []*ViolationSummary {
 	return nil
 }
 
+// EndAssignmentRequest preserves flight completion as a separate fact from the
+// monitoring boundary, which cannot precede already committed evidence.
+type EndAssignmentRequest struct {
+	state                protoimpl.MessageState `protogen:"open.v1"`
+	Source               string                 `protobuf:"bytes,1,opt,name=source,proto3" json:"source,omitempty"`
+	MessageId            string                 `protobuf:"bytes,2,opt,name=message_id,json=messageId,proto3" json:"message_id,omitempty"`
+	AssignmentId         string                 `protobuf:"bytes,3,opt,name=assignment_id,json=assignmentId,proto3" json:"assignment_id,omitempty"`
+	AssignmentGeneration uint64                 `protobuf:"varint,4,opt,name=assignment_generation,json=assignmentGeneration,proto3" json:"assignment_generation,omitempty"`
+	FlightCompletedAt    *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=flight_completed_at,json=flightCompletedAt,proto3" json:"flight_completed_at,omitempty"`
+	// Required exact flight binding; generation zero resolves that binding.
+	FlightId      string `protobuf:"bytes,6,opt,name=flight_id,json=flightId,proto3" json:"flight_id,omitempty"`
+	AircraftId    string `protobuf:"bytes,7,opt,name=aircraft_id,json=aircraftId,proto3" json:"aircraft_id,omitempty"`
+	IntentVersion uint32 `protobuf:"varint,8,opt,name=intent_version,json=intentVersion,proto3" json:"intent_version,omitempty"`
+	// Required intent identity; a version number alone does not bind the intent.
+	IntentId string `protobuf:"bytes,9,opt,name=intent_id,json=intentId,proto3" json:"intent_id,omitempty"`
+	// Required originating Agent identity from the immutable completion evidence.
+	AgentId       string `protobuf:"bytes,10,opt,name=agent_id,json=agentId,proto3" json:"agent_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EndAssignmentRequest) Reset() {
+	*x = EndAssignmentRequest{}
+	mi := &file_aeroarc_conformance_v1_conformance_proto_msgTypes[19]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EndAssignmentRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EndAssignmentRequest) ProtoMessage() {}
+
+func (x *EndAssignmentRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_aeroarc_conformance_v1_conformance_proto_msgTypes[19]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EndAssignmentRequest.ProtoReflect.Descriptor instead.
+func (*EndAssignmentRequest) Descriptor() ([]byte, []int) {
+	return file_aeroarc_conformance_v1_conformance_proto_rawDescGZIP(), []int{19}
+}
+
+func (x *EndAssignmentRequest) GetSource() string {
+	if x != nil {
+		return x.Source
+	}
+	return ""
+}
+
+func (x *EndAssignmentRequest) GetMessageId() string {
+	if x != nil {
+		return x.MessageId
+	}
+	return ""
+}
+
+func (x *EndAssignmentRequest) GetAssignmentId() string {
+	if x != nil {
+		return x.AssignmentId
+	}
+	return ""
+}
+
+func (x *EndAssignmentRequest) GetAssignmentGeneration() uint64 {
+	if x != nil {
+		return x.AssignmentGeneration
+	}
+	return 0
+}
+
+func (x *EndAssignmentRequest) GetFlightCompletedAt() *timestamppb.Timestamp {
+	if x != nil {
+		return x.FlightCompletedAt
+	}
+	return nil
+}
+
+func (x *EndAssignmentRequest) GetFlightId() string {
+	if x != nil {
+		return x.FlightId
+	}
+	return ""
+}
+
+func (x *EndAssignmentRequest) GetAircraftId() string {
+	if x != nil {
+		return x.AircraftId
+	}
+	return ""
+}
+
+func (x *EndAssignmentRequest) GetIntentVersion() uint32 {
+	if x != nil {
+		return x.IntentVersion
+	}
+	return 0
+}
+
+func (x *EndAssignmentRequest) GetIntentId() string {
+	if x != nil {
+		return x.IntentId
+	}
+	return ""
+}
+
+func (x *EndAssignmentRequest) GetAgentId() string {
+	if x != nil {
+		return x.AgentId
+	}
+	return ""
+}
+
+type EndAssignmentResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Record        *AssignmentRecord      `protobuf:"bytes,1,opt,name=record,proto3" json:"record,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *EndAssignmentResponse) Reset() {
+	*x = EndAssignmentResponse{}
+	mi := &file_aeroarc_conformance_v1_conformance_proto_msgTypes[20]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *EndAssignmentResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*EndAssignmentResponse) ProtoMessage() {}
+
+func (x *EndAssignmentResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_aeroarc_conformance_v1_conformance_proto_msgTypes[20]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use EndAssignmentResponse.ProtoReflect.Descriptor instead.
+func (*EndAssignmentResponse) Descriptor() ([]byte, []int) {
+	return file_aeroarc_conformance_v1_conformance_proto_rawDescGZIP(), []int{20}
+}
+
+func (x *EndAssignmentResponse) GetRecord() *AssignmentRecord {
+	if x != nil {
+		return x.Record
+	}
+	return nil
+}
+
 var File_aeroarc_conformance_v1_conformance_proto protoreflect.FileDescriptor
 
 const file_aeroarc_conformance_v1_conformance_proto_rawDesc = "" +
@@ -2131,7 +2296,23 @@ const file_aeroarc_conformance_v1_conformance_proto_rawDesc = "" +
 	"\bframe_id\x18\x0e \x01(\tR\aframeId\x12H\n" +
 	"\n" +
 	"violations\x18\x0f \x03(\v2(.aeroarc.conformance.v1.ViolationSummaryR\n" +
-	"violations*\xd3\x01\n" +
+	"violations\"\x90\x03\n" +
+	"\x14EndAssignmentRequest\x12\x16\n" +
+	"\x06source\x18\x01 \x01(\tR\x06source\x12\x1d\n" +
+	"\n" +
+	"message_id\x18\x02 \x01(\tR\tmessageId\x12#\n" +
+	"\rassignment_id\x18\x03 \x01(\tR\fassignmentId\x123\n" +
+	"\x15assignment_generation\x18\x04 \x01(\x04R\x14assignmentGeneration\x12J\n" +
+	"\x13flight_completed_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\x11flightCompletedAt\x12\x1b\n" +
+	"\tflight_id\x18\x06 \x01(\tR\bflightId\x12\x1f\n" +
+	"\vaircraft_id\x18\a \x01(\tR\n" +
+	"aircraftId\x12%\n" +
+	"\x0eintent_version\x18\b \x01(\rR\rintentVersion\x12\x1b\n" +
+	"\tintent_id\x18\t \x01(\tR\bintentId\x12\x19\n" +
+	"\bagent_id\x18\n" +
+	" \x01(\tR\aagentId\"Y\n" +
+	"\x15EndAssignmentResponse\x12@\n" +
+	"\x06record\x18\x01 \x01(\v2(.aeroarc.conformance.v1.AssignmentRecordR\x06record*\xd3\x01\n" +
 	"\x1cAssignmentCommandDisposition\x12.\n" +
 	"*ASSIGNMENT_COMMAND_DISPOSITION_UNSPECIFIED\x10\x00\x12*\n" +
 	"&ASSIGNMENT_COMMAND_DISPOSITION_APPLIED\x10\x01\x12-\n" +
@@ -2180,8 +2361,9 @@ const file_aeroarc_conformance_v1_conformance_proto_rawDesc = "" +
 	"\x14INCIDENT_PHASE_CLEAR\x10\x01\x12\x1c\n" +
 	"\x18INCIDENT_PHASE_SUSPECTED\x10\x02\x12\x17\n" +
 	"\x13INCIDENT_PHASE_OPEN\x10\x03\x12\x1d\n" +
-	"\x19INCIDENT_PHASE_RECOVERING\x10\x042\xfe\x05\n" +
-	"\x12ConformanceService\x12x\n" +
+	"\x19INCIDENT_PHASE_RECOVERING\x10\x042\xec\x06\n" +
+	"\x12ConformanceService\x12l\n" +
+	"\rEndAssignment\x12,.aeroarc.conformance.v1.EndAssignmentRequest\x1a-.aeroarc.conformance.v1.EndAssignmentResponse\x12x\n" +
 	"\x11PrepareAssignment\x120.aeroarc.conformance.v1.PrepareAssignmentRequest\x1a1.aeroarc.conformance.v1.PrepareAssignmentResponse\x12l\n" +
 	"\rArmAssignment\x12,.aeroarc.conformance.v1.ArmAssignmentRequest\x1a-.aeroarc.conformance.v1.ArmAssignmentResponse\x12\x90\x01\n" +
 	"\x19CancelAssignmentCandidate\x128.aeroarc.conformance.v1.CancelAssignmentCandidateRequest\x1a9.aeroarc.conformance.v1.CancelAssignmentCandidateResponse\x12x\n" +
@@ -2202,7 +2384,7 @@ func file_aeroarc_conformance_v1_conformance_proto_rawDescGZIP() []byte {
 }
 
 var file_aeroarc_conformance_v1_conformance_proto_enumTypes = make([]protoimpl.EnumInfo, 8)
-var file_aeroarc_conformance_v1_conformance_proto_msgTypes = make([]protoimpl.MessageInfo, 19)
+var file_aeroarc_conformance_v1_conformance_proto_msgTypes = make([]protoimpl.MessageInfo, 21)
 var file_aeroarc_conformance_v1_conformance_proto_goTypes = []any{
 	(AssignmentCommandDisposition)(0),         // 0: aeroarc.conformance.v1.AssignmentCommandDisposition
 	(AssignmentLifecycle)(0),                  // 1: aeroarc.conformance.v1.AssignmentLifecycle
@@ -2231,32 +2413,34 @@ var file_aeroarc_conformance_v1_conformance_proto_goTypes = []any{
 	(*GetAssignmentResponse)(nil),             // 24: aeroarc.conformance.v1.GetAssignmentResponse
 	(*ViolationSummary)(nil),                  // 25: aeroarc.conformance.v1.ViolationSummary
 	(*ConformanceSummary)(nil),                // 26: aeroarc.conformance.v1.ConformanceSummary
-	(*timestamppb.Timestamp)(nil),             // 27: google.protobuf.Timestamp
+	(*EndAssignmentRequest)(nil),              // 27: aeroarc.conformance.v1.EndAssignmentRequest
+	(*EndAssignmentResponse)(nil),             // 28: aeroarc.conformance.v1.EndAssignmentResponse
+	(*timestamppb.Timestamp)(nil),             // 29: google.protobuf.Timestamp
 }
 var file_aeroarc_conformance_v1_conformance_proto_depIdxs = []int32{
-	27, // 0: aeroarc.conformance.v1.ListConformanceEventsRequest.from:type_name -> google.protobuf.Timestamp
-	27, // 1: aeroarc.conformance.v1.ListConformanceEventsRequest.until:type_name -> google.protobuf.Timestamp
+	29, // 0: aeroarc.conformance.v1.ListConformanceEventsRequest.from:type_name -> google.protobuf.Timestamp
+	29, // 1: aeroarc.conformance.v1.ListConformanceEventsRequest.until:type_name -> google.protobuf.Timestamp
 	6,  // 2: aeroarc.conformance.v1.ConformanceHistoryEvent.violation_type:type_name -> aeroarc.conformance.v1.ViolationType
-	27, // 3: aeroarc.conformance.v1.ConformanceHistoryEvent.observed_at:type_name -> google.protobuf.Timestamp
-	27, // 4: aeroarc.conformance.v1.ConformanceHistoryEvent.planned_start_at:type_name -> google.protobuf.Timestamp
-	27, // 5: aeroarc.conformance.v1.ConformanceHistoryEvent.planned_end_at:type_name -> google.protobuf.Timestamp
+	29, // 3: aeroarc.conformance.v1.ConformanceHistoryEvent.observed_at:type_name -> google.protobuf.Timestamp
+	29, // 4: aeroarc.conformance.v1.ConformanceHistoryEvent.planned_start_at:type_name -> google.protobuf.Timestamp
+	29, // 5: aeroarc.conformance.v1.ConformanceHistoryEvent.planned_end_at:type_name -> google.protobuf.Timestamp
 	9,  // 6: aeroarc.conformance.v1.ListConformanceEventsResponse.events:type_name -> aeroarc.conformance.v1.ConformanceHistoryEvent
 	11, // 7: aeroarc.conformance.v1.ConformanceVolume.polygon:type_name -> aeroarc.conformance.v1.GeographicPoint
 	2,  // 8: aeroarc.conformance.v1.ConformanceVolume.altitude_reference:type_name -> aeroarc.conformance.v1.AltitudeReference
-	27, // 9: aeroarc.conformance.v1.ConformanceVolume.starts_at:type_name -> google.protobuf.Timestamp
-	27, // 10: aeroarc.conformance.v1.ConformanceVolume.ends_at:type_name -> google.protobuf.Timestamp
-	27, // 11: aeroarc.conformance.v1.Assignment.effective_from:type_name -> google.protobuf.Timestamp
-	27, // 12: aeroarc.conformance.v1.Assignment.effective_until:type_name -> google.protobuf.Timestamp
+	29, // 9: aeroarc.conformance.v1.ConformanceVolume.starts_at:type_name -> google.protobuf.Timestamp
+	29, // 10: aeroarc.conformance.v1.ConformanceVolume.ends_at:type_name -> google.protobuf.Timestamp
+	29, // 11: aeroarc.conformance.v1.Assignment.effective_from:type_name -> google.protobuf.Timestamp
+	29, // 12: aeroarc.conformance.v1.Assignment.effective_until:type_name -> google.protobuf.Timestamp
 	12, // 13: aeroarc.conformance.v1.Assignment.volumes:type_name -> aeroarc.conformance.v1.ConformanceVolume
 	13, // 14: aeroarc.conformance.v1.AssignmentRecord.assignment:type_name -> aeroarc.conformance.v1.Assignment
 	1,  // 15: aeroarc.conformance.v1.AssignmentRecord.lifecycle:type_name -> aeroarc.conformance.v1.AssignmentLifecycle
-	27, // 16: aeroarc.conformance.v1.AssignmentRecord.authority_from:type_name -> google.protobuf.Timestamp
-	27, // 17: aeroarc.conformance.v1.AssignmentRecord.authority_until:type_name -> google.protobuf.Timestamp
-	27, // 18: aeroarc.conformance.v1.AssignmentRecord.prepared_at:type_name -> google.protobuf.Timestamp
-	27, // 19: aeroarc.conformance.v1.AssignmentRecord.armed_at:type_name -> google.protobuf.Timestamp
-	27, // 20: aeroarc.conformance.v1.AssignmentRecord.cutover_at:type_name -> google.protobuf.Timestamp
+	29, // 16: aeroarc.conformance.v1.AssignmentRecord.authority_from:type_name -> google.protobuf.Timestamp
+	29, // 17: aeroarc.conformance.v1.AssignmentRecord.authority_until:type_name -> google.protobuf.Timestamp
+	29, // 18: aeroarc.conformance.v1.AssignmentRecord.prepared_at:type_name -> google.protobuf.Timestamp
+	29, // 19: aeroarc.conformance.v1.AssignmentRecord.armed_at:type_name -> google.protobuf.Timestamp
+	29, // 20: aeroarc.conformance.v1.AssignmentRecord.cutover_at:type_name -> google.protobuf.Timestamp
 	13, // 21: aeroarc.conformance.v1.PrepareAssignmentRequest.assignment:type_name -> aeroarc.conformance.v1.Assignment
-	27, // 22: aeroarc.conformance.v1.CutoverAssignmentRequest.effective_at:type_name -> google.protobuf.Timestamp
+	29, // 22: aeroarc.conformance.v1.CutoverAssignmentRequest.effective_at:type_name -> google.protobuf.Timestamp
 	0,  // 23: aeroarc.conformance.v1.PrepareAssignmentResponse.disposition:type_name -> aeroarc.conformance.v1.AssignmentCommandDisposition
 	14, // 24: aeroarc.conformance.v1.PrepareAssignmentResponse.assignment:type_name -> aeroarc.conformance.v1.AssignmentRecord
 	0,  // 25: aeroarc.conformance.v1.ArmAssignmentResponse.disposition:type_name -> aeroarc.conformance.v1.AssignmentCommandDisposition
@@ -2268,30 +2452,34 @@ var file_aeroarc_conformance_v1_conformance_proto_depIdxs = []int32{
 	14, // 31: aeroarc.conformance.v1.GetAssignmentResponse.assignment:type_name -> aeroarc.conformance.v1.AssignmentRecord
 	6,  // 32: aeroarc.conformance.v1.ViolationSummary.violation_type:type_name -> aeroarc.conformance.v1.ViolationType
 	7,  // 33: aeroarc.conformance.v1.ViolationSummary.phase:type_name -> aeroarc.conformance.v1.IncidentPhase
-	27, // 34: aeroarc.conformance.v1.ViolationSummary.opened_at:type_name -> google.protobuf.Timestamp
-	27, // 35: aeroarc.conformance.v1.ViolationSummary.last_observed_at:type_name -> google.protobuf.Timestamp
+	29, // 34: aeroarc.conformance.v1.ViolationSummary.opened_at:type_name -> google.protobuf.Timestamp
+	29, // 35: aeroarc.conformance.v1.ViolationSummary.last_observed_at:type_name -> google.protobuf.Timestamp
 	3,  // 36: aeroarc.conformance.v1.ConformanceSummary.condition:type_name -> aeroarc.conformance.v1.ConformanceCondition
 	4,  // 37: aeroarc.conformance.v1.ConformanceSummary.monitoring_status:type_name -> aeroarc.conformance.v1.MonitoringStatus
 	5,  // 38: aeroarc.conformance.v1.ConformanceSummary.recording_status:type_name -> aeroarc.conformance.v1.RecordingStatus
-	27, // 39: aeroarc.conformance.v1.ConformanceSummary.observed_at:type_name -> google.protobuf.Timestamp
+	29, // 39: aeroarc.conformance.v1.ConformanceSummary.observed_at:type_name -> google.protobuf.Timestamp
 	25, // 40: aeroarc.conformance.v1.ConformanceSummary.violations:type_name -> aeroarc.conformance.v1.ViolationSummary
-	15, // 41: aeroarc.conformance.v1.ConformanceService.PrepareAssignment:input_type -> aeroarc.conformance.v1.PrepareAssignmentRequest
-	16, // 42: aeroarc.conformance.v1.ConformanceService.ArmAssignment:input_type -> aeroarc.conformance.v1.ArmAssignmentRequest
-	17, // 43: aeroarc.conformance.v1.ConformanceService.CancelAssignmentCandidate:input_type -> aeroarc.conformance.v1.CancelAssignmentCandidateRequest
-	18, // 44: aeroarc.conformance.v1.ConformanceService.CutoverAssignment:input_type -> aeroarc.conformance.v1.CutoverAssignmentRequest
-	23, // 45: aeroarc.conformance.v1.ConformanceService.GetAssignment:input_type -> aeroarc.conformance.v1.GetAssignmentRequest
-	8,  // 46: aeroarc.conformance.v1.ConformanceService.ListConformanceEvents:input_type -> aeroarc.conformance.v1.ListConformanceEventsRequest
-	19, // 47: aeroarc.conformance.v1.ConformanceService.PrepareAssignment:output_type -> aeroarc.conformance.v1.PrepareAssignmentResponse
-	20, // 48: aeroarc.conformance.v1.ConformanceService.ArmAssignment:output_type -> aeroarc.conformance.v1.ArmAssignmentResponse
-	21, // 49: aeroarc.conformance.v1.ConformanceService.CancelAssignmentCandidate:output_type -> aeroarc.conformance.v1.CancelAssignmentCandidateResponse
-	22, // 50: aeroarc.conformance.v1.ConformanceService.CutoverAssignment:output_type -> aeroarc.conformance.v1.CutoverAssignmentResponse
-	24, // 51: aeroarc.conformance.v1.ConformanceService.GetAssignment:output_type -> aeroarc.conformance.v1.GetAssignmentResponse
-	10, // 52: aeroarc.conformance.v1.ConformanceService.ListConformanceEvents:output_type -> aeroarc.conformance.v1.ListConformanceEventsResponse
-	47, // [47:53] is the sub-list for method output_type
-	41, // [41:47] is the sub-list for method input_type
-	41, // [41:41] is the sub-list for extension type_name
-	41, // [41:41] is the sub-list for extension extendee
-	0,  // [0:41] is the sub-list for field type_name
+	29, // 41: aeroarc.conformance.v1.EndAssignmentRequest.flight_completed_at:type_name -> google.protobuf.Timestamp
+	14, // 42: aeroarc.conformance.v1.EndAssignmentResponse.record:type_name -> aeroarc.conformance.v1.AssignmentRecord
+	27, // 43: aeroarc.conformance.v1.ConformanceService.EndAssignment:input_type -> aeroarc.conformance.v1.EndAssignmentRequest
+	15, // 44: aeroarc.conformance.v1.ConformanceService.PrepareAssignment:input_type -> aeroarc.conformance.v1.PrepareAssignmentRequest
+	16, // 45: aeroarc.conformance.v1.ConformanceService.ArmAssignment:input_type -> aeroarc.conformance.v1.ArmAssignmentRequest
+	17, // 46: aeroarc.conformance.v1.ConformanceService.CancelAssignmentCandidate:input_type -> aeroarc.conformance.v1.CancelAssignmentCandidateRequest
+	18, // 47: aeroarc.conformance.v1.ConformanceService.CutoverAssignment:input_type -> aeroarc.conformance.v1.CutoverAssignmentRequest
+	23, // 48: aeroarc.conformance.v1.ConformanceService.GetAssignment:input_type -> aeroarc.conformance.v1.GetAssignmentRequest
+	8,  // 49: aeroarc.conformance.v1.ConformanceService.ListConformanceEvents:input_type -> aeroarc.conformance.v1.ListConformanceEventsRequest
+	28, // 50: aeroarc.conformance.v1.ConformanceService.EndAssignment:output_type -> aeroarc.conformance.v1.EndAssignmentResponse
+	19, // 51: aeroarc.conformance.v1.ConformanceService.PrepareAssignment:output_type -> aeroarc.conformance.v1.PrepareAssignmentResponse
+	20, // 52: aeroarc.conformance.v1.ConformanceService.ArmAssignment:output_type -> aeroarc.conformance.v1.ArmAssignmentResponse
+	21, // 53: aeroarc.conformance.v1.ConformanceService.CancelAssignmentCandidate:output_type -> aeroarc.conformance.v1.CancelAssignmentCandidateResponse
+	22, // 54: aeroarc.conformance.v1.ConformanceService.CutoverAssignment:output_type -> aeroarc.conformance.v1.CutoverAssignmentResponse
+	24, // 55: aeroarc.conformance.v1.ConformanceService.GetAssignment:output_type -> aeroarc.conformance.v1.GetAssignmentResponse
+	10, // 56: aeroarc.conformance.v1.ConformanceService.ListConformanceEvents:output_type -> aeroarc.conformance.v1.ListConformanceEventsResponse
+	50, // [50:57] is the sub-list for method output_type
+	43, // [43:50] is the sub-list for method input_type
+	43, // [43:43] is the sub-list for extension type_name
+	43, // [43:43] is the sub-list for extension extendee
+	0,  // [0:43] is the sub-list for field type_name
 }
 
 func init() { file_aeroarc_conformance_v1_conformance_proto_init() }
@@ -2306,7 +2494,7 @@ func file_aeroarc_conformance_v1_conformance_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_aeroarc_conformance_v1_conformance_proto_rawDesc), len(file_aeroarc_conformance_v1_conformance_proto_rawDesc)),
 			NumEnums:      8,
-			NumMessages:   19,
+			NumMessages:   21,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
