@@ -17,7 +17,14 @@ import (
 // integer millisecond timestamps, IEEE float32 bits, and domain prefix are fixed.
 // The command ID, transport routing, digest field, and attempt metadata are not
 // digest inputs. Agent identity is an immutable target, not Relay placement.
-// Unsupported fields and nonfinite numbers are rejected rather than ignored.
+// Parameters: c supplies immutable command authority and exactly one supported
+// execution variant; canonical version 1 is independent of protobuf serialization.
+// Returns lowercase hexadecimal SHA-256 on success, or an empty string and error
+// for missing/mismatched authority, invalid UTF-8, non-positive issuance or expiry
+// outside the five-minute window, unknown fields, nonfinite/negative-zero numeric
+// values, unsupported capability/recovery combinations, or inconsistent mission
+// bindings and noncanonical mission content. Validation failures must not be
+// ignored by other runtimes implementing this version of the digest contract.
 func Digest(c *pb.DurableCommand) (string, error) {
 	if c == nil || c.OperatorId == "" || c.AircraftId == "" || c.AgentId == "" || c.Definition == "" || c.DefinitionVersion == 0 || c.Context == nil || c.Context.AircraftId != c.AircraftId || c.Context.FlightId == "" || c.Context.IntentId == "" || c.Context.IntentVersion == 0 || c.IssuedAtUnixMs <= 0 || c.ExpiresAtUnixMs <= c.IssuedAtUnixMs || c.ExpiresAtUnixMs-c.IssuedAtUnixMs > 300000 || (c.RecoveryPolicy != "no_repeat_effect_v1" && c.RecoveryPolicy != "mission_readback_v1") {
 		return "", fmt.Errorf("invalid command authority or recovery policy")
