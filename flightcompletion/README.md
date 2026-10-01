@@ -35,7 +35,7 @@ Nested OperationContext uses the same rules: flight_id (1, string), intent_id
 (2, string), intent_version (3, uint32), aircraft_id (4, string).
 
 The literal golden vector in `evidence_test.go` is independently encoded and
-covers multi-byte integer and length varints. These bytes preserve receipts
+covers multi-byte integer varints and nested length prefixes. These bytes preserve receipts
 already produced by the Go implementation for known-field, valid evidence.
 The separate runtime comparison test protects that compatibility; it does not
 define canonical encoding.
