@@ -164,7 +164,11 @@ message ExecuteCommandResponse {
   aeroarc.agent.v1.CommandEvidence evidence = 1;
 }
 
-message ListFlightCompletionsRequest { uint32 limit = 1; }
+message ListFlightCompletionsRequest {
+  // Maximum events to return: 1..200. Zero selects the default of 100.
+  // Values above 200 must be rejected with INVALID_ARGUMENT before storage reads.
+  uint32 limit = 1;
+}
 message ListFlightCompletionsResponse { repeated aeroarc.agent.v1.FlightCompletionEvidence events = 1; }
 message AckFlightCompletionsRequest { repeated aeroarc.agent.v1.FlightCompletionReceipt receipts = 1; }
 message AckFlightCompletionsResponse {}

@@ -923,8 +923,10 @@ func (x *ExecuteCommandResponse) GetEvidence() *v1.CommandEvidence {
 }
 
 type ListFlightCompletionsRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Limit         uint32                 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// Maximum events to return: 1..200. Zero selects the default of 100.
+	// Values above 200 must be rejected with INVALID_ARGUMENT before storage reads.
+	Limit         uint32 `protobuf:"varint,1,opt,name=limit,proto3" json:"limit,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
