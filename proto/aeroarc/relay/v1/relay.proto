@@ -170,5 +170,9 @@ message ListFlightCompletionsRequest {
   uint32 limit = 1;
 }
 message ListFlightCompletionsResponse { repeated aeroarc.agent.v1.FlightCompletionEvidence events = 1; }
-message AckFlightCompletionsRequest { repeated aeroarc.agent.v1.FlightCompletionReceipt receipts = 1; }
+message AckFlightCompletionsRequest {
+  // At most 200 receipts. Oversized batches must be rejected with
+  // INVALID_ARGUMENT before storage access. Empty batches are a no-op.
+  repeated aeroarc.agent.v1.FlightCompletionReceipt receipts = 1;
+}
 message AckFlightCompletionsResponse {}

@@ -1013,7 +1013,9 @@ func (x *ListFlightCompletionsResponse) GetEvents() []*v1.FlightCompletionEviden
 }
 
 type AckFlightCompletionsRequest struct {
-	state         protoimpl.MessageState        `protogen:"open.v1"`
+	state protoimpl.MessageState `protogen:"open.v1"`
+	// At most 200 receipts. Oversized batches must be rejected with
+	// INVALID_ARGUMENT before storage access. Empty batches are a no-op.
 	Receipts      []*v1.FlightCompletionReceipt `protobuf:"bytes,1,rep,name=receipts,proto3" json:"receipts,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
