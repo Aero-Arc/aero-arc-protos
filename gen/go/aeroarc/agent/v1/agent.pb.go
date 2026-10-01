@@ -2597,7 +2597,10 @@ func (x *FlightCompletionEvidence) GetObservationEpoch() string {
 }
 
 // FlightCompletionReceipt acknowledges a durable Relay inbox record, not API
-// finalization. The digest binds the receipt to the exact immutable payload.
+// finalization. payload_sha256 uses the runtime-independent version-1 canonical
+// wire encoding specified in flightcompletion/README.md: known fields in numeric
+// order, minimal varints, exact UTF-8 strings, canonical nested context, no unknown
+// fields. It is lowercase SHA-256 of those bytes, not arbitrary protobuf output.
 type FlightCompletionReceipt struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	EventId       string                 `protobuf:"bytes,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
