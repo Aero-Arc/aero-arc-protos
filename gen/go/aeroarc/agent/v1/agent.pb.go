@@ -2358,13 +2358,30 @@ func (x *CommandEvidence) GetDeliveryComplete() bool {
 // CommandEvent records source occurrence separately from server receipt time.
 // Event IDs are stable across retries. observed never substitutes for applied.
 type CommandEvent struct {
-	state            protoimpl.MessageState `protogen:"open.v1"`
-	EventId          string                 `protobuf:"bytes,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
-	Stage            string                 `protobuf:"bytes,2,opt,name=stage,proto3" json:"stage,omitempty"`
-	OccurredAtUnixMs int64                  `protobuf:"varint,3,opt,name=occurred_at_unix_ms,json=occurredAtUnixMs,proto3" json:"occurred_at_unix_ms,omitempty"`
-	Message          string                 `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
-	EvidenceSource   string                 `protobuf:"bytes,5,opt,name=evidence_source,json=evidenceSource,proto3" json:"evidence_source,omitempty"`
-	ProtocolResult   *uint32                `protobuf:"varint,6,opt,name=protocol_result,json=protocolResult,proto3,oneof" json:"protocol_result,omitempty"`
+	state   protoimpl.MessageState `protogen:"open.v1"`
+	EventId string                 `protobuf:"bytes,1,opt,name=event_id,json=eventId,proto3" json:"event_id,omitempty"`
+	// Canonical lowercase stage values (independent evidence, not a total order):
+	// requested: API received a request; authorized: its policy allowed it;
+	// accepted: API command/audit/outbox transaction committed;
+	// relay_received: Relay admitted this attempt; dispatched: handed to Agent transport;
+	// acknowledged: Agent durably admitted the command, not autopilot application;
+	// verifying_mission: onboard mission verification is in progress;
+	// awaiting_ack: awaiting the correlated autopilot protocol result;
+	// applied: autopilot accepted the action (or mission readback verified upload);
+	// observed: fresh authoritative vehicle evidence satisfies the resulting-state predicate;
+	// observation_unavailable: no authoritative predicate or target attribution exists;
+	// observation_superseded: a newer effect prevents attributing resulting state;
+	// rejected: definitive refusal/no first effect; failed: definitive execution failure;
+	// timed_out: first-effect authority expired before execution;
+	// delivery_unknown: a delivery attempt lacks authoritative execution outcome;
+	// outcome_unknown: an effect may have started, so automatic repetition is prohibited.
+	// Applied and observed are independent: observation never fabricates an ACK.
+	// Unknown future values may be retained for audit but must not advance projections.
+	Stage            string  `protobuf:"bytes,2,opt,name=stage,proto3" json:"stage,omitempty"`
+	OccurredAtUnixMs int64   `protobuf:"varint,3,opt,name=occurred_at_unix_ms,json=occurredAtUnixMs,proto3" json:"occurred_at_unix_ms,omitempty"`
+	Message          string  `protobuf:"bytes,4,opt,name=message,proto3" json:"message,omitempty"`
+	EvidenceSource   string  `protobuf:"bytes,5,opt,name=evidence_source,json=evidenceSource,proto3" json:"evidence_source,omitempty"`
+	ProtocolResult   *uint32 `protobuf:"varint,6,opt,name=protocol_result,json=protocolResult,proto3,oneof" json:"protocol_result,omitempty"`
 	unknownFields    protoimpl.UnknownFields
 	sizeCache        protoimpl.SizeCache
 }
