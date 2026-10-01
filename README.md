@@ -97,9 +97,13 @@ modifies an operational volume.
 
 The first contract slice carries a schema-versioned `MissionPlan` containing 1
 to 200 canonical `MissionItem` records. Schema version 1 allows only
-`MAV_FRAME_GLOBAL` (0), `MAV_CMD_NAV_WAYPOINT` (16), terminal
-`MAV_CMD_NAV_RETURN_TO_LAUNCH` (20), `MAV_CMD_NAV_LAND` (21),
-and `MAV_CMD_NAV_TAKEOFF` (22). Sequence numbers are contiguous from zero,
+`MAV_FRAME_GLOBAL` (0), `MAV_CMD_NAV_WAYPOINT` (16), `MAV_CMD_NAV_LAND` (21),
+and `MAV_CMD_NAV_TAKEOFF` (22). The `mission_rtl_v1` capability additionally
+allows `MAV_CMD_NAV_RETURN_TO_LAUNCH` (20) as the final item only. Producers
+and dispatchers must require that capability before using RTL; the schema
+version alone does not grant support. RTL uses frame 0, positive-zero
+parameters 1–4 and altitude, and zero latitude/longitude. Its path depends on
+autopilot HOME/RTL settings. Sequence numbers are contiguous from zero,
 `autocontinue` is true, coordinates use signed degrees times 1e7, and unknown
 fields are rejected. Canonical items exclude autopilot HOME entries and Mission
 Planner/QGC export metadata. `MissionItem.current` is reserved and must be false
@@ -117,10 +121,8 @@ sequence zero, reassign the remaining operational items contiguous canonical
 sequences from zero, discard the dynamic current marker, and force `current` to
 false before validation or canonical digest calculation.
 Parameters 1–3 use positive zero. Parameter 4 uses positive zero for waypoint
-and takeoff, but exactly `+1` for land, matching ArduPilot's stable
-stored/readback form. RTL is terminal-only and uses positive zero for all
-parameters, altitude and coordinates; its path depends on autopilot HOME/RTL
-settings. Altitude is encoded as protobuf `float` so the canonical
+and takeoff (and capability-gated RTL), but exactly `+1` for land, matching ArduPilot's stable
+stored/readback form. Altitude is encoded as protobuf `float` so the canonical
 digest contains the exact float32 value transported by MAVLink; producers must
 also require that it round-trip through ArduPilot's signed centimeter storage.
 That conversion multiplies the float32 altitude by float32 `100`, requires the
