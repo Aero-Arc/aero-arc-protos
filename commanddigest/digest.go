@@ -49,6 +49,9 @@ func Digest(c *pb.DurableCommand) (string, error) {
 		if c.RecoveryPolicy != "no_repeat_effect_v1" || c.Capability != "mavlink_command_v1" || m.Command == 0 || m.Command > 65535 || len(m.Parameters) != 7 || m.Frame > 255 || len(m.ProtoReflect().GetUnknown()) != 0 {
 			return "", fmt.Errorf("unsupported MAVLink envelope")
 		}
+		if (!m.UseCommandInt && (m.Frame != 0 || m.X != 0 || m.Y != 0 || m.Z != 0)) || (m.UseCommandInt && (m.Parameters[4] != 0 || m.Parameters[5] != 0 || m.Parameters[6] != 0)) {
+			return "", fmt.Errorf("unused MAVLink encoding fields must be zero")
+		}
 		for _, p := range m.Parameters {
 			if math.IsNaN(float64(p)) || math.IsInf(float64(p), 0) || (p == 0 && math.Signbit(float64(p))) {
 				return "", fmt.Errorf("parameters must be finite canonical float32")
@@ -60,7 +63,7 @@ func Digest(c *pb.DurableCommand) (string, error) {
 		}
 		w.Profile = m.VehicleProfile
 		if m.MissionPrecondition != nil {
-			digest, err := missiondigest.Digest(m.MissionPrecondition)
+			digest, err := validatedMissionDigest(m.MissionPrecondition)
 			if err != nil {
 				return "", err
 			}
@@ -86,10 +89,10 @@ func Digest(c *pb.DurableCommand) (string, error) {
 			return "", fmt.Errorf("invalid mission envelope")
 		}
 		b := m.Binding
-		if b.OperatorId != c.OperatorId || b.AircraftId != c.AircraftId || b.FlightId != w.Flight || b.IntentId != w.Intent || b.IntentVersion != w.IntentVersion || m.IssuedAtUnixMs != c.IssuedAtUnixMs || m.ExpiresAtUnixMs != c.ExpiresAtUnixMs {
+		if b.MissionId == "" || b.DeploymentId == "" || b.MissionVersion == 0 || m.CommandId == "" || b.OperatorId != c.OperatorId || b.AircraftId != c.AircraftId || b.FlightId != w.Flight || b.IntentId != w.Intent || b.IntentVersion != w.IntentVersion || m.IssuedAtUnixMs != c.IssuedAtUnixMs || m.ExpiresAtUnixMs != c.ExpiresAtUnixMs {
 			return "", fmt.Errorf("mission binding mismatch")
 		}
-		digest, err := missiondigest.Digest(m.Plan)
+		digest, err := validatedMissionDigest(m.Plan)
 		if err != nil {
 			return "", err
 		}
@@ -133,4 +136,39 @@ func Digest(c *pb.DurableCommand) (string, error) {
 	}
 	sum := sha256.Sum256(data)
 	return hex.EncodeToString(sum[:]), nil
+}
+
+// validatedMissionDigest enforces schema-one adapter semantics before hashing.
+// missiondigest itself deliberately remains a structural cross-runtime encoder.
+func validatedMissionDigest(plan *pb.MissionPlan) (string, error) {
+	digest, err := missiondigest.Digest(plan)
+	if err != nil {
+		return "", err
+	}
+	zero := func(v float64) bool { return v == 0 && !math.Signbit(v) }
+	for i, item := range plan.Items {
+		if item.Sequence != uint32(i) || item.Frame != 0 || item.Current || !item.Autocontinue {
+			return "", fmt.Errorf("invalid mission item sequence, frame or flags at %d", i)
+		}
+		switch item.Command {
+		case 16, 20, 21, 22:
+		default:
+			return "", fmt.Errorf("unsupported mission command at %d", i)
+		}
+		if item.Command == 20 && (i != len(plan.Items)-1 || item.LatitudeE7 != 0 || item.LongitudeE7 != 0 || item.AltitudeM != 0) {
+			return "", fmt.Errorf("RTL must be terminal with zero coordinates")
+		}
+		if !zero(item.Param1) || !zero(item.Param2) || !zero(item.Param3) || (item.Command == 21 && item.Param4 != 1) || (item.Command != 21 && !zero(item.Param4)) {
+			return "", fmt.Errorf("noncanonical mission parameters at %d", i)
+		}
+		altitude := float64(item.AltitudeM)
+		if math.IsNaN(altitude) || math.IsInf(altitude, 0) || (altitude == 0 && math.Signbit(altitude)) || item.LatitudeE7 < -900000000 || item.LatitudeE7 > 900000000 || item.LongitudeE7 < -1800000000 || item.LongitudeE7 > 1800000000 {
+			return "", fmt.Errorf("invalid mission coordinates at %d", i)
+		}
+		cm := item.AltitudeM * 100
+		if float64(cm) < math.MinInt32 || float64(cm) > math.MaxInt32 || math.Float32bits(float32(int32(cm))/100) != math.Float32bits(item.AltitudeM) {
+			return "", fmt.Errorf("mission altitude does not round-trip through centimeter storage at %d", i)
+		}
+	}
+	return digest, nil
 }

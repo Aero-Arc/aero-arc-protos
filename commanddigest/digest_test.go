@@ -1,6 +1,8 @@
 package commanddigest
 
 import (
+	"fmt"
+	"github.com/aero-arc/aero-arc-protos/missiondigest"
 	"math"
 	"testing"
 
@@ -47,5 +49,56 @@ func TestDigestRejectsAmbiguousOrUnknownPayload(t *testing.T) {
 				t.Fatal("invalid canonical command accepted")
 			}
 		})
+	}
+}
+
+func TestUnusedMAVLinkFieldsAreRejected(t *testing.T) {
+	for _, change := range []func(*pb.MavlinkExecution){func(m *pb.MavlinkExecution) { m.X = 1 }, func(m *pb.MavlinkExecution) { m.Y = 1 }, func(m *pb.MavlinkExecution) { m.Z = 1 }, func(m *pb.MavlinkExecution) { m.Frame = 1 }, func(m *pb.MavlinkExecution) { m.UseCommandInt = true; m.Parameters[4] = 1 }} {
+		c := sample()
+		change(c.GetMavlink())
+		if _, err := Digest(c); err == nil {
+			t.Fatal("unused fields accepted")
+		}
+	}
+}
+func TestMissionSemanticsAndBindingsAreValidated(t *testing.T) {
+	plan := &pb.MissionPlan{SchemaVersion: 1, Items: []*pb.MissionItem{{Command: 21, Autocontinue: true, Param4: 1}}}
+	for _, precondition := range []bool{false, true} {
+		for name, change := range map[string]func(*pb.MissionItem){"sequence": func(i *pb.MissionItem) { i.Sequence = 2 }, "frame": func(i *pb.MissionItem) { i.Frame = 3 }, "command": func(i *pb.MissionItem) { i.Command = 99 }, "autocontinue": func(i *pb.MissionItem) { i.Autocontinue = false }, "current": func(i *pb.MissionItem) { i.Current = true }, "latitude": func(i *pb.MissionItem) { i.LatitudeE7 = 900000001 }, "parameter": func(i *pb.MissionItem) { i.Param1 = math.NaN() }, "negativezero": func(i *pb.MissionItem) { i.Param2 = math.Copysign(0, -1) }, "altitude": func(i *pb.MissionItem) { i.AltitudeM = 16.8 }} {
+			t.Run(fmt.Sprintf("%t/%s", precondition, name), func(t *testing.T) {
+				p := proto.Clone(plan).(*pb.MissionPlan)
+				change(p.Items[0])
+				digest, _ := missiondigest.Digest(p)
+				c := sample()
+				if precondition {
+					m := c.GetMavlink()
+					m.MissionPrecondition = p
+					m.MissionPreconditionId = "mission"
+					m.MissionPreconditionVersion = 1
+				} else {
+					c.Capability = "mission_upload_v1"
+					c.RecoveryPolicy = "mission_readback_v1"
+					c.Execution = &pb.DurableCommand_Mission{Mission: &pb.DeployMissionCommand{CommandId: "deploy-command", Binding: &pb.MissionBinding{OperatorId: c.OperatorId, AircraftId: c.AircraftId, FlightId: c.Context.FlightId, IntentId: c.Context.IntentId, IntentVersion: 1, MissionId: "mission", MissionVersion: 1, DeploymentId: "deployment", MissionDigest: digest}, Plan: p, IssuedAtUnixMs: c.IssuedAtUnixMs, ExpiresAtUnixMs: c.ExpiresAtUnixMs}}
+				}
+				if _, err := Digest(c); err == nil {
+					t.Fatal("invalid mission semantics accepted")
+				}
+			})
+		}
+	}
+	digest, _ := missiondigest.Digest(plan)
+	c := sample()
+	c.Capability = "mission_upload_v1"
+	c.RecoveryPolicy = "mission_readback_v1"
+	c.Execution = &pb.DurableCommand_Mission{Mission: &pb.DeployMissionCommand{CommandId: "deploy-command", Binding: &pb.MissionBinding{OperatorId: c.OperatorId, AircraftId: c.AircraftId, FlightId: c.Context.FlightId, IntentId: c.Context.IntentId, IntentVersion: 1, MissionId: "mission", MissionVersion: 1, DeploymentId: "deployment", MissionDigest: digest}, Plan: plan, IssuedAtUnixMs: c.IssuedAtUnixMs, ExpiresAtUnixMs: c.ExpiresAtUnixMs}}
+	if _, err := Digest(c); err != nil {
+		t.Fatal(err)
+	}
+	for _, change := range []func(*pb.MissionBinding){func(b *pb.MissionBinding) { b.MissionId = "" }, func(b *pb.MissionBinding) { b.DeploymentId = "" }, func(b *pb.MissionBinding) { b.MissionVersion = 0 }} {
+		broken := proto.Clone(c).(*pb.DurableCommand)
+		change(broken.GetMission().Binding)
+		if _, err := Digest(broken); err == nil {
+			t.Fatal("incomplete mission identity accepted")
+		}
 	}
 }
