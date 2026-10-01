@@ -48,7 +48,8 @@ type RelayControlClient interface {
 	// Exchange a durable command for replayable Agent evidence.
 	ExchangeCommand(ctx context.Context, in *ExchangeCommandRequest, opts ...grpc.CallOption) (*ExchangeCommandResponse, error)
 	// ExecuteCommand delivers once and streams cumulative durable Agent evidence.
-	// Reconnect with the same identity to recover; stream loss proves no outcome.
+	// Stream loss does not prove any execution outcome. Reconnect with the same
+	// command identity to recover durable evidence; never infer non-execution.
 	ExecuteCommand(ctx context.Context, in *ExecuteCommandRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ExecuteCommandResponse], error)
 	// List all drones currently connected to this relay.
 	ListActiveDrones(ctx context.Context, in *ListActiveDronesRequest, opts ...grpc.CallOption) (*ListActiveDronesResponse, error)
@@ -200,7 +201,8 @@ type RelayControlServer interface {
 	// Exchange a durable command for replayable Agent evidence.
 	ExchangeCommand(context.Context, *ExchangeCommandRequest) (*ExchangeCommandResponse, error)
 	// ExecuteCommand delivers once and streams cumulative durable Agent evidence.
-	// Reconnect with the same identity to recover; stream loss proves no outcome.
+	// Stream loss does not prove any execution outcome. Reconnect with the same
+	// command identity to recover durable evidence; never infer non-execution.
 	ExecuteCommand(*ExecuteCommandRequest, grpc.ServerStreamingServer[ExecuteCommandResponse]) error
 	// List all drones currently connected to this relay.
 	ListActiveDrones(context.Context, *ListActiveDronesRequest) (*ListActiveDronesResponse, error)

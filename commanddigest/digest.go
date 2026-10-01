@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"fmt"
 	"math"
+	"unicode/utf8"
 
 	pb "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/agent/v1"
 	"github.com/aero-arc/aero-arc-protos/missiondigest"
@@ -107,12 +108,18 @@ func Digest(c *pb.DurableCommand) (string, error) {
 	} else {
 		return "", fmt.Errorf("execution required")
 	}
+	if !utf8.ValidString(c.CommandId) || !utf8.ValidString(c.CommandDigest) {
+		return "", fmt.Errorf("command identity must be UTF-8")
+	}
 	data := []byte("aeroarc-command-v1\x00")
 	// Strings use UTF-8 byte lengths; integers are fixed-width network byte order.
 	// Float values above were converted to IEEE-754 float32 bit patterns.
 	for _, value := range []any{w.Operator, w.Aircraft, w.Agent, w.Flight, w.Intent, w.IntentVersion, w.Definition, w.Version, w.Capability, w.Issued, w.Expires, w.Recovery, w.Command, w.Parameters, w.Int, w.Frame, w.X, w.Y, w.Z, w.Profile, w.Observation, w.Mode, w.MissionDigest, w.MissionID, w.DeploymentID, w.MissionCommandID, w.MissionVersion} {
 		switch v := value.(type) {
 		case string:
+			if !utf8.ValidString(v) {
+				return "", fmt.Errorf("command strings must be UTF-8")
+			}
 			data = binary.BigEndian.AppendUint32(data, uint32(len(v)))
 			data = append(data, []byte(v)...)
 		case uint32:

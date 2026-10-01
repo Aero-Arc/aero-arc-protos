@@ -118,3 +118,19 @@ func TestMissionAltitudeUsesArduPilotFloat32Readback(t *testing.T) {
 		}
 	}
 }
+
+func TestRejectsInvalidUTF8CommandStrings(t *testing.T) {
+	for _, mutate := range []func(*pb.DurableCommand){
+		func(c *pb.DurableCommand) { c.CommandId = "bad\xff" },
+		func(c *pb.DurableCommand) { c.CommandDigest = "bad\xff" },
+		func(c *pb.DurableCommand) { c.OperatorId = "bad\xff" },
+		func(c *pb.DurableCommand) { c.Context.FlightId = "bad\xff" },
+		func(c *pb.DurableCommand) { c.GetMavlink().VehicleProfile = "bad\xff" },
+	} {
+		c := sample()
+		mutate(c)
+		if _, err := Digest(c); err == nil {
+			t.Fatal("invalid UTF-8 command accepted")
+		}
+	}
+}
