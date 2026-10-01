@@ -6,9 +6,11 @@ import (
 	"encoding/hex"
 	"fmt"
 	pb "github.com/aero-arc/aero-arc-protos/gen/go/aeroarc/agent/v1"
+	"google.golang.org/protobuf/encoding/protowire"
 	"google.golang.org/protobuf/proto"
 	"strings"
 	"time"
+	"unicode/utf8"
 )
 
 // Validate checks binding and the capture-time evidence sequence. Delivery may
@@ -37,10 +39,16 @@ func Validate(e *pb.FlightCompletionEvidence) error {
 	if delta > int64(5*time.Second) || delta < -int64(5*time.Second) {
 		return fmt.Errorf("landed and disarmed observations are not contemporaneous")
 	}
+	if len(e.ProtoReflect().GetUnknown()) != 0 || len(e.Context.ProtoReflect().GetUnknown()) != 0 {
+		return fmt.Errorf("unknown completion fields are not canonical")
+	}
 	if proto.Size(e) > 4096 {
 		return fmt.Errorf("completion evidence exceeds 4096-byte limit")
 	}
 	for _, id := range []string{e.EventId, e.AgentId, e.Context.FlightId, e.Context.AircraftId, e.Context.IntentId, e.MissionId, e.StartCommandId, e.ObservationEpoch} {
+		if !utf8.ValidString(id) {
+			return fmt.Errorf("completion identity is not UTF-8")
+		}
 		if len(id) > 128 {
 			return fmt.Errorf("completion identity too long")
 		}
@@ -48,21 +56,53 @@ func Validate(e *pb.FlightCompletionEvidence) error {
 	return nil
 }
 
-// Encode returns deterministic payload bytes and a receipt digest after validation.
+// Encode returns canonical version-1 protobuf wire bytes and a receipt digest.
+// The encoding is specified in flightcompletion/README.md independently of any
+// protobuf runtime and retains the bytes produced by the original Go producer
+// for supported, known-field evidence.
 //
-// Parameters: e is the unmodified completion evidence accepted by Validate.
-// Returns: deterministic protobuf bytes, their lowercase SHA-256 digest, and nil
-// on success. Validation or protobuf marshaling failures return nil bytes, an
-// empty digest, and the error; callers must not acknowledge such evidence. The
-// receipt digest binds the encoded event, not just its mission or event identity.
+// Parameters: e is immutable completion evidence with valid UTF-8 identities
+// and no unknown fields, as required by Validate.
+// Returns: canonical bytes, their lowercase SHA-256 digest, and nil on success;
+// invalid evidence returns nil bytes, an empty digest, and a validation error.
+// Callers must not acknowledge invalid evidence. The digest binds every field.
 func Encode(e *pb.FlightCompletionEvidence) ([]byte, string, error) {
 	if err := Validate(e); err != nil {
 		return nil, "", err
 	}
-	raw, err := (proto.MarshalOptions{Deterministic: true}).Marshal(e)
-	if err != nil {
-		return nil, "", err
-	}
+	var context []byte
+	context = appendString(context, 1, e.Context.FlightId)
+	context = appendString(context, 2, e.Context.IntentId)
+	context = appendInteger(context, 3, uint64(e.Context.IntentVersion))
+	context = appendString(context, 4, e.Context.AircraftId)
+	var raw []byte
+	raw = appendString(raw, 1, e.EventId)
+	raw = appendString(raw, 2, e.AgentId)
+	raw = protowire.AppendTag(raw, 3, protowire.BytesType)
+	raw = protowire.AppendBytes(raw, context)
+	raw = appendString(raw, 4, e.MissionId)
+	raw = appendString(raw, 5, e.MissionDigest)
+	raw = appendString(raw, 6, e.StartCommandId)
+	raw = appendString(raw, 7, e.Outcome)
+	raw = appendInteger(raw, 8, uint64(e.AirborneAtUnixNs))
+	raw = appendInteger(raw, 9, uint64(e.TerminalAtUnixNs))
+	raw = appendInteger(raw, 10, uint64(e.LandedAtUnixNs))
+	raw = appendInteger(raw, 11, uint64(e.DisarmedAtUnixNs))
+	raw = appendString(raw, 12, e.ObservationEpoch)
 	h := sha256.Sum256(raw)
 	return raw, hex.EncodeToString(h[:]), nil
+}
+
+func appendString(raw []byte, number protowire.Number, value string) []byte {
+	if value == "" {
+		return raw
+	}
+	return protowire.AppendString(protowire.AppendTag(raw, number, protowire.BytesType), value)
+}
+
+func appendInteger(raw []byte, number protowire.Number, value uint64) []byte {
+	if value == 0 {
+		return raw
+	}
+	return protowire.AppendVarint(protowire.AppendTag(raw, number, protowire.VarintType), value)
 }
