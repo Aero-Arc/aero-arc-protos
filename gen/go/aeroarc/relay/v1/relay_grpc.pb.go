@@ -19,6 +19,8 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
+	RelayControl_ExchangeCommand_FullMethodName       = "/aeroarc.relay.v1.RelayControl/ExchangeCommand"
+	RelayControl_ExecuteCommand_FullMethodName        = "/aeroarc.relay.v1.RelayControl/ExecuteCommand"
 	RelayControl_ListActiveDrones_FullMethodName      = "/aeroarc.relay.v1.RelayControl/ListActiveDrones"
 	RelayControl_GetDroneStatus_FullMethodName        = "/aeroarc.relay.v1.RelayControl/GetDroneStatus"
 	RelayControl_SetOperationContext_FullMethodName   = "/aeroarc.relay.v1.RelayControl/SetOperationContext"
@@ -37,6 +39,12 @@ const (
 // without breaking generated clients.
 // buf:lint:ignore SERVICE_SUFFIX
 type RelayControlClient interface {
+	// Exchange a durable command for replayable Agent evidence.
+	ExchangeCommand(ctx context.Context, in *ExchangeCommandRequest, opts ...grpc.CallOption) (*ExchangeCommandResponse, error)
+	// ExecuteCommand delivers once and streams cumulative durable Agent evidence.
+	// Stream loss does not prove any execution outcome. Reconnect with the same
+	// command identity to recover durable evidence; never infer non-execution.
+	ExecuteCommand(ctx context.Context, in *ExecuteCommandRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ExecuteCommandResponse], error)
 	// List all drones currently connected to this relay.
 	ListActiveDrones(ctx context.Context, in *ListActiveDronesRequest, opts ...grpc.CallOption) (*ListActiveDronesResponse, error)
 	// Get the current status of a single drone by drone_id.
@@ -60,6 +68,35 @@ type relayControlClient struct {
 func NewRelayControlClient(cc grpc.ClientConnInterface) RelayControlClient {
 	return &relayControlClient{cc}
 }
+
+func (c *relayControlClient) ExchangeCommand(ctx context.Context, in *ExchangeCommandRequest, opts ...grpc.CallOption) (*ExchangeCommandResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(ExchangeCommandResponse)
+	err := c.cc.Invoke(ctx, RelayControl_ExchangeCommand_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
+func (c *relayControlClient) ExecuteCommand(ctx context.Context, in *ExecuteCommandRequest, opts ...grpc.CallOption) (grpc.ServerStreamingClient[ExecuteCommandResponse], error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	stream, err := c.cc.NewStream(ctx, &RelayControl_ServiceDesc.Streams[0], RelayControl_ExecuteCommand_FullMethodName, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	x := &grpc.GenericClientStream[ExecuteCommandRequest, ExecuteCommandResponse]{ClientStream: stream}
+	if err := x.ClientStream.SendMsg(in); err != nil {
+		return nil, err
+	}
+	if err := x.ClientStream.CloseSend(); err != nil {
+		return nil, err
+	}
+	return x, nil
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type RelayControl_ExecuteCommandClient = grpc.ServerStreamingClient[ExecuteCommandResponse]
 
 func (c *relayControlClient) ListActiveDrones(ctx context.Context, in *ListActiveDronesRequest, opts ...grpc.CallOption) (*ListActiveDronesResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
@@ -131,6 +168,12 @@ func (c *relayControlClient) DeployMission(ctx context.Context, in *DeployMissio
 // without breaking generated clients.
 // buf:lint:ignore SERVICE_SUFFIX
 type RelayControlServer interface {
+	// Exchange a durable command for replayable Agent evidence.
+	ExchangeCommand(context.Context, *ExchangeCommandRequest) (*ExchangeCommandResponse, error)
+	// ExecuteCommand delivers once and streams cumulative durable Agent evidence.
+	// Stream loss does not prove any execution outcome. Reconnect with the same
+	// command identity to recover durable evidence; never infer non-execution.
+	ExecuteCommand(*ExecuteCommandRequest, grpc.ServerStreamingServer[ExecuteCommandResponse]) error
 	// List all drones currently connected to this relay.
 	ListActiveDrones(context.Context, *ListActiveDronesRequest) (*ListActiveDronesResponse, error)
 	// Get the current status of a single drone by drone_id.
@@ -155,6 +198,12 @@ type RelayControlServer interface {
 // pointer dereference when methods are called.
 type UnimplementedRelayControlServer struct{}
 
+func (UnimplementedRelayControlServer) ExchangeCommand(context.Context, *ExchangeCommandRequest) (*ExchangeCommandResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method ExchangeCommand not implemented")
+}
+func (UnimplementedRelayControlServer) ExecuteCommand(*ExecuteCommandRequest, grpc.ServerStreamingServer[ExecuteCommandResponse]) error {
+	return status.Error(codes.Unimplemented, "method ExecuteCommand not implemented")
+}
 func (UnimplementedRelayControlServer) ListActiveDrones(context.Context, *ListActiveDronesRequest) (*ListActiveDronesResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method ListActiveDrones not implemented")
 }
@@ -193,6 +242,35 @@ func RegisterRelayControlServer(s grpc.ServiceRegistrar, srv RelayControlServer)
 	}
 	s.RegisterService(&RelayControl_ServiceDesc, srv)
 }
+
+func _RelayControl_ExchangeCommand_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(ExchangeCommandRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(RelayControlServer).ExchangeCommand(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: RelayControl_ExchangeCommand_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(RelayControlServer).ExchangeCommand(ctx, req.(*ExchangeCommandRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
+func _RelayControl_ExecuteCommand_Handler(srv interface{}, stream grpc.ServerStream) error {
+	m := new(ExecuteCommandRequest)
+	if err := stream.RecvMsg(m); err != nil {
+		return err
+	}
+	return srv.(RelayControlServer).ExecuteCommand(m, &grpc.GenericServerStream[ExecuteCommandRequest, ExecuteCommandResponse]{ServerStream: stream})
+}
+
+// This type alias is provided for backwards compatibility with existing code that references the prior non-generic stream type by name.
+type RelayControl_ExecuteCommandServer = grpc.ServerStreamingServer[ExecuteCommandResponse]
 
 func _RelayControl_ListActiveDrones_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
 	in := new(ListActiveDronesRequest)
@@ -310,6 +388,10 @@ var RelayControl_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*RelayControlServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
+			MethodName: "ExchangeCommand",
+			Handler:    _RelayControl_ExchangeCommand_Handler,
+		},
+		{
 			MethodName: "ListActiveDrones",
 			Handler:    _RelayControl_ListActiveDrones_Handler,
 		},
@@ -334,6 +416,12 @@ var RelayControl_ServiceDesc = grpc.ServiceDesc{
 			Handler:    _RelayControl_DeployMission_Handler,
 		},
 	},
-	Streams:  []grpc.StreamDesc{},
+	Streams: []grpc.StreamDesc{
+		{
+			StreamName:    "ExecuteCommand",
+			Handler:       _RelayControl_ExecuteCommand_Handler,
+			ServerStreams: true,
+		},
+	},
 	Metadata: "aeroarc/relay/v1/relay.proto",
 }

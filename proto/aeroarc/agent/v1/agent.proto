@@ -26,6 +26,11 @@ message RegisterRequest {
 
   string agent_version = 2;
   string platform = 3; // e.g. "linux/arm64"
+  // mission_rtl_v1 explicitly permits terminal RTL in a schema-one mission or
+  // mission precondition. mission_upload_v1 alone does not imply RTL support.
+  // Relays must gate both deployment and durable command delivery on this
+  // additional capability whenever the canonical plan contains command 20.
+  repeated string execution_capabilities = 4;
 }
 
 message RegisterResponse {
@@ -96,6 +101,7 @@ message AgentStreamMessage {
     OperationContextCommandAck operation_context_command_ack = 2;
     AircraftCommandResult aircraft_command_result = 3;
     MissionDeploymentResult mission_deployment_result = 4;
+    CommandEvidence command_evidence = 5;
   }
 }
 
@@ -108,6 +114,7 @@ message RelayStreamMessage {
     ClearOperationContextCommand clear_operation_context = 3;
     AircraftCommand aircraft_command = 4;
     DeployMissionCommand deploy_mission = 5;
+    DurableCommand durable_command = 6;
   }
 }
 
@@ -167,8 +174,11 @@ message MissionBinding {
 
 // MissionItem is the bounded canonical representation of one MAVLink mission
 // item in the first deployment slice. Schema version 1 allows only
-// MAV_FRAME_GLOBAL (0), and only MAV_CMD_NAV_WAYPOINT (16), MAV_CMD_NAV_LAND
-// (21), and MAV_CMD_NAV_TAKEOFF (22). Producers must require autocontinue=true;
+// MAV_FRAME_GLOBAL (0), and MAV_CMD_NAV_WAYPOINT (16), terminal
+// MAV_CMD_NAV_RETURN_TO_LAUNCH (20), MAV_CMD_NAV_LAND (21), and
+// MAV_CMD_NAV_TAKEOFF (22). RTL requires zero coordinates and altitude; older
+// adapters must not receive it unless they advertise mission_rtl_v1.
+// Producers must require autocontinue=true;
 // require sequence values contiguous from zero; and range-check latitude_e7 to
 // [-900000000, 900000000] and longitude_e7 to [-1800000000, 1800000000]. The
 // current field is reserved and must be false because the autopilot changes it
@@ -176,7 +186,7 @@ message MissionBinding {
 // from autopilot readback must discard that dynamic marker and set current=false
 // before validating or computing the canonical digest. param1, param2, and
 // param3 must be
-// positive zero. param4 must be positive zero for WAYPOINT and TAKEOFF, and
+// positive zero. param4 must be positive zero for WAYPOINT, RTL and TAKEOFF, and
 // exactly +1 for LAND, matching stable ArduPilot readback. altitude_m must be
 // finite, must round-trip through ArduPilot's signed centimeter storage, and is
 // a protobuf float so the digest contains exactly the float32 value transported
@@ -358,4 +368,87 @@ message OperationContextCommandAck {
   Status status = 2;
   string error = 3;
   OperationContext active_context = 4;
+}
+
+// DurableCommand is immutable execution authority. The digest uses commanddigest
+// canonical version 1, not protobuf serialization. Delivery attempts are external.
+message DurableCommand {
+  string command_id = 1;
+  string command_digest = 2;
+  string operator_id = 3;
+  string aircraft_id = 4;
+  string agent_id = 5;
+  OperationContext context = 6;
+  string definition = 7;
+  uint32 definition_version = 8;
+  string capability = 9;
+  // Positive Unix milliseconds. Expiry must be strictly later than issuance
+  // and no more than 300000 ms (five minutes) after issuance.
+  int64 issued_at_unix_ms = 10;
+  int64 expires_at_unix_ms = 11;
+  // First-effect retries are prohibited after a durable effect-start marker.
+  string recovery_policy = 12;
+  oneof execution {
+    MavlinkExecution mavlink = 13;
+    DeployMissionCommand mission = 14;
+  }
+}
+
+// MavlinkExecution describes COMMAND_LONG or COMMAND_INT without per-command
+// protobuf types. Parameters must be finite; unused values are positive zero.
+message MavlinkExecution {
+  uint32 command = 1;
+  repeated float parameters = 2;
+  bool use_command_int = 3;
+  uint32 frame = 4;
+  sint32 x = 5;
+  sint32 y = 6;
+  float z = 7;
+  string observation = 8;
+  uint32 expected_custom_mode = 9;
+  // Exact onboard mission requirement, checked by readback before effect.
+  MissionPlan mission_precondition = 10;
+  string mission_precondition_id = 11;
+  uint32 mission_precondition_version = 12;
+  string vehicle_profile = 13;
+}
+
+// CommandEvidence is a replayable snapshot of immutable lifecycle events.
+// Relay receipt is not durable command-authority acknowledgement. Agent retains
+// this evidence across restart and exact command replay.
+message CommandEvidence {
+  string command_id = 1;
+  string command_digest = 2;
+  repeated CommandEvent events = 3;
+  // This delivery pass has finished. This is transport metadata, not proof of
+  // application or observation. Recovery may still be needed for missing evidence.
+  bool delivery_complete = 4;
+}
+
+// CommandEvent records source occurrence separately from server receipt time.
+// Event IDs are stable across retries. observed never substitutes for applied.
+message CommandEvent {
+  string event_id = 1;
+  // Canonical lowercase stage values (independent evidence, not a total order):
+  // requested: API received a request; authorized: its policy allowed it;
+  // accepted: API command/audit/outbox transaction committed;
+  // relay_received: Relay admitted this attempt; dispatched: handed to Agent transport;
+  // acknowledged: Agent durably admitted the command, not autopilot application;
+  // verifying_mission: onboard mission verification is in progress;
+  // awaiting_ack: awaiting the correlated autopilot protocol result;
+  // applied: autopilot accepted the action (or mission readback verified upload);
+  // observed: fresh authoritative vehicle evidence satisfies the resulting-state predicate;
+  // observation_unavailable: no authoritative predicate or target attribution exists;
+  // observation_superseded: a newer effect prevents attributing resulting state;
+  // rejected: definitive refusal/no first effect; failed: definitive execution failure;
+  // timed_out: first-effect authority expired before execution;
+  // delivery_unknown: a delivery attempt lacks authoritative execution outcome;
+  // outcome_unknown: an effect may have started, so automatic repetition is prohibited.
+  // Applied and observed are independent: observation never fabricates an ACK.
+  // Unknown future values may be retained for audit but must not advance projections.
+  string stage = 2;
+  int64 occurred_at_unix_ms = 3;
+  string message = 4;
+  string evidence_source = 5;
+  optional uint32 protocol_result = 6;
 }
