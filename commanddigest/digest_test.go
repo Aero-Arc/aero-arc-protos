@@ -102,3 +102,19 @@ func TestMissionSemanticsAndBindingsAreValidated(t *testing.T) {
 		}
 	}
 }
+
+func TestMissionAltitudeUsesArduPilotFloat32Readback(t *testing.T) {
+	for _, tc := range []struct {
+		altitude float32
+		valid    bool
+	}{
+		{0.05, false}, {float32(5) * float32(0.01), false},
+		{float32(9) * float32(0.01), true}, {0.09, false}, {20, true},
+	} {
+		plan := &pb.MissionPlan{SchemaVersion: 1, Items: []*pb.MissionItem{{Command: 16, Autocontinue: true, AltitudeM: tc.altitude}}}
+		_, err := validatedMissionDigest(plan)
+		if (err == nil) != tc.valid {
+			t.Errorf("altitude %.9g valid=%v: %v", tc.altitude, tc.valid, err)
+		}
+	}
+}
