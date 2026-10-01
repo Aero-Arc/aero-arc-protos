@@ -15,7 +15,8 @@ service RelayControl {
   // Exchange a durable command for replayable Agent evidence.
   rpc ExchangeCommand(ExchangeCommandRequest) returns (ExchangeCommandResponse);
   // ExecuteCommand delivers once and streams cumulative durable Agent evidence.
-  // Reconnect with the same identity to recover; stream loss proves no outcome.
+  // Stream loss does not prove any execution outcome. Reconnect with the same
+  // command identity to recover durable evidence; never infer non-execution.
   rpc ExecuteCommand(ExecuteCommandRequest) returns (stream ExecuteCommandResponse);
 
   // List all drones currently connected to this relay.
